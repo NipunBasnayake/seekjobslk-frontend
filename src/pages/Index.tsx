@@ -5,7 +5,6 @@ import FilterSection, {FilterState} from '@/components/FilterSection';
 import JobList from '@/components/JobList';
 import ConnectWithUs from '@/components/ConnectWithUs';
 import PageViewsCounter from '@/components/PageViewsCounter';
-import {Briefcase} from "lucide-react";
 
 const Index: React.FC = () => {
     const [filters, setFilters] = useState<FilterState>({
@@ -48,66 +47,50 @@ const Index: React.FC = () => {
             </Helmet>
 
             <div className="min-h-screen bg-background transition-colors duration-300">
+                <Navbar
+                    onCategorySelect={handleCategorySelect}
+                    onCompanySelect={handleCompanySelect}
+                />
 
-                <div className="h-screen flex flex-col items-center justify-center bg-background text-foreground px-4 text-center animate-fade-in">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Briefcase size={48} className="text-primary animate-scale-in" />
-                        <h1 className="text-4xl font-bold text-heading">SeekJobsLk</h1>
+                <main className="container mx-auto px-4 py-6 md:py-8">
+                    {/* Hero Section */}
+                    <header className="text-center mb-8 md:mb-10">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-heading mb-3">
+                            Find Your <span className="text-gradient">Dream Job</span>
+                        </h1>
+                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                            Discover amazing career opportunities from top companies across Sri Lanka
+                        </p>
+                    </header>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        {/* Sidebar */}
+                        <aside className="lg:col-span-1 space-y-5 order-2 lg:order-1">
+                            <FilterSection filters={filters} onFilterChange={setFilters}/>
+                            <ConnectWithUs/>
+                            <PageViewsCounter/>
+                        </aside>
+
+                        {/* Main Content */}
+                        <section className="lg:col-span-3 order-1 lg:order-2">
+                            <JobList filters={filters}/>
+                        </section>
                     </div>
+                </main>
 
-                    <p className="text-lg text-text animate-slide-up">
-                        🚀 Coming Soon
-                    </p>
-
-                    <p className="mt-3 text-sm opacity-70 max-w-s">
-                        The smartest job platform in Sri Lanka is on the way.
-                    </p>
-                </div>
-
-                {/*<Navbar*/}
-                {/*    onCategorySelect={handleCategorySelect}*/}
-                {/*    onCompanySelect={handleCompanySelect}*/}
-                {/*/>*/}
-
-                {/*<main className="container mx-auto px-4 py-6 md:py-8">*/}
-                {/*    /!* Hero Section *!/*/}
-                {/*    <header className="text-center mb-8 md:mb-10">*/}
-                {/*        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-heading mb-3">*/}
-                {/*            Find Your <span className="text-gradient">Dream Job</span>*/}
-                {/*        </h1>*/}
-                {/*        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">*/}
-                {/*            Discover amazing career opportunities from top companies across Sri Lanka*/}
-                {/*        </p>*/}
-                {/*    </header>*/}
-
-                {/*    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">*/}
-                {/*        /!* Sidebar *!/*/}
-                {/*        <aside className="lg:col-span-1 space-y-5 order-2 lg:order-1">*/}
-                {/*            <FilterSection filters={filters} onFilterChange={setFilters}/>*/}
-                {/*            <ConnectWithUs/>*/}
-                {/*            <PageViewsCounter/>*/}
-                {/*        </aside>*/}
-
-                {/*        /!* Main Content *!/*/}
-                {/*        <section className="lg:col-span-3 order-1 lg:order-2">*/}
-                {/*            <JobList filters={filters}/>*/}
-                {/*        </section>*/}
-                {/*    </div>*/}
-                {/*</main>*/}
-
-                {/*/!* Footer *!/*/}
-                {/*<footer className="bg-card border-t border-border mt-12">*/}
-                {/*    <div className="container mx-auto px-4 py-8">*/}
-                {/*        <div className="text-center">*/}
-                {/*            <p className="text-muted-foreground text-sm">*/}
-                {/*                © {new Date().getFullYear()} SeekJobsLk. All rights reserved.*/}
-                {/*            </p>*/}
-                {/*            <p className="text-muted-foreground text-xs mt-2">*/}
-                {/*                Your trusted job portal in Sri Lanka*/}
-                {/*            </p>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</footer>*/}
+                {/* Footer */}
+                <footer className="bg-card border-t border-border mt-12">
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="text-center">
+                            <p className="text-muted-foreground text-sm">
+                                © {new Date().getFullYear()} SeekJobsLk. All rights reserved.
+                            </p>
+                            <p className="text-muted-foreground text-xs mt-2">
+                                Your trusted job portal in Sri Lanka
+                            </p>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </>
     );

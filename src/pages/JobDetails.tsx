@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Briefcase, 
-  DollarSign, 
+import {
+  ArrowLeft,
+  MapPin,
+  Clock,
+  Users,
+  Briefcase,
+  DollarSign,
   Building2,
   ExternalLink,
   Share2,
@@ -23,8 +23,32 @@ import { toast } from '@/hooks/use-toast';
 const JobDetails: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const [appliedCount, setAppliedCount] = useState(0);
-  
+  const [isApplyDisabled, setIsApplyDisabled] = useState(true);
+  const [countdown, setCountdown] = useState(15);
+
   const job = useMemo(() => jobs.find(j => j.id === jobId), [jobId]);
+
+  useEffect(() => {
+    if (!job) {
+      return;
+    }
+
+    setIsApplyDisabled(true);
+    setCountdown(10);
+
+    const timer = window.setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          window.clearInterval(timer);
+          setIsApplyDisabled(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [job]);
 
   if (!job) {
     return (
@@ -59,6 +83,9 @@ const JobDetails: React.FC = () => {
   };
 
   const handleApply = () => {
+    if (isApplyDisabled) {
+      return;
+    }
     setAppliedCount(prev => prev + 1);
     window.open(job.applyUrl, '_blank');
   };
@@ -196,21 +223,22 @@ const JobDetails: React.FC = () => {
 
                 <div className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
                   <Users className="w-4 h-4" />
-                  <span>{currentAppliedCount} people have applied</span>
+                  <span>{currentAppliedCount} people clicked apply</span>
                 </div>
 
                 <div className="space-y-3">
-                  <Button 
-                    variant="apply" 
-                    className="w-full gap-2" 
+                  <Button
+                    variant="apply"
+                    className="w-full gap-2"
                     size="lg"
                     onClick={handleApply}
+                    disabled={isApplyDisabled}
                   >
-                    Apply Now
+                    {isApplyDisabled && countdown > 0 ? `Apply in ${countdown}s` : 'Apply Now'}
                     <ExternalLink className="w-4 h-4" />
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full gap-2"
                     onClick={handleShare}
                   >

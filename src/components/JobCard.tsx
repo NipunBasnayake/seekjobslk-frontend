@@ -66,9 +66,14 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
             <MapPin className="w-4 h-4 text-primary" />
             {job.location}
           </span>
+
           <Badge variant="secondary" className="font-medium">
             {job.jobType}
           </Badge>
+        </div>
+
+        {/* Posted At */}
+        <div className="mt-2 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock className="w-4 h-4" />
             {getTimeAgo(job.postedAt)}
@@ -96,7 +101,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           <Button
             variant="apply"
             size="sm"
-            onClick={handleApplyClick}
             className="gap-1.5"
           >
             Apply Now

@@ -1,0 +1,121 @@
+import React, { useState, useMemo } from 'react';
+import { Briefcase, TrendingUp } from 'lucide-react';
+import { jobs as initialJobs, Job } from '@/data/mockData';
+import { FilterState } from './FilterSection';
+import JobCard from './JobCard';
+
+interface JobListProps {
+  filters: FilterState;
+}
+
+const JobList: React.FC<JobListProps> = ({ filters }) => {
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(job => {
+      // Category filter
+      if (filters.categories.length > 0 && !filters.categories.includes(job.category.id)) {
+        return false;
+      }
+
+      // Company filter
+      if (filters.companies.length > 0 && !filters.companies.includes(job.company.id)) {
+        return false;
+      }
+
+      // Job type filter
+      if (filters.jobTypes.length > 0 && !filters.jobTypes.includes(job.jobType)) {
+        return false;
+      }
+
+      // Location filter
+      if (filters.location && filters.location !== 'all') {
+        if (job.jobType === 'Remote' && filters.location !== 'Remote') {
+          return false;
+        }
+        if (job.jobType !== 'Remote' && job.location !== filters.location) {
+          return false;
+        }
+      }
+
+      // Salary range filter
+      if (job.salaryMax < filters.salaryRange[0] || job.salaryMin > filters.salaryRange[1]) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [jobs, filters]);
+
+  const handleApply = (jobId: string) => {
+    setJobs(prevJobs =>
+      prevJobs.map(job =>
+        job.id === jobId
+          ? { ...job, appliedCount: job.appliedCount + 1 }
+          : job
+      )
+    );
+  };
+
+  // Sort: featured jobs first, then by date
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    return b.postedAt.getTime() - a.postedAt.getTime();
+  });
+
+  const featuredCount = sortedJobs.filter(j => j.isFeatured).length;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Briefcase className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-heading">Available Jobs</h2>
+            <p className="text-sm text-muted-foreground">
+              {sortedJobs.length} job{sortedJobs.length !== 1 ? 's' : ''} found
+              {featuredCount > 0 && ` • ${featuredCount} featured`}
+            </p>
+          </div>
+        </div>
+        {featuredCount > 0 && (
+          <div className="flex items-center gap-1.5 text-accent text-sm font-medium">
+            <TrendingUp className="w-4 h-4" />
+            Hot jobs available
+          </div>
+        )}
+      </div>
+
+      {/* Job Grid */}
+      {sortedJobs.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {sortedJobs.map((job, index) => (
+            <div
+              key={job.id}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <JobCard job={job} onApply={handleApply} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-card rounded-xl border border-border">
+          <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Briefcase className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold text-heading mb-2">No jobs found</h3>
+          <p className="text-muted-foreground">
+            Try adjusting your filters to see more results
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default JobList;

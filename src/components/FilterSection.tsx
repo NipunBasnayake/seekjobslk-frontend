@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
-import { Filter, MapPin, Building2, Briefcase, DollarSign, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { categories, companies } from '@/data/mockData';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Filter,
+  MapPin,
+  Building2,
+  Briefcase,
+  DollarSign,
+  ChevronDown,
+  ChevronUp,
+  X,
+} from "lucide-react";
+import { getCategories, getCompanies } from "@/services/firebaseData";
+
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+
+import { Category, Company } from "@/types/index";
 
 export interface FilterState {
   categories: string[];
@@ -25,66 +37,83 @@ interface FilterSectionProps {
   onFilterChange: (filters: FilterState) => void;
 }
 
-const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Remote', 'Hybrid'];
-const locations = ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Jaffna', 'Remote'];
+const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Remote", "Hybrid"];
+const LOCATIONS = ["Colombo", "Kandy", "Galle", "Negombo", "Jaffna", "Remote"];
+const DEFAULT_SALARY: [number, number] = [0, 500000];
 
-const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }) => {
+const FilterSection: React.FC<FilterSectionProps> = ({
+  filters,
+  onFilterChange,
+}) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
 
-  const handleCategoryToggle = (categoryId: string) => {
-    const newCategories = filters.categories.includes(categoryId)
-      ? filters.categories.filter(id => id !== categoryId)
-      : [...filters.categories, categoryId];
-    onFilterChange({ ...filters, categories: newCategories });
-  };
+  // Fetch categories + companies
+  useEffect(() => {
+    const fetchData = async () => {
+      const [cats, comps] = await Promise.all([
+        getCategories(),
+        getCompanies(),
+      ]);
 
-  const handleCompanyToggle = (companyId: string) => {
-    const newCompanies = filters.companies.includes(companyId)
-      ? filters.companies.filter(id => id !== companyId)
-      : [...filters.companies, companyId];
-    onFilterChange({ ...filters, companies: newCompanies });
-  };
+      setCategories(cats);
+      setCompanies(comps);
+    };
 
-  const handleJobTypeToggle = (jobType: string) => {
-    const newJobTypes = filters.jobTypes.includes(jobType)
-      ? filters.jobTypes.filter(type => type !== jobType)
-      : [...filters.jobTypes, jobType];
-    onFilterChange({ ...filters, jobTypes: newJobTypes });
-  };
+    fetchData();
+  }, []);
 
-  const handleLocationChange = (location: string) => {
+  // Generic toggle handler for checkbox-like filters
+  const toggleValue = useCallback(
+    (key: keyof FilterState, value: string) => {
+      const list = filters[key] as string[];
+      const updated = list.includes(value)
+        ? list.filter((v) => v !== value)
+        : [...list, value];
+
+      onFilterChange({ ...filters, [key]: updated });
+    },
+    [filters, onFilterChange]
+  );
+
+  // Handlers
+  const handleLocationChange = (location: string) =>
     onFilterChange({ ...filters, location });
-  };
 
-  const handleSalaryChange = (value: number[]) => {
+  const handleSalaryChange = (value: number[]) =>
     onFilterChange({ ...filters, salaryRange: [value[0], value[1]] });
-  };
 
-  const clearFilters = () => {
+  const clearFilters = () =>
     onFilterChange({
       categories: [],
       companies: [],
       jobTypes: [],
-      salaryRange: [0, 500000],
-      location: '',
+      salaryRange: DEFAULT_SALARY,
+      location: "all",
     });
-  };
 
-  const activeFiltersCount = 
-    filters.categories.length + 
-    filters.companies.length + 
-    filters.jobTypes.length + 
-    (filters.location ? 1 : 0) +
-    (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 500000 ? 1 : 0);
+  // Active filter count
+  const activeFiltersCount =
+    filters.categories.length +
+    filters.companies.length +
+    filters.jobTypes.length +
+    (filters.location && filters.location !== "all" ? 1 : 0) +
+    (filters.salaryRange[0] !== DEFAULT_SALARY[0] ||
+    filters.salaryRange[1] !== DEFAULT_SALARY[1]
+      ? 1
+      : 0);
 
-  const showLocation = !filters.jobTypes.includes('Remote') || filters.jobTypes.length > 1;
+  // Hide location when ONLY "Remote" is selected
+  const showLocation =
+    !filters.jobTypes.includes("Remote") || filters.jobTypes.length > 1;
 
   return (
     <div className="bg-card rounded-xl shadow-card border border-border overflow-hidden transition-all duration-300">
       {/* Header */}
-      <div 
+      <div
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => setIsExpanded((prev) => !prev)}
       >
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-lg">
@@ -93,10 +122,13 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }
           <div>
             <h3 className="font-semibold text-heading">Filter Jobs</h3>
             <p className="text-sm text-muted-foreground">
-              {activeFiltersCount > 0 ? `${activeFiltersCount} filters applied` : 'Find your perfect job'}
+              {activeFiltersCount > 0
+                ? `${activeFiltersCount} filters applied`
+                : "Find your perfect job"}
             </p>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
           {activeFiltersCount > 0 && (
             <Button
@@ -108,8 +140,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }
               }}
               className="text-muted-foreground hover:text-foreground"
             >
-              <X className="w-4 h-4 mr-1" />
-              Clear
+              <X className="w-4 h-4 mr-1" /> Clear
             </Button>
           )}
           {isExpanded ? (
@@ -120,102 +151,86 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }
         </div>
       </div>
 
-      {/* Filter Content */}
+      {/* Content */}
       {isExpanded && (
         <div className="p-4 pt-0 space-y-6 animate-slide-up">
-          {/* Category Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
-              <Briefcase className="w-4 h-4 text-primary" />
-              Categories
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Badge
-                  key={category.id}
-                  variant={filters.categories.includes(category.id) ? "default" : "outline"}
-                  className="cursor-pointer transition-all hover:scale-105"
-                  onClick={() => handleCategoryToggle(category.id)}
-                >
-                  {category.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          {/* Categories */}
+          <FilterBlock icon={Briefcase} label="Categories">
+            {categories.map((c) => (
+              <Badge
+                key={c.id}
+                variant={
+                  filters.categories.includes(c.id) ? "default" : "outline"
+                }
+                className="cursor-pointer transition-all hover:scale-105"
+                onClick={() => toggleValue("categories", c.id)}
+              >
+                {c.name}
+              </Badge>
+            ))}
+          </FilterBlock>
 
-          {/* Company Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
-              <Building2 className="w-4 h-4 text-primary" />
-              Companies
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {companies.map((company) => (
-                <Badge
-                  key={company.id}
-                  variant={filters.companies.includes(company.id) ? "default" : "outline"}
-                  className="cursor-pointer transition-all hover:scale-105"
-                  onClick={() => handleCompanyToggle(company.id)}
-                >
-                  <img src={company.logo} alt="" className="w-4 h-4 rounded-full mr-1" />
-                  {company.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          {/* Companies */}
+          <FilterBlock icon={Building2} label="Companies">
+            {companies.map((comp) => (
+              <Badge
+                key={comp.id}
+                variant={
+                  filters.companies.includes(comp.id) ? "default" : "outline"
+                }
+                className="cursor-pointer transition-all hover:scale-105"
+                onClick={() => toggleValue("companies", comp.id)}
+              >
+                <img
+                  src={comp.logo_url}
+                  alt=""
+                  className="w-4 h-4 rounded-full mr-1"
+                />
+                {comp.name}
+              </Badge>
+            ))}
+          </FilterBlock>
 
-          {/* Job Type Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
-              <Briefcase className="w-4 h-4 text-primary" />
-              Job Type
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {jobTypes.map((type) => (
-                <Badge
-                  key={type}
-                  variant={filters.jobTypes.includes(type) ? "default" : "outline"}
-                  className="cursor-pointer transition-all hover:scale-105"
-                  onClick={() => handleJobTypeToggle(type)}
-                >
-                  {type}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          {/* Job Types */}
+          <FilterBlock icon={Briefcase} label="Job Type">
+            {JOB_TYPES.map((type) => (
+              <Badge
+                key={type}
+                variant={
+                  filters.jobTypes.includes(type) ? "default" : "outline"
+                }
+                className="cursor-pointer transition-all hover:scale-105"
+                onClick={() => toggleValue("jobTypes", type)}
+              >
+                {type}
+              </Badge>
+            ))}
+          </FilterBlock>
 
-          {/* Location Filter - Hidden when only Remote is selected */}
+          {/* Location */}
           {showLocation && (
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
-                <MapPin className="w-4 h-4 text-primary" />
-                Location
-              </label>
+            <FilterBlock icon={MapPin} label="Location">
               <Select value={filters.location} onValueChange={handleLocationChange}>
                 <SelectTrigger className="w-full md:w-64">
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border">
                   <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
+                  {LOCATIONS.map((loc) => (
+                    <SelectItem key={loc} value={loc}>
+                      {loc}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </FilterBlock>
           )}
 
-          {/* Salary Range Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
-              <DollarSign className="w-4 h-4 text-primary" />
-              Salary Range (LKR)
-            </label>
+          {/* Salary */}
+          <FilterBlock icon={DollarSign} label="Salary Range (LKR)">
             <div className="px-2">
               <Slider
-                value={[filters.salaryRange[0], filters.salaryRange[1]]}
+                value={filters.salaryRange}
                 min={0}
                 max={500000}
                 step={10000}
@@ -227,7 +242,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }
                 <span>{filters.salaryRange[1].toLocaleString()} LKR</span>
               </div>
             </div>
-          </div>
+          </FilterBlock>
         </div>
       )}
     </div>
@@ -235,3 +250,20 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange }
 };
 
 export default FilterSection;
+
+/* Small presentational component to reduce repetition */
+interface BlockProps {
+  icon: React.ElementType;
+  label: string;
+  children: React.ReactNode;
+}
+
+const FilterBlock: React.FC<BlockProps> = ({ icon: Icon, label, children }) => (
+  <div>
+    <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
+      <Icon className="w-4 h-4 text-primary" />
+      {label}
+    </label>
+    <div className="flex flex-wrap gap-2">{children}</div>
+  </div>
+);

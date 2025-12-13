@@ -27,16 +27,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     return `${Math.floor(diff / 30)} months ago`;
   };
 
-  const handleApplyClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (job.id) onApply(job.id);
-    if (job.apply_url && job.apply_url !== "#") {
-      window.open(job.apply_url, "_blank", "noopener,noreferrer");
-    }
-  };
-
   return (
     <Link to={`/job/${job.id}`} className="block">
       <article
@@ -109,7 +99,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
             variant="apply"
             size="sm"
             className="gap-1.5"
-            onClick={handleApplyClick}
           >
             Apply
             <ExternalLink className="h-3.5 w-3.5" />

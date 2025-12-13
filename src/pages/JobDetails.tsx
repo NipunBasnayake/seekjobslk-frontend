@@ -107,18 +107,40 @@ const JobDetails: React.FC = () => {
 
     const handleShare = async () => {
         if (!job) return;
-        const url = window.location.href;
 
-        if (navigator.share) {
-            await navigator.share({
-                title: job.title,
-                text: job.description,
-                url,
+        const message = getShareMessage(job);
+
+        try {
+            await navigator.clipboard.writeText(message);
+
+            toast({
+                title: "Copied",
+                description: "Job message copied to clipboard",
             });
-        } else {
-            await navigator.clipboard.writeText(url);
-            toast({ title: "Copied", description: "Job link copied to clipboard" });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to copy message",
+                variant: "destructive",
+            });
         }
+    };
+
+    const getShareMessage = (job: Job) => {
+        const jobUrl = `https://seekjobslk.com/job/${job.id}`;
+
+        return `📌 Job Opportunity – ${job.title}
+
+        🏢 Company: ${job.company.name}
+        📍 Location: ${job.location}
+        💼 Job Type: ${job.job_type}
+
+        🔗 Apply here:
+        ${jobUrl}
+
+        🔔 Stay updated with new jobs
+        WhatsApp Channel:
+        https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
     };
 
     /* ----------------------------- States ------------------------------- */

@@ -9,7 +9,7 @@ export interface Job {
   salary: string;
   location: string;
   description: string;
-  requirements: string;
+  requirements: string | string[];
   apply_url: string;
   status: 'Active' | 'Inactive';
   is_featured: boolean;

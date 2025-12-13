@@ -14,11 +14,13 @@ import {
     Star,
     CheckCircle2,
 } from "lucide-react";
-import { getJobById } from "@/services/firebaseData";
+
 import Navbar from "@/components/Navbar";
+import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import { getJobById } from "@/services/firebaseData";
 import type { Job } from "@/types";
 
 const APPLY_DELAY = 15;
@@ -28,39 +30,49 @@ const JobDetails: React.FC = () => {
 
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
-    const [localApplied, setLocalApplied] = useState(0);
     const [applyCountdown, setApplyCountdown] = useState(APPLY_DELAY);
+    const [localApplied, setLocalApplied] = useState(0);
 
+    /* ----------------------------- Load job ----------------------------- */
     useEffect(() => {
         if (!jobId) return;
 
+        let mounted = true;
+
         const load = async () => {
+            setLoading(true);
             const data = await getJobById(jobId);
-            setJob(data);
-            setLoading(false);
+            if (mounted) {
+                setJob(data);
+                setLoading(false);
+            }
         };
 
         load();
+        return () => {
+            mounted = false;
+        };
     }, [jobId]);
 
+    /* ----------------------- Apply countdown ---------------------------- */
     useEffect(() => {
         if (loading) return;
 
         setApplyCountdown(APPLY_DELAY);
-
-        const interval = setInterval(() => {
-            setApplyCountdown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
+        const timer = setInterval(() => {
+            setApplyCountdown((v) => {
+                if (v <= 1) {
+                    clearInterval(timer);
                     return 0;
                 }
-                return prev - 1;
+                return v - 1;
             });
         }, 1000);
 
-        return () => clearInterval(interval);
+        return () => clearInterval(timer);
     }, [loading]);
 
+    /* ----------------------------- Derived ------------------------------ */
     const appliedCount = useMemo(
         () => (job?.applied_count ?? 0) + localApplied,
         [job, localApplied]
@@ -68,8 +80,9 @@ const JobDetails: React.FC = () => {
 
     const postedLabel = useMemo(() => {
         if (!job?.posted_date) return "";
-        const date = job.posted_date.toDate();
-        const days = Math.floor((Date.now() - date.getTime()) / 86400000);
+        const days = Math.floor(
+            (Date.now() - job.posted_date.toDate().getTime()) / 86400000
+        );
         if (days <= 0) return "Posted today";
         if (days === 1) return "Posted yesterday";
         if (days < 7) return `Posted ${days} days ago`;
@@ -79,13 +92,13 @@ const JobDetails: React.FC = () => {
     const requirements = useMemo(() => {
         if (!job?.requirements) return [];
         if (Array.isArray(job.requirements)) return job.requirements.filter(Boolean);
-
         return job.requirements
             .split(/\r?\n+/)
             .map((r) => r.trim())
             .filter(Boolean);
-    }, [job?.requirements]);
+    }, [job]);
 
+    /* ----------------------------- Actions ------------------------------ */
     const handleApply = () => {
         if (!job?.apply_url || applyCountdown > 0) return;
         setLocalApplied((p) => p + 1);
@@ -108,15 +121,9 @@ const JobDetails: React.FC = () => {
         }
     };
 
+    /* ----------------------------- States ------------------------------- */
     if (loading) {
-        return (
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <div className="container mx-auto px-4 py-24 text-center text-muted-foreground">
-                    Loading job details…
-                </div>
-            </div>
-        );
+        return <JobDetailsSkeleton />;
     }
 
     if (!job) {
@@ -135,15 +142,13 @@ const JobDetails: React.FC = () => {
         );
     }
 
+    /* ----------------------------- UI ---------------------------------- */
     return (
         <>
             <Helmet>
                 <title>{`${job.title} at ${job.company.name} | SeekJobsLk`}</title>
                 <meta name="description" content={job.description} />
-                <link
-                    rel="canonical"
-                    href={`https://seekjobslk.com/job/${job.id}`}
-                />
+                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
             </Helmet>
 
             <div className="min-h-screen bg-background">
@@ -157,7 +162,9 @@ const JobDetails: React.FC = () => {
                     </Button>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* ================= Main ================= */}
                         <article className="lg:col-span-2 space-y-6">
+                            {/* Header */}
                             <section className="relative rounded-xl border bg-card p-6">
                                 {job.is_featured && (
                                     <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
@@ -183,7 +190,7 @@ const JobDetails: React.FC = () => {
                                         </div>
 
                                         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                                            {job.job_type !== "Remote" && (
+                                            {!job.job_type?.toLowerCase().includes("remote") && (
                                                 <span className="flex items-center gap-1.5">
                                                     <MapPin className="w-4 h-4 text-primary" />
                                                     {job.location}
@@ -201,18 +208,22 @@ const JobDetails: React.FC = () => {
                                 </div>
                             </section>
 
+                            {/* Description */}
                             <section className="rounded-xl border bg-card p-6">
                                 <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <Briefcase className="w-5 h-5 text-primary" /> Job Description
+                                    <Briefcase className="w-5 h-5 text-primary" />
+                                    Job Description
                                 </h2>
                                 <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
                                     {job.description}
                                 </p>
                             </section>
 
+                            {/* Requirements */}
                             <section className="rounded-xl border bg-card p-6">
                                 <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" /> Requirements
+                                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                                    Requirements
                                 </h2>
 
                                 <ul className="space-y-3">
@@ -226,6 +237,7 @@ const JobDetails: React.FC = () => {
                             </section>
                         </article>
 
+                        {/* ================= Sidebar ================= */}
                         <aside className="space-y-5">
                             <section className="sticky top-24 rounded-xl border bg-card p-6">
                                 <div className="mb-6">
@@ -267,6 +279,7 @@ const JobDetails: React.FC = () => {
                                 </div>
                             </section>
 
+                            {/* Company */}
                             <section className="rounded-xl border bg-card p-6">
                                 <h3 className="font-semibold mb-4">About the Company</h3>
 

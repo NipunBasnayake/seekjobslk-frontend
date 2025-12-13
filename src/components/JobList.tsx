@@ -1,169 +1,142 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Briefcase, TrendingUp } from "lucide-react";
-import { Job } from "@/types/index";
-import { FilterState } from "./FilterSection";
+import type { Job } from "@/types";
+import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
+import JobCardSkeleton from "./JobCardSkeleton";
 
 interface JobListProps {
   filters: FilterState;
   jobs: Job[] | null;
 }
 
-const JobList: React.FC<JobListProps> = ({ filters, jobs: parentJobs }) => {
-  const safeJobs = parentJobs ?? []; // prevents null crashes
+const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
+  const loading = jobs === null;
+  const safeJobs = jobs ?? [];
 
-  const [jobs, setJobs] = useState<Job[]>(safeJobs);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    // console.log("🔥 Parent jobs received:", parentJobs);
-
-    setJobs(parentJobs ?? []); // ensure array
-    setLoading(false);
-  }, [parentJobs]);
-
-
-  // Filter logic
+  /* ---------------- Filtering ---------------- */
   const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
-      // Category filter
+    return safeJobs.filter((job) => {
       if (
-        filters.categories.length > 0 &&
+        filters.categories.length &&
         !filters.categories.includes(job.category.id)
-      ) {
+      )
         return false;
-      }
 
-      // Company filter
       if (
-        filters.companies.length > 0 &&
+        filters.companies.length &&
         !filters.companies.includes(job.company.id)
-      ) {
+      )
         return false;
-      }
 
-      // Job type filter
       if (
-        filters.jobTypes.length > 0 &&
+        filters.jobTypes.length &&
         !filters.jobTypes.includes(job.job_type)
-      ) {
+      )
         return false;
-      }
 
-      // Location filter
       if (filters.location && filters.location !== "all") {
-        if (job.job_type === "Remote" && filters.location !== "Remote") {
+        if (job.job_type === "Remote" && filters.location !== "Remote")
           return false;
-        }
-        if (job.job_type !== "Remote" && job.location !== filters.location) {
+        if (job.job_type !== "Remote" && job.location !== filters.location)
           return false;
-        }
       }
 
-      // Salary filter
-      const salaryValue = parseFloat(job.salary);
-      if (
-        salaryValue < filters.salaryRange[0] ||
-        salaryValue > filters.salaryRange[1]
-      ) {
-        return false;
+      const salary = parseFloat(job.salary);
+      if (!Number.isNaN(salary)) {
+        if (
+          salary < filters.salaryRange[0] ||
+          salary > filters.salaryRange[1]
+        )
+          return false;
       }
 
       return true;
     });
-  }, [jobs, filters]);
+  }, [safeJobs, filters]);
 
-  // Sorting
-  const sortedJobs = [...filteredJobs].sort((a, b) => {
-    if (a.is_featured && !b.is_featured) return -1;
-    if (!a.is_featured && b.is_featured) return 1;
-
-    const dateA = a.posted_date.toDate();
-    const dateB = b.posted_date.toDate();
-
-    return dateB.getTime() - dateA.getTime();
-  });
+  /* ---------------- Sorting ---------------- */
+  const sortedJobs = useMemo(() => {
+    return [...filteredJobs].sort((a, b) => {
+      if (a.is_featured && !b.is_featured) return -1;
+      if (!a.is_featured && b.is_featured) return 1;
+      return (
+        b.posted_date.toDate().getTime() -
+        a.posted_date.toDate().getTime()
+      );
+    });
+  }, [filteredJobs]);
 
   const featuredCount = sortedJobs.filter((j) => j.is_featured).length;
 
-  // Apply handler
+  /* ---------------- Apply ---------------- */
   const handleApply = (jobId: string) => {
-    setJobs((prev) =>
-      prev.map((job) =>
-        job.id === jobId
-          ? { ...job, applied_count: job.applied_count + 1 }
-          : job
-      )
-    );
+    const job = safeJobs.find((j) => j.id === jobId);
+    if (job) job.applied_count += 1;
   };
 
+  /* ---------------- UI ---------------- */
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Briefcase className="w-5 h-5 text-primary" />
+          <div className="rounded-lg bg-primary/10 p-2">
+            <Briefcase className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-heading">Available Jobs</h2>
+            <h2 className="text-xl font-bold">Available Jobs</h2>
             <p className="text-sm text-muted-foreground">
               {sortedJobs.length} job
-              {sortedJobs.length !== 1 ? "s" : ""} found
+              {sortedJobs.length !== 1 && "s"} found
               {featuredCount > 0 && ` • ${featuredCount} featured`}
             </p>
           </div>
         </div>
+
         {featuredCount > 0 && (
-          <div className="flex items-center gap-1.5 text-accent text-sm font-medium">
-            <TrendingUp className="w-4 h-4" />
+          <div className="flex items-center gap-1.5 text-sm font-medium text-accent">
+            <TrendingUp className="h-4 w-4" />
             Hot jobs available
           </div>
         )}
       </div>
 
-      {/* Loading */}
+      {/* Skeleton */}
       {loading && (
-        <div className="text-center py-16">
-          <p className="text-muted-foreground">Loading jobs...</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <JobCardSkeleton key={i} />
+          ))}
         </div>
       )}
 
-      {/* Error */}
-      {!loading && error && (
-        <div className="text-center py-16 text-red-500">{error}</div>
-      )}
-
-      {/* Job Grid */}
-      {!loading && !error && sortedJobs.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {sortedJobs.map((job, index) => (
+      {/* Jobs */}
+      {!loading && sortedJobs.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+          {sortedJobs.map((job, i) => (
             <div
               key={job.id}
               className="animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
+              style={{ animationDelay: `${i * 40}ms` }}
             >
               <JobCard job={job} onApply={handleApply} />
             </div>
           ))}
         </div>
-      ) : (
-        !loading &&
-        !error && (
-          <div className="text-center py-16 bg-card rounded-xl border border-border">
-            <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Briefcase className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold text-heading mb-2">
-              No jobs found
-            </h3>
-            <p className="text-muted-foreground">
-              Try adjusting your filters to see more results
-            </p>
+      )}
+
+      {/* Empty */}
+      {!loading && sortedJobs.length === 0 && (
+        <div className="rounded-xl border bg-card p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <Briefcase className="h-8 w-8 text-muted-foreground" />
           </div>
-        )
+          <h3 className="mb-1 text-lg font-semibold">No jobs found</h3>
+          <p className="text-muted-foreground">
+            Try adjusting your filters to see more results
+          </p>
+        </div>
       )}
     </div>
   );

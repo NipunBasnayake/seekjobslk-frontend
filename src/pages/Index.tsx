@@ -1,12 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
+import React, {useState, useCallback, useEffect} from 'react';
+import {Helmet} from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
-import FilterSection, { FilterState } from '@/components/FilterSection';
+import FilterSection, {FilterState} from '@/components/FilterSection';
 import JobList from '@/components/JobList';
 import ConnectWithUs from '@/components/ConnectWithUs';
 import PageViewsCounter from '@/components/PageViewsCounter';
-import type { Job} from "@/types";
-import { getJobs } from '@/services/firebaseData';
+import type {Job} from "@/types";
+import {getJobs} from '@/services/firebaseData';
 
 const Index: React.FC = () => {
     const [jobs, setJobs] = useState<Job[] | null>(null);
@@ -67,12 +67,12 @@ const Index: React.FC = () => {
             <Helmet>
                 <title>SeekJobsLk - Find Your Dream Job in Sri Lanka</title>
                 <meta name="description"
-                    content="Discover the best job opportunities in Sri Lanka. Browse thousands of jobs from top companies across multiple industries. Apply now and start your career journey." />
-                <meta property="og:title" content="SeekJobsLk - Find Your Dream Job in Sri Lanka" />
+                      content="Discover the best job opportunities in Sri Lanka. Browse thousands of jobs from top companies across multiple industries. Apply now and start your career journey."/>
+                <meta property="og:title" content="SeekJobsLk - Find Your Dream Job in Sri Lanka"/>
                 <meta property="og:description"
-                    content="Discover the best job opportunities in Sri Lanka. Browse thousands of jobs from top companies." />
-                <meta property="og:type" content="website" />
-                <link rel="canonical" href="https://seekjobslk.com" />
+                      content="Discover the best job opportunities in Sri Lanka. Browse thousands of jobs from top companies."/>
+                <meta property="og:type" content="website"/>
+                <link rel="canonical" href="https://seekjobslk.com"/>
             </Helmet>
 
             <div className="min-h-screen bg-background transition-colors duration-300">
@@ -95,19 +95,20 @@ const Index: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         {/* Sidebar */}
                         <aside className="lg:col-span-1 space-y-5 order-2 lg:order-1">
-                            <FilterSection filters={filters} onFilterChange={setFilters} />
-                            <ConnectWithUs />
-                            <PageViewsCounter />
+                            <FilterSection filters={filters} onFilterChange={setFilters}/>
+                            <ConnectWithUs/>
+                            <PageViewsCounter/>
                         </aside>
 
                         {/* Main Content */}
                         <section className="lg:col-span-3 order-1 lg:order-2">
                             {error && (
-                                <div className="mb-4 rounded-lg border border-border bg-amber-50 text-amber-900 p-4 text-sm">
+                                <div
+                                    className="mb-4 rounded-lg border border-border bg-amber-50 text-amber-900 p-4 text-sm">
                                     {error}
                                 </div>
                             )}
-                            <JobList filters={filters} jobs={jobs} />
+                            <JobList filters={filters} jobs={jobs}/>
                             {isLoading && (
                                 <p className="mt-4 text-sm text-muted-foreground">
                                     Loading the latest opportunities...

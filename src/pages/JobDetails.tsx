@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import React, {useEffect, useMemo, useState} from "react";
+import {useParams, Link} from "react-router-dom";
+import {Helmet} from "react-helmet-async";
 import {
     ArrowLeft,
     MapPin,
@@ -17,16 +17,16 @@ import {
 
 import Navbar from "@/components/Navbar";
 import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
-import { getJobById } from "@/services/firebaseData";
-import type { Job } from "@/types";
+import {Button} from "@/components/ui/button";
+import {Badge} from "@/components/ui/badge";
+import {toast} from "@/hooks/use-toast";
+import {getJobById} from "@/services/firebaseData";
+import type {Job} from "@/types";
 
 const APPLY_DELAY = 15;
 
 const JobDetails: React.FC = () => {
-    const { jobId } = useParams<{ jobId: string }>();
+    const {jobId} = useParams<{ jobId: string }>();
 
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
@@ -112,7 +112,7 @@ const JobDetails: React.FC = () => {
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         };
         const message = getShareMessage(job);
-        
+
         try {
             if (isMobileDevice() && navigator.share) {
                 await navigator.share({
@@ -156,18 +156,18 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
 
     /* ----------------------------- States ------------------------------- */
     if (loading) {
-        return <JobDetailsSkeleton />;
+        return <JobDetailsSkeleton/>;
     }
 
     if (!job) {
         return (
             <div className="min-h-screen bg-background">
-                <Navbar />
+                <Navbar/>
                 <div className="container mx-auto px-4 py-24 text-center">
                     <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
                     <Button asChild>
                         <Link to="/">
-                            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
+                            <ArrowLeft className="w-4 h-4 mr-2"/> Back to Jobs
                         </Link>
                     </Button>
                 </div>
@@ -180,17 +180,17 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
         <>
             <Helmet>
                 <title>{`${job.title} at ${job.company.name} | SeekJobsLk`}</title>
-                <meta name="description" content={job.description} />
-                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
+                <meta name="description" content={job.description}/>
+                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`}/>
             </Helmet>
 
             <div className="min-h-screen bg-background">
-                <Navbar />
+                <Navbar/>
 
                 <main className="container mx-auto px-4 py-6 md:py-8">
                     <Button variant="ghost" asChild className="mb-6 gap-2">
                         <Link to="/">
-                            <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                            <ArrowLeft className="w-4 h-4"/> Back to Jobs
                         </Link>
                     </Button>
 
@@ -200,8 +200,9 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                             {/* Header */}
                             <section className="relative rounded-xl border bg-card p-6">
                                 {job.is_featured && (
-                                    <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
-                                        <Star className="h-3 w-3 fill-current" /> Featured
+                                    <div
+                                        className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
+                                        <Star className="h-3 w-3 fill-current"/> Featured
                                     </div>
                                 )}
 
@@ -218,14 +219,14 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                                         </h1>
 
                                         <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                                            <Building2 className="w-4 h-4" />
+                                            <Building2 className="w-4 h-4"/>
                                             {job.company.name}
                                         </div>
 
                                         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                                             {!job.job_type?.toLowerCase().includes("remote") && (
                                                 <span className="flex items-center gap-1.5">
-                                                    <MapPin className="w-4 h-4 text-primary" />
+                                                    <MapPin className="w-4 h-4 text-primary"/>
                                                     {job.location}
                                                 </span>
                                             )}
@@ -233,7 +234,7 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                                             <Badge variant="secondary">{job.job_type}</Badge>
 
                                             <span className="flex items-center gap-1.5">
-                                                <Clock className="w-4 h-4" />
+                                                <Clock className="w-4 h-4"/>
                                                 {postedLabel}
                                             </span>
                                         </div>
@@ -244,7 +245,7 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                             {/* Description */}
                             <section className="rounded-xl border bg-card p-6">
                                 <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <Briefcase className="w-5 h-5 text-primary" />
+                                    <Briefcase className="w-5 h-5 text-primary"/>
                                     Job Description
                                 </h2>
                                 <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
@@ -255,14 +256,14 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                             {/* Requirements */}
                             <section className="rounded-xl border bg-card p-6">
                                 <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                                    <CheckCircle2 className="w-5 h-5 text-primary"/>
                                     Requirements
                                 </h2>
 
                                 <ul className="space-y-3">
                                     {requirements.map((req, i) => (
                                         <li key={i} className="flex gap-3">
-                                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary"/>
                                             <span className="text-muted-foreground">{req}</span>
                                         </li>
                                     ))}
@@ -275,13 +276,13 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                             <section className="sticky top-24 rounded-xl border bg-card p-6">
                                 <div className="mb-6">
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                                        <DollarSign className="w-4 h-4" /> Salary
+                                        <DollarSign className="w-4 h-4"/> Salary
                                     </div>
                                     <p className="text-xl font-bold">{job.salary}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                                    <Users className="w-4 h-4" /> {appliedCount} applied
+                                    <Users className="w-4 h-4"/> {appliedCount} applied
                                 </div>
 
                                 <div className="space-y-3">
@@ -296,7 +297,7 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                                             ? `Apply available in ${applyCountdown}s`
                                             : (
                                                 <>
-                                                    Apply Now <ExternalLink className="w-4 h-4" />
+                                                    Apply Now <ExternalLink className="w-4 h-4"/>
                                                 </>
                                             )}
                                     </Button>
@@ -307,7 +308,7 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                                         variant="outline"
                                         onClick={handleShare}
                                     >
-                                        <Share2 className="w-4 h-4" /> Share Job
+                                        <Share2 className="w-4 h-4"/> Share Job
                                     </Button>
                                 </div>
                             </section>
@@ -334,7 +335,7 @@ https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
                                                     rel="noopener noreferrer"
                                                     className="text-muted-foreground hover:text-primary transition-colors"
                                                 >
-                                                    <ExternalLink className="h-4 w-4" />
+                                                    <ExternalLink className="h-4 w-4"/>
                                                 </a>
                                             )}
                                         </div>

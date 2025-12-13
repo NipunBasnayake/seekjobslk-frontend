@@ -1,246 +1,323 @@
-import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Briefcase, 
-  DollarSign, 
-  Building2,
-  ExternalLink,
-  Share2,
-  Star,
-  CheckCircle2
-} from 'lucide-react';
-import { jobs } from '@/data/mockData';
-import Navbar from '@/components/Navbar';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import {
+    ArrowLeft,
+    MapPin,
+    Clock,
+    Users,
+    Briefcase,
+    DollarSign,
+    Building2,
+    ExternalLink,
+    Share2,
+    Star,
+    CheckCircle2,
+} from "lucide-react";
+
+import Navbar from "@/components/Navbar";
+import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import { getJobById } from "@/services/firebaseData";
+import type { Job } from "@/types";
+
+const APPLY_DELAY = 15;
 
 const JobDetails: React.FC = () => {
-  const { jobId } = useParams<{ jobId: string }>();
-  const [appliedCount, setAppliedCount] = useState(0);
-  
-  const job = useMemo(() => jobs.find(j => j.id === jobId), [jobId]);
+    const { jobId } = useParams<{ jobId: string }>();
 
-  if (!job) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-heading mb-4">Job Not Found</h1>
-          <p className="text-muted-foreground mb-6">The job you're looking for doesn't exist or has been removed.</p>
-          <Button asChild>
-            <Link to="/">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Jobs
-            </Link>
-          </Button>
-        </div>
-      </div>
+    const [job, setJob] = useState<Job | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [applyCountdown, setApplyCountdown] = useState(APPLY_DELAY);
+    const [localApplied, setLocalApplied] = useState(0);
+
+    /* ----------------------------- Load job ----------------------------- */
+    useEffect(() => {
+        if (!jobId) return;
+
+        let mounted = true;
+
+        const load = async () => {
+            setLoading(true);
+            const data = await getJobById(jobId);
+            if (mounted) {
+                setJob(data);
+                setLoading(false);
+            }
+        };
+
+        load();
+        return () => {
+            mounted = false;
+        };
+    }, [jobId]);
+
+    /* ----------------------- Apply countdown ---------------------------- */
+    useEffect(() => {
+        if (loading) return;
+
+        setApplyCountdown(APPLY_DELAY);
+        const timer = setInterval(() => {
+            setApplyCountdown((v) => {
+                if (v <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return v - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [loading]);
+
+    /* ----------------------------- Derived ------------------------------ */
+    const appliedCount = useMemo(
+        () => (job?.applied_count ?? 0) + localApplied,
+        [job, localApplied]
     );
-  }
 
-  const formatSalary = (min: number, max: number, currency: string) => {
-    return `${currency} ${min.toLocaleString()} - ${max.toLocaleString()} per month`;
-  };
+    const postedLabel = useMemo(() => {
+        if (!job?.posted_date) return "";
+        const days = Math.floor(
+            (Date.now() - job.posted_date.toDate().getTime()) / 86400000
+        );
+        if (days <= 0) return "Posted today";
+        if (days === 1) return "Posted yesterday";
+        if (days < 7) return `Posted ${days} days ago`;
+        return `Posted ${Math.floor(days / 7)} weeks ago`;
+    }, [job]);
 
-  const getTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Posted today';
-    if (diffDays === 1) return 'Posted yesterday';
-    if (diffDays < 7) return `Posted ${diffDays} days ago`;
-    if (diffDays < 30) return `Posted ${Math.floor(diffDays / 7)} weeks ago`;
-    return `Posted ${Math.floor(diffDays / 30)} months ago`;
-  };
+    const requirements = useMemo(() => {
+        if (!job?.requirements) return [];
+        if (Array.isArray(job.requirements)) return job.requirements.filter(Boolean);
+        return job.requirements
+            .split(/\r?\n+/)
+            .map((r) => r.trim())
+            .filter(Boolean);
+    }, [job]);
 
-  const handleApply = () => {
-    setAppliedCount(prev => prev + 1);
-    window.open(job.applyUrl, '_blank');
-  };
+    /* ----------------------------- Actions ------------------------------ */
+    const handleApply = () => {
+        if (!job?.apply_url || applyCountdown > 0) return;
+        setLocalApplied((p) => p + 1);
+        window.open(job.apply_url, "_blank");
+    };
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${job.title} at ${job.company.name}`,
-          text: job.shortDescription,
-          url,
-        });
-      } catch (err) {
-        // User cancelled
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: 'Link copied!',
-        description: 'Job link has been copied to clipboard',
-      });
+    const handleShare = async () => {
+        if (!job) return;
+        const url = window.location.href;
+
+        if (navigator.share) {
+            await navigator.share({
+                title: job.title,
+                text: job.description,
+                url,
+            });
+        } else {
+            await navigator.clipboard.writeText(url);
+            toast({ title: "Copied", description: "Job link copied to clipboard" });
+        }
+    };
+
+    /* ----------------------------- States ------------------------------- */
+    if (loading) {
+        return <JobDetailsSkeleton />;
     }
-  };
 
-  const currentAppliedCount = job.appliedCount + appliedCount;
+    if (!job) {
+        return (
+            <div className="min-h-screen bg-background">
+                <Navbar />
+                <div className="container mx-auto px-4 py-24 text-center">
+                    <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
+                    <Button asChild>
+                        <Link to="/">
+                            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
-  return (
-    <>
-      <Helmet>
-        <title>{job.title} at {job.company.name} | SeekJobsLk</title>
-        <meta name="description" content={job.shortDescription} />
-        <meta property="og:title" content={`${job.title} at ${job.company.name}`} />
-        <meta property="og:description" content={job.shortDescription} />
-        <meta property="og:type" content="website" />
-        <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
-      </Helmet>
+    /* ----------------------------- UI ---------------------------------- */
+    return (
+        <>
+            <Helmet>
+                <title>{`${job.title} at ${job.company.name} | SeekJobsLk`}</title>
+                <meta name="description" content={job.description} />
+                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
+            </Helmet>
 
-      <div className="min-h-screen bg-background transition-colors duration-300">
-        <Navbar />
+            <div className="min-h-screen bg-background">
+                <Navbar />
 
-        <main className="container mx-auto px-4 py-6 md:py-8">
-          {/* Back Button */}
-          <div className="mb-6">
-            <Button variant="ghost" asChild className="gap-2 text-muted-foreground hover:text-foreground">
-              <Link to="/">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Jobs
-              </Link>
-            </Button>
-          </div>
+                <main className="container mx-auto px-4 py-6 md:py-8">
+                    <Button variant="ghost" asChild className="mb-6 gap-2">
+                        <Link to="/">
+                            <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                        </Link>
+                    </Button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Content */}
-            <article className="lg:col-span-2 space-y-6">
-              {/* Header Card */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-card relative overflow-hidden">
-                {job.isFeatured && (
-                  <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-xs font-semibold px-4 py-1.5 rounded-bl-lg flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 fill-current" />
-                    Featured Job
-                  </div>
-                )}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* ================= Main ================= */}
+                        <article className="lg:col-span-2 space-y-6">
+                            {/* Header */}
+                            <section className="relative rounded-xl border bg-card p-6">
+                                {job.is_featured && (
+                                    <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
+                                        <Star className="h-3 w-3 fill-current" /> Featured
+                                    </div>
+                                )}
 
-                <div className="flex flex-col sm:flex-row gap-5">
-                  <img
-                    src={job.company.logo}
-                    alt={job.company.name}
-                    className="w-20 h-20 rounded-xl object-cover border border-border"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-heading mb-2">
-                      {job.title}
-                    </h1>
-                    <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                      <Building2 className="w-4 h-4" />
-                      <span className="font-medium">{job.company.name}</span>
+                                <div className="flex gap-5">
+                                    <img
+                                        src={job.company.logo_url}
+                                        alt={job.company.name}
+                                        className="h-20 w-20 rounded-xl border object-cover"
+                                    />
+
+                                    <div className="flex-1">
+                                        <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                                            {job.title}
+                                        </h1>
+
+                                        <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                                            <Building2 className="w-4 h-4" />
+                                            {job.company.name}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                            {!job.job_type?.toLowerCase().includes("remote") && (
+                                                <span className="flex items-center gap-1.5">
+                                                    <MapPin className="w-4 h-4 text-primary" />
+                                                    {job.location}
+                                                </span>
+                                            )}
+
+                                            <Badge variant="secondary">{job.job_type}</Badge>
+
+                                            <span className="flex items-center gap-1.5">
+                                                <Clock className="w-4 h-4" />
+                                                {postedLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Description */}
+                            <section className="rounded-xl border bg-card p-6">
+                                <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
+                                    <Briefcase className="w-5 h-5 text-primary" />
+                                    Job Description
+                                </h2>
+                                <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
+                                    {job.description}
+                                </p>
+                            </section>
+
+                            {/* Requirements */}
+                            <section className="rounded-xl border bg-card p-6">
+                                <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
+                                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                                    Requirements
+                                </h2>
+
+                                <ul className="space-y-3">
+                                    {requirements.map((req, i) => (
+                                        <li key={i} className="flex gap-3">
+                                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                                            <span className="text-muted-foreground">{req}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        </article>
+
+                        {/* ================= Sidebar ================= */}
+                        <aside className="space-y-5">
+                            <section className="sticky top-24 rounded-xl border bg-card p-6">
+                                <div className="mb-6">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                                        <DollarSign className="w-4 h-4" /> Salary
+                                    </div>
+                                    <p className="text-xl font-bold">{job.salary}</p>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                                    <Users className="w-4 h-4" /> {appliedCount} applied
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Button
+                                        size="lg"
+                                        className="w-full gap-2"
+                                        variant="apply"
+                                        disabled={applyCountdown > 0}
+                                        onClick={handleApply}
+                                    >
+                                        {applyCountdown > 0
+                                            ? `Apply available in ${applyCountdown}s`
+                                            : (
+                                                <>
+                                                    Apply Now <ExternalLink className="w-4 h-4" />
+                                                </>
+                                            )}
+                                    </Button>
+
+                                    <Button
+                                        size="lg"
+                                        className="w-full gap-2"
+                                        variant="outline"
+                                        onClick={handleShare}
+                                    >
+                                        <Share2 className="w-4 h-4" /> Share Job
+                                    </Button>
+                                </div>
+                            </section>
+
+                            {/* Company */}
+                            <section className="rounded-xl border bg-card p-6">
+                                <h3 className="font-semibold mb-4">About the Company</h3>
+
+                                <div className="flex items-center gap-3">
+                                    <img
+                                        src={job.company.logo_url}
+                                        alt={job.company.name}
+                                        className="h-12 w-12 rounded-lg border object-cover"
+                                    />
+
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium">{job.company.name}</p>
+
+                                            {job.company.website && (
+                                                <a
+                                                    href={job.company.website}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                                >
+                                                    <ExternalLink className="h-4 w-4" />
+                                                </a>
+                                            )}
+                                        </div>
+
+                                        <p className="text-sm text-muted-foreground">
+                                            {job.company.location ?? "Sri Lanka"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        </aside>
                     </div>
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        {job.location}
-                      </span>
-                      <Badge variant="secondary">{job.jobType}</Badge>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
-                        {getTimeAgo(job.postedAt)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <section className="bg-card rounded-xl border border-border p-6 shadow-card">
-                <h2 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-primary" />
-                  Job Description
-                </h2>
-                <p className="text-text leading-relaxed whitespace-pre-line">
-                  {job.fullDescription}
-                </p>
-              </section>
-
-              {/* Requirements */}
-              <section className="bg-card rounded-xl border border-border p-6 shadow-card">
-                <h2 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  Requirements
-                </h2>
-                <ul className="space-y-3">
-                  {job.requirements.map((req, index) => (
-                    <li key={index} className="flex items-start gap-3 text-text">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span>{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </article>
-
-            {/* Sidebar */}
-            <aside className="space-y-5">
-              {/* Apply Card */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-card sticky top-24">
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-                    <DollarSign className="w-4 h-4" />
-                    Salary
-                  </div>
-                  <p className="text-xl font-bold text-heading">
-                    {formatSalary(job.salaryMin, job.salaryMax, job.currency)}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
-                  <Users className="w-4 h-4" />
-                  <span>{currentAppliedCount} people have applied</span>
-                </div>
-
-                <div className="space-y-3">
-                  <Button 
-                    variant="apply" 
-                    className="w-full gap-2" 
-                    size="lg"
-                    onClick={handleApply}
-                  >
-                    Apply Now
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full gap-2"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Share Job
-                  </Button>
-                </div>
-              </div>
-
-              {/* Company Info */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-card">
-                <h3 className="font-semibold text-heading mb-4">About the Company</h3>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={job.company.logo}
-                    alt={job.company.name}
-                    className="w-12 h-12 rounded-lg object-cover border border-border"
-                  />
-                  <div>
-                    <p className="font-medium text-heading">{job.company.name}</p>
-                    <p className="text-sm text-muted-foreground">Sri Lanka</p>
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </main>
-      </div>
-    </>
-  );
+                </main>
+            </div>
+        </>
+    );
 };
 
 export default JobDetails;

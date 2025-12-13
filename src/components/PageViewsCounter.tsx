@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Eye } from 'lucide-react';
-import { getPageViews, incrementPageViews } from '@/data/mockData';
 
 const PageViewsCounter: React.FC = () => {
   const [views, setViews] = useState(0);
@@ -11,12 +10,12 @@ const PageViewsCounter: React.FC = () => {
     const sessionCounted = sessionStorage.getItem('seekjobslk-view-counted');
     
     if (!sessionCounted && !hasIncremented) {
-      const newViews = incrementPageViews();
+      const newViews = 1;
       setViews(newViews);
       sessionStorage.setItem('seekjobslk-view-counted', 'true');
       setHasIncremented(true);
     } else {
-      setViews(getPageViews());
+      setViews(12500);
     }
   }, [hasIncremented]);
 

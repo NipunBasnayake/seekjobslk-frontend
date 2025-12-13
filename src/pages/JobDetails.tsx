@@ -108,20 +108,31 @@ const JobDetails: React.FC = () => {
     const handleShare = async () => {
         if (!job) return;
 
+        const isMobileDevice = () => {
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        };
         const message = getShareMessage(job);
-
+        
         try {
-            await navigator.clipboard.writeText(message);
+            if (isMobileDevice() && navigator.share) {
+                await navigator.share({
+                    title: job.title,
+                    text: message,
+                });
+                return;
+            }
 
+            await navigator.clipboard.writeText(message);
             toast({
                 title: "Copied",
                 description: "Job message copied to clipboard",
             });
+
         } catch (error) {
+            await navigator.clipboard.writeText(message);
             toast({
-                title: "Error",
-                description: "Failed to copy message",
-                variant: "destructive",
+                title: "Copied",
+                description: "Job message copied to clipboard",
             });
         }
     };
@@ -131,16 +142,16 @@ const JobDetails: React.FC = () => {
 
         return `📌 Job Opportunity – ${job.title}
 
-        🏢 Company: ${job.company.name}
-        📍 Location: ${job.location}
-        💼 Job Type: ${job.job_type}
+🏢 Company: ${job.company.name}
+📍 Location: ${job.location}
+💼 Job Type: ${job.job_type}
 
-        🔗 Apply here:
-        ${jobUrl}
+🔗 Apply here:
+${jobUrl}
 
-        🔔 Stay updated with new jobs
-        WhatsApp Channel:
-        https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
+🔔 Stay updated with new jobs
+WhatsApp Channel:
+https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
     };
 
     /* ----------------------------- States ------------------------------- */

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Moon, Sun, Menu, X, ChevronDown, Briefcase } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getCategories, getCompanies } from "@/services/firebaseData";
@@ -10,38 +10,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Category, Company } from "@/types/index";
+import type { Category, Company } from "@/types";
 
 interface NavbarProps {
   onCategorySelect?: (categoryId: string) => void;
   onCompanySelect?: (companyId: string) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCategorySelect, onCompanySelect }) => {
+const Navbar: React.FC<NavbarProps> = ({
+  onCategorySelect,
+  onCompanySelect,
+}) => {
   const { theme, toggleTheme } = useTheme();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
 
+  /* ---------------- Fetch only on home ---------------- */
   useEffect(() => {
+    if (!isHomePage) return;
+
     const fetchData = async () => {
       const [cats, comps] = await Promise.all([
         getCategories(),
         getCompanies(),
       ]);
-
       setCategories(cats);
       setCompanies(comps);
     };
 
     fetchData();
-  }, []);
+  }, [isHomePage]);
 
   return (
     <nav className="sticky top-0 z-50 bg-navbar shadow-navbar transition-colors duration-300">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
           <Link
             to="/"
             className="flex items-center gap-2 text-navbar-foreground font-bold text-xl md:text-2xl tracking-tight hover:opacity-90 transition-opacity"
@@ -50,56 +58,66 @@ const Navbar: React.FC<NavbarProps> = ({ onCategorySelect, onCompanySelect }) =>
             <span>SeekJobsLk</span>
           </Link>
 
-          {/* Desktop */}
+          {/* ================= Desktop ================= */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Categories */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="navbar" className="gap-1">
-                  Categories
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
-                {categories.map((cat) => (
-                  <DropdownMenuItem
-                    key={cat.id}
-                    onClick={() => onCategorySelect?.(cat.id)}
-                    className="cursor-pointer"
+            {isHomePage && (
+              <>
+                {/* Categories */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="navbar" className="gap-1">
+                      Categories
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 bg-popover border-border"
                   >
-                    {cat.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    {categories.map((cat) => (
+                      <DropdownMenuItem
+                        key={cat.id}
+                        onClick={() => onCategorySelect?.(cat.id)}
+                        className="cursor-pointer"
+                      >
+                        {cat.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            {/* Companies */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="navbar" className="gap-1">
-                  Companies
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
-                {companies.map((comp) => (
-                  <DropdownMenuItem
-                    key={comp.id}
-                    onClick={() => onCompanySelect?.(comp.id)}
-                    className="cursor-pointer"
+                {/* Companies */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="navbar" className="gap-1">
+                      Companies
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 bg-popover border-border"
                   >
-                    <img
-                      src={comp.logo_url}
-                      alt={comp.name}
-                      className="w-6 h-6 rounded-full mr-2"
-                    />
-                    {comp.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    {companies.map((comp) => (
+                      <DropdownMenuItem
+                        key={comp.id}
+                        onClick={() => onCompanySelect?.(comp.id)}
+                        className="cursor-pointer flex items-center"
+                      >
+                        <img
+                          src={comp.logo_url}
+                          alt={comp.name}
+                          className="w-6 h-6 rounded-full mr-2"
+                        />
+                        {comp.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
 
-            {/* Theme */}
+            {/* Theme toggle */}
             <Button
               variant="navbar"
               size="icon"
@@ -110,7 +128,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCategorySelect, onCompanySelect }) =>
             </Button>
           </div>
 
-          {/* Mobile buttons */}
+          {/* ================= Mobile buttons ================= */}
           <div className="flex items-center gap-2 md:hidden">
             <Button variant="navbar" size="icon" onClick={toggleTheme}>
               {theme === "light" ? <Moon /> : <Sun />}
@@ -125,8 +143,8 @@ const Navbar: React.FC<NavbarProps> = ({ onCategorySelect, onCompanySelect }) =>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
+        {/* ================= Mobile Menu ================= */}
+        {isMobileMenuOpen && isHomePage && (
           <div className="md:hidden py-4 border-t border-navbar-foreground/20 animate-slide-up">
             <div className="space-y-4">
               {/* Categories */}

@@ -140,7 +140,7 @@ const JobDetails: React.FC = () => {
     const getShareMessage = (job: Job) => {
         const jobUrl = `https://seekjobslk.com/job/${job.id}`;
 
-        return `📌 Job Opportunity – ${job.title}
+        return `📌 ${job.title}
 
 🏢 Company: ${job.company.name}
 📍 Location: ${job.location}
@@ -150,8 +150,12 @@ const JobDetails: React.FC = () => {
 ${jobUrl}
 
 🔔 Stay updated with new jobs
+
+WhatsApp Group:
+https://chat.whatsapp.com/DPOquPdltS281VTT4hOln4?mode=hqrt3
+
 WhatsApp Channel:
-https://whatsapp.com/channel/YOUR_CHANNEL_LINK`;
+https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
     };
 
     /* ----------------------------- States ------------------------------- */

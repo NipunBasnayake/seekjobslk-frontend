@@ -10,19 +10,23 @@ import {
   X,
 } from "lucide-react";
 import { getCategories, getCompanies } from "@/services/firebaseData";
-
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-
 import { Category, Company } from "@/types/index";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Check } from "lucide-react";
+
 
 export interface FilterState {
   categories: string[];
@@ -49,7 +53,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
 
-  // Fetch categories + companies
   useEffect(() => {
     const fetchData = async () => {
       const [cats, comps] = await Promise.all([
@@ -64,7 +67,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     fetchData();
   }, []);
 
-  // Generic toggle handler for checkbox-like filters
   const toggleValue = useCallback(
     (key: keyof FilterState, value: string) => {
       const list = filters[key] as string[];
@@ -77,7 +79,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     [filters, onFilterChange]
   );
 
-  // Handlers
   const handleLocationChange = (location: string) =>
     onFilterChange({ ...filters, location });
 
@@ -93,24 +94,21 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       location: "all",
     });
 
-  // Active filter count
   const activeFiltersCount =
     filters.categories.length +
     filters.companies.length +
     filters.jobTypes.length +
     (filters.location && filters.location !== "all" ? 1 : 0) +
     (filters.salaryRange[0] !== DEFAULT_SALARY[0] ||
-    filters.salaryRange[1] !== DEFAULT_SALARY[1]
+      filters.salaryRange[1] !== DEFAULT_SALARY[1]
       ? 1
       : 0);
 
-  // Hide location when ONLY "Remote" is selected
   const showLocation =
     !filters.jobTypes.includes("Remote") || filters.jobTypes.length > 1;
 
   return (
     <div className="bg-card rounded-xl shadow-card border border-border overflow-hidden transition-all duration-300">
-      {/* Header */}
       <div
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
         onClick={() => setIsExpanded((prev) => !prev)}
@@ -151,47 +149,73 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
       </div>
 
-      {/* Content */}
       {isExpanded && (
         <div className="p-4 pt-0 space-y-6 animate-slide-up">
-          {/* Categories */}
           <FilterBlock icon={Briefcase} label="Categories">
-            {categories.map((c) => (
-              <Badge
-                key={c.id}
-                variant={
-                  filters.categories.includes(c.id) ? "default" : "outline"
-                }
-                className="cursor-pointer transition-all hover:scale-105"
-                onClick={() => toggleValue("categories", c.id)}
-              >
-                {c.name}
-              </Badge>
-            ))}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full md:w-64 justify-between"
+                >
+                  {filters.categories.length > 0
+                    ? `${filters.categories.length} selected`
+                    : "Select categories"}
+                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-full md:w-64 p-0">
+                <Command>
+                  <CommandInput placeholder="Search categories..." />
+                  <CommandEmpty>No category found.</CommandEmpty>
+
+                  <CommandGroup>
+                    {categories.map((category) => {
+                      const isSelected = filters.categories.includes(category.id);
+
+                      return (
+                        <CommandItem
+                          key={category.id}
+                          value={category.name}
+                          onSelect={() => toggleValue("categories", category.id)}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"
+                              }`}
+                          />
+                          {category.name}
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {filters.categories.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {filters.categories.map((id) => {
+                  const cat = categories.find((c) => c.id === id);
+                  if (!cat) return null;
+
+                  return (
+                    <Badge
+                      key={id}
+                      variant="secondary"
+                      className="cursor-pointer"
+                      onClick={() => toggleValue("categories", id)}
+                    >
+                      {cat.name}
+                      <X className="ml-1 h-3 w-3" />
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
           </FilterBlock>
 
-          {/* Companies */}
-          <FilterBlock icon={Building2} label="Companies">
-            {companies.map((comp) => (
-              <Badge
-                key={comp.id}
-                variant={
-                  filters.companies.includes(comp.id) ? "default" : "outline"
-                }
-                className="cursor-pointer transition-all hover:scale-105"
-                onClick={() => toggleValue("companies", comp.id)}
-              >
-                <img
-                  src={comp.logo_url}
-                  alt=""
-                  className="w-4 h-4 rounded-full mr-1"
-                />
-                {comp.name}
-              </Badge>
-            ))}
-          </FilterBlock>
-
-          {/* Job Types */}
           <FilterBlock icon={Briefcase} label="Job Type">
             {JOB_TYPES.map((type) => (
               <Badge
@@ -207,42 +231,59 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             ))}
           </FilterBlock>
 
-          {/* Location */}
           {showLocation && (
             <FilterBlock icon={MapPin} label="Location">
-              <Select value={filters.location} onValueChange={handleLocationChange}>
-                <SelectTrigger className="w-full md:w-64">
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {LOCATIONS.map((loc) => (
-                    <SelectItem key={loc} value={loc}>
-                      {loc}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full md:w-64 justify-between"
+                  >
+                    {filters.location && filters.location !== "all"
+                      ? filters.location
+                      : "Select location"}
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-full md:w-64 p-0">
+                  <Command>
+                    <CommandInput placeholder="Search location..." />
+                    <CommandEmpty>No location found.</CommandEmpty>
+
+                    <CommandGroup>
+                      <CommandItem
+                        value="all"
+                        onSelect={() => handleLocationChange("all")}
+                      >
+                        <Check
+                          className={`mr-2 h-4 w-4 ${filters.location === "all" ? "opacity-100" : "opacity-0"
+                            }`}
+                        />
+                        All Locations
+                      </CommandItem>
+
+                      {LOCATIONS.map((loc) => (
+                        <CommandItem
+                          key={loc}
+                          value={loc}
+                          onSelect={() => handleLocationChange(loc)}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${filters.location === loc ? "opacity-100" : "opacity-0"
+                              }`}
+                          />
+                          {loc}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </FilterBlock>
           )}
 
-          {/* Salary */}
-          <FilterBlock icon={DollarSign} label="Salary Range (LKR)">
-            <div className="px-2">
-              <Slider
-                value={filters.salaryRange}
-                min={0}
-                max={500000}
-                step={10000}
-                onValueChange={handleSalaryChange}
-                className="my-4"
-              />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{filters.salaryRange[0].toLocaleString()} LKR</span>
-                <span>{filters.salaryRange[1].toLocaleString()} LKR</span>
-              </div>
-            </div>
-          </FilterBlock>
         </div>
       )}
     </div>
@@ -251,7 +292,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 
 export default FilterSection;
 
-/* Small presentational component to reduce repetition */
 interface BlockProps {
   icon: React.ElementType;
   label: string;

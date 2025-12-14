@@ -42,7 +42,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           max-w-[520px] w-full
         "
       >
-        {/* Featured */}
+
         {job.is_featured && (
           <div className="absolute top-0 right-0 rounded-bl-2xl rounded-tr-2xl bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
             <Star className="h-3 w-3 fill-current" />
@@ -50,7 +50,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           </div>
         )}
 
-        {/* Header */}
         <div className="flex items-start gap-4">
           <img
             src={logoSrc}
@@ -68,7 +67,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           </div>
         </div>
 
-        {/* Meta */}
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           {!job.job_type?.toLowerCase().includes("remote") && (
             <span className="flex items-center gap-1.5">
@@ -82,13 +80,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           </Badge>
         </div>
 
-        {/* Posted */}
         <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
           {getTimeAgo(job.posted_date?.toDate())}
         </div>
 
-        {/* Footer */}
         <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Users className="w-4 h-4" />

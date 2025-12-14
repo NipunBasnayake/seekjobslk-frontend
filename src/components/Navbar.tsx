@@ -49,7 +49,6 @@ const Navbar: React.FC<NavbarProps> = ({
     <nav className="sticky top-0 z-50 bg-navbar shadow-navbar transition-colors duration-300">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center gap-2 text-navbar-foreground font-bold text-xl md:text-2xl tracking-tight hover:opacity-90 transition-opacity"
@@ -58,11 +57,9 @@ const Navbar: React.FC<NavbarProps> = ({
             <span>SeekJobsLk</span>
           </Link>
 
-          {/* ================= Desktop ================= */}
           <div className="hidden md:flex items-center gap-2">
             {isHomePage && (
               <>
-                {/* Categories */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="navbar" className="gap-1">
@@ -85,8 +82,6 @@ const Navbar: React.FC<NavbarProps> = ({
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                {/* Companies */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="navbar" className="gap-1">
@@ -117,7 +112,6 @@ const Navbar: React.FC<NavbarProps> = ({
               </>
             )}
 
-            {/* Theme toggle */}
             <Button
               variant="navbar"
               size="icon"
@@ -128,7 +122,6 @@ const Navbar: React.FC<NavbarProps> = ({
             </Button>
           </div>
 
-          {/* ================= Mobile buttons ================= */}
           <div className="flex items-center gap-2 md:hidden">
             <Button variant="navbar" size="icon" onClick={toggleTheme}>
               {theme === "light" ? <Moon /> : <Sun />}
@@ -143,11 +136,9 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* ================= Mobile Menu ================= */}
         {isMobileMenuOpen && isHomePage && (
           <div className="md:hidden py-4 border-t border-navbar-foreground/20 animate-slide-up">
             <div className="space-y-4">
-              {/* Categories */}
               <div>
                 <p className="text-navbar-foreground/70 text-sm font-medium mb-2">
                   Categories
@@ -168,7 +159,6 @@ const Navbar: React.FC<NavbarProps> = ({
                 </div>
               </div>
 
-              {/* Companies */}
               <div>
                 <p className="text-navbar-foreground/70 text-sm font-medium mb-2">
                   Companies

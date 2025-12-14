@@ -14,7 +14,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
   const loading = jobs === null;
   const safeJobs = jobs ?? [];
 
-  /* ---------------- Filtering ---------------- */
   const filteredJobs = useMemo(() => {
     return safeJobs.filter((job) => {
       if (
@@ -55,7 +54,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
     });
   }, [safeJobs, filters]);
 
-  /* ---------------- Sorting ---------------- */
   const sortedJobs = useMemo(() => {
     return [...filteredJobs].sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1;
@@ -69,16 +67,13 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   const featuredCount = sortedJobs.filter((j) => j.is_featured).length;
 
-  /* ---------------- Apply ---------------- */
   const handleApply = (jobId: string) => {
     const job = safeJobs.find((j) => j.id === jobId);
     if (job) job.applied_count += 1;
   };
 
-  /* ---------------- UI ---------------- */
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2">
@@ -102,22 +97,20 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         )}
       </div>
 
-      {/* Skeleton */}
       {loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <JobCardSkeleton key={i} />
           ))}
         </div>
       )}
 
-      {/* Jobs */}
       {!loading && sortedJobs.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
           {sortedJobs.map((job, i) => (
             <div
               key={job.id}
-              className="animate-fade-in"
+              className="animate-fade-in w-full"
               style={{ animationDelay: `${i * 40}ms` }}
             >
               <JobCard job={job} onApply={handleApply} />
@@ -126,7 +119,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
       )}
 
-      {/* Empty */}
       {!loading && sortedJobs.length === 0 && (
         <div className="rounded-xl border bg-card p-12 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">

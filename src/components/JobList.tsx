@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Briefcase, TrendingUp } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
+import { Briefcase, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
@@ -10,44 +10,27 @@ interface JobListProps {
   jobs: Job[] | null;
 }
 
+const JOBS_PER_PAGE = 10;
+
 const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
   const loading = jobs === null;
   const safeJobs = jobs ?? [];
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredJobs = useMemo(() => {
     return safeJobs.filter((job) => {
-      if (
-        filters.categories.length &&
-        !filters.categories.includes(job.category.id)
-      )
-        return false;
-
-      if (
-        filters.companies.length &&
-        !filters.companies.includes(job.company.id)
-      )
-        return false;
-
-      if (
-        filters.jobTypes.length &&
-        !filters.jobTypes.includes(job.job_type)
-      )
-        return false;
+      if (filters.categories.length && !filters.categories.includes(job.category.id)) return false;
+      if (filters.companies.length && !filters.companies.includes(job.company.id)) return false;
+      if (filters.jobTypes.length && !filters.jobTypes.includes(job.job_type)) return false;
 
       if (filters.location && filters.location !== "all") {
-        if (job.job_type === "Remote" && filters.location !== "Remote")
-          return false;
-        if (job.job_type !== "Remote" && job.location !== filters.location)
-          return false;
+        if (job.job_type === "Remote" && filters.location !== "Remote") return false;
+        if (job.job_type !== "Remote" && job.location !== filters.location) return false;
       }
 
       const salary = parseFloat(job.salary);
       if (!Number.isNaN(salary)) {
-        if (
-          salary < filters.salaryRange[0] ||
-          salary > filters.salaryRange[1]
-        )
-          return false;
+        if (salary < filters.salaryRange[0] || salary > filters.salaryRange[1]) return false;
       }
 
       return true;
@@ -58,12 +41,20 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
     return [...filteredJobs].sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1;
       if (!a.is_featured && b.is_featured) return 1;
-      return (
-        b.posted_date.toDate().getTime() -
-        a.posted_date.toDate().getTime()
-      );
+      return b.posted_date.toDate().getTime() - a.posted_date.toDate().getTime();
     });
   }, [filteredJobs]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const totalPages = Math.ceil(sortedJobs.length / JOBS_PER_PAGE);
+
+  const paginatedJobs = useMemo(() => {
+    const start = (currentPage - 1) * JOBS_PER_PAGE;
+    return sortedJobs.slice(start, start + JOBS_PER_PAGE);
+  }, [sortedJobs, currentPage]);
 
   const featuredCount = sortedJobs.filter((j) => j.is_featured).length;
 
@@ -82,8 +73,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
           <div>
             <h2 className="text-xl font-bold">Available Jobs</h2>
             <p className="text-sm text-muted-foreground">
-              {sortedJobs.length} job
-              {sortedJobs.length !== 1 && "s"} found
+              {sortedJobs.length} jobs found
               {featuredCount > 0 && ` • ${featuredCount} featured`}
             </p>
           </div>
@@ -105,18 +95,57 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
       )}
 
-      {!loading && sortedJobs.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
-          {sortedJobs.map((job, i) => (
-            <div
-              key={job.id}
-              className="animate-fade-in w-full"
-              style={{ animationDelay: `${i * 40}ms` }}
-            >
-              <JobCard job={job} onApply={handleApply} />
+      {!loading && paginatedJobs.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
+            {paginatedJobs.map((job, i) => (
+              <div
+                key={job.id}
+                className="animate-fade-in w-full"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <JobCard job={job} onApply={handleApply} />
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 pt-4">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="rounded-md border px-3 py-1 disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const page = i + 1;
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`rounded-md px-3 py-1 text-sm ${
+                      currentPage === page
+                        ? "bg-primary text-primary-foreground"
+                        : "border"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="rounded-md border px-3 py-1 disabled:opacity-50"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {!loading && sortedJobs.length === 0 && (

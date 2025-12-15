@@ -189,9 +189,39 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
     return (
         <>
             <Helmet>
-                <title>{`${job.title} at ${job.company.name} | SeekJobsLk`}</title>
-                <meta name="description" content={job.description} />
-                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
+                <title>{`${job.title} – ${job.company.name} | Jobs in ${job.location} | SeekJobsLK`}</title>
+                <meta
+                    name="description"
+                    content={`${job.title} at ${job.company.name} in ${job.location}. ${job.job_type} position. Apply now on SeekJobsLK.`}
+                />
+                <link
+                    rel="canonical"
+                    href={`https://seekjobslk.com/job/${job.id}`}
+                />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={`${job.title} – ${job.company.name}`} />
+                <meta
+                    property="og:description"
+                    content={`${job.location} | ${job.job_type} job opportunity`}
+                />
+                <meta
+                    property="og:image"
+                    content={job.company.logo_url}
+                />
+                <meta
+                    property="og:url"
+                    content={`https://seekjobslk.com/job/${job.id}`}
+                />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${job.title} – ${job.company.name}`} />
+                <meta
+                    name="twitter:description"
+                    content={`${job.location} | ${job.job_type}`}
+                />
+                <meta
+                    name="twitter:image"
+                    content={job.company.logo_url}
+                />
             </Helmet>
 
             <div className="min-h-screen bg-background">

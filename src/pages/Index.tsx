@@ -8,6 +8,7 @@ import PageViewsCounter from '@/components/PageViewsCounter';
 import type { Job } from "@/types";
 import { getJobs } from '@/services/firebaseData';
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
+import PopularJobsAside from '@/components/PopularJobsAside';
 
 const Index: React.FC = () => {
     const [jobs, setJobs] = useState<Job[] | null>(null);
@@ -88,6 +89,7 @@ const Index: React.FC = () => {
                         <aside className="lg:col-span-1 space-y-5 order-2 lg:order-1">
                             <WhatsAppChannelBanner />
                             <FilterSection filters={filters} onFilterChange={setFilters} />
+                            <PopularJobsAside jobs={jobs} />
                             <ConnectWithUs />
                             <PageViewsCounter />
                         </aside>

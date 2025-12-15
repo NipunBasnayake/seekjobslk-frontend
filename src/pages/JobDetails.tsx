@@ -24,6 +24,7 @@ import { getJobById, incrementJobAppliedCount } from "@/services/firebaseData";
 import type { Job } from "@/types";
 import ConnectWithUs from "@/components/ConnectWithUs";
 import PageViewsCounter from "@/components/PageViewsCounter";
+import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 
 const APPLY_DELAY = 5;
 
@@ -319,6 +320,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                         <aside>
                             <div className="sticky top-24 space-y-5">
+                            <WhatsAppChannelBanner/>
                                 <section className="rounded-xl border bg-card p-6">
                                     {job.salary && (
                                         <div className="mb-6">

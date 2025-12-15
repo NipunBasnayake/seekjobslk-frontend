@@ -78,11 +78,12 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           <Badge variant="secondary" className="font-medium">
             {job.job_type || "Job Type"}
           </Badge>
-        </div>
 
-        <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Clock className="w-4 h-4" />
-          {getTimeAgo(job.posted_date?.toDate())}
+          {/* Right aligned date */}
+          <div className="ml-auto flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            {getTimeAgo(job.posted_date?.toDate())}
+          </div>
         </div>
 
         <div className="mt-5 flex items-center justify-between border-t border-border pt-4">

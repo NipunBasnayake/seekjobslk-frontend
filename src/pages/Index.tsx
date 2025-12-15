@@ -7,6 +7,7 @@ import ConnectWithUs from '@/components/ConnectWithUs';
 import PageViewsCounter from '@/components/PageViewsCounter';
 import type { Job } from "@/types";
 import { getJobs } from '@/services/firebaseData';
+import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 
 const Index: React.FC = () => {
     const [jobs, setJobs] = useState<Job[] | null>(null);
@@ -75,6 +76,7 @@ const Index: React.FC = () => {
                 <link rel="canonical" href="https://seekjobslk.com" />
             </Helmet>
 
+
             <div className="min-h-screen bg-background transition-colors duration-300">
                 <Navbar
                     onCategorySelect={handleCategorySelect}
@@ -82,19 +84,9 @@ const Index: React.FC = () => {
                 />
 
                 <main className="container mx-auto px-4 py-6 md:py-8">
-
-                    <header className="text-center mb-8 md:mb-10">
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-heading mb-3">
-                            Find Your <span className="text-gradient">Dream Job</span>
-                        </h1>
-                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                            Discover amazing career opportunities from top companies across Sri Lanka
-                        </p>
-                    </header>
-
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
                         <aside className="lg:col-span-1 space-y-5 order-2 lg:order-1">
+                            <WhatsAppChannelBanner />
                             <FilterSection filters={filters} onFilterChange={setFilters} />
                             <ConnectWithUs />
                             <PageViewsCounter />

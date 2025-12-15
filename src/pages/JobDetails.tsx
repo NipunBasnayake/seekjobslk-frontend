@@ -14,17 +14,17 @@ import {
     Star,
     CheckCircle2,
 } from "lucide-react";
-
 import Navbar from "@/components/Navbar";
 import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { getJobById, incrementJobAppliedCount } from "@/services/firebaseData";
+import { getJobById, getJobs, incrementJobAppliedCount } from "@/services/firebaseData";
 import type { Job } from "@/types";
 import ConnectWithUs from "@/components/ConnectWithUs";
 import PageViewsCounter from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
+import RelatedJobsAside from "@/components/RelatedJobsAside";
 
 const APPLY_DELAY = 5;
 
@@ -35,6 +35,7 @@ const JobDetails: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [applyCountdown, setApplyCountdown] = useState(APPLY_DELAY);
     const [localApplied, setLocalApplied] = useState(0);
+    const [allJobs, setAllJobs] = useState<Job[] | null>(null);
 
     useEffect(() => {
         if (!jobId) return;
@@ -72,6 +73,10 @@ const JobDetails: React.FC = () => {
 
         return () => clearInterval(timer);
     }, [loading]);
+
+    useEffect(() => {
+        getJobs().then(setAllJobs).catch(() => setAllJobs(null));
+    }, []);
 
     const appliedCount = useMemo(
         () => (job?.applied_count ?? 0) + localApplied,
@@ -320,7 +325,9 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                         <aside>
                             <div className="sticky top-24 space-y-5">
-                            <WhatsAppChannelBanner/>
+
+                                <WhatsAppChannelBanner />
+
                                 <section className="rounded-xl border bg-card p-6">
                                     {job.salary && (
                                         <div className="mb-6">
@@ -362,6 +369,8 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                         </Button>
                                     </div>
                                 </section>
+
+                                <RelatedJobsAside jobs={allJobs} currentJob={job} limit={6} />
 
                                 <ConnectWithUs />
 

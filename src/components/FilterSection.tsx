@@ -41,7 +41,7 @@ interface FilterSectionProps {
   onFilterChange: (filters: FilterState) => void;
 }
 
-const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Remote", "Hybrid"];
+const JOB_TYPES = ["Full-Time", "Part-Time", "Contract", "Remote", "Hybrid"];
 const LOCATIONS = ["Colombo", "Kandy", "Galle", "Negombo", "Jaffna", "Remote"];
 const DEFAULT_SALARY: [number, number] = [0, 500000];
 

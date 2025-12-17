@@ -25,17 +25,21 @@ import ConnectWithUs from "@/components/ConnectWithUs";
 import PageViewsCounter from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import RelatedJobsAside from "@/components/RelatedJobsAside";
+import ApplyPopup from "@/components/ApplyPopup";
+
+type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
 
 const APPLY_DELAY = 5;
 
 const JobDetails: React.FC = () => {
     const { jobId } = useParams<{ jobId: string }>();
-
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
     const [applyCountdown, setApplyCountdown] = useState(APPLY_DELAY);
     const [localApplied, setLocalApplied] = useState(0);
     const [allJobs, setAllJobs] = useState<Job[] | null>(null);
+    const [showApplyPopup, setShowApplyPopup] = useState(false);
+    const [applyType, setApplyType] = useState<"email" | "whatsapp">("email");
 
     useEffect(() => {
         if (!jobId) return;
@@ -106,17 +110,49 @@ const JobDetails: React.FC = () => {
     const handleApply = async () => {
         if (!job?.apply_url || applyCountdown > 0) return;
 
-        try {
-            setLocalApplied((p) => p + 1);
+        const type = detectApplyLinkType(job.apply_url);
 
-            incrementJobAppliedCount(job.id).catch(() => {
-                setLocalApplied((p) => p - 1);
-            });
+        setLocalApplied((p) => p + 1);
+        incrementJobAppliedCount(job.id).catch(() => {
+            setLocalApplied((p) => p - 1);
+        });
 
-            window.open(job.apply_url, "_blank");
-        } catch (error) {
-            console.error("Failed to update applied count", error);
+        if (type === "url") {
+            window.open(job.apply_url, "_blank", "noopener,noreferrer");
+            return;
         }
+
+        if (type === "email" || type === "whatsapp") {
+            setApplyType(type);
+            setShowApplyPopup(true);
+        }
+    };
+
+    const detectApplyLinkType = (applyUrl: string): ApplyLinkType => {
+        const url = applyUrl.trim().toLowerCase();
+
+        if (url.startsWith("mailto:") || /^[\w.+-]+@[\w-]+\.[\w.-]+$/.test(url)) {
+            return "email";
+        }
+
+        if (
+            url.startsWith("https://wa.me/") ||
+            url.startsWith("http://wa.me/") ||
+            url.includes("whatsapp.com")
+        ) {
+            return "whatsapp";
+        }
+
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            return "url";
+        }
+
+        return "unknown";
+    };
+
+    const normalizeEmailLink = (value: string) => {
+        if (value.startsWith("mailto:")) return value;
+        return `mailto:${value}`;
     };
 
     const handleShare = async () => {
@@ -375,6 +411,14 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                 <ConnectWithUs />
 
                                 <PageViewsCounter />
+
+                                <ApplyPopup
+                                    open={showApplyPopup}
+                                    type={applyType}
+                                    applyUrl={job.apply_url}
+                                    onClose={() => setShowApplyPopup(false)}
+                                />
+
                             </div>
                         </aside>
 

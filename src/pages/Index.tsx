@@ -10,6 +10,7 @@ import { getJobs } from "@/services/firebaseData";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import PopularJobsAside from "@/components/PopularJobsAside";
 import CookieNotice from "@/components/CookieNotice";
+import Footer from "@/components/Footer";
 
 const Index: React.FC = () => {
     const [jobs, setJobs] = useState<Job[] | null>(null);
@@ -95,26 +96,11 @@ const Index: React.FC = () => {
                             )}
 
                             <JobList filters={filters} jobs={jobs} />
-
-                            {isLoading && (
-                                <p className="mt-4 text-sm text-muted-foreground">
-                                    Loading the latest opportunities...
-                                </p>
-                            )}
                         </section>
                     </div>
                 </main>
 
-                <footer className="bg-card border-t mt-12">
-                    <div className="container mx-auto px-4 py-8 text-center">
-                        <p className="text-muted-foreground text-sm">
-                            © {new Date().getFullYear()} SeekJobsLk. All rights reserved.
-                        </p>
-                        <p className="text-muted-foreground text-xs mt-2">
-                            Your trusted job portal in Sri Lanka
-                        </p>
-                    </div>
-                </footer>
+                <Footer />
                 <CookieNotice />
             </div>
         </>

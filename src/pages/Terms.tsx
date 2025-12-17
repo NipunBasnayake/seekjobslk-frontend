@@ -7,6 +7,7 @@ import {
     ExternalLink,
     RefreshCcw,
 } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Terms = () => {
     return (
@@ -22,7 +23,7 @@ const Terms = () => {
             <Navbar />
 
             {/* Hero */}
-            <section className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <section className="border-b">
                 <div className="container mx-auto px-4 py-20 max-w-4xl text-center">
                     <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                         <FileText className="w-4 h-4" />
@@ -118,12 +119,7 @@ const Terms = () => {
             </main>
 
             {/* Footer */}
-            <footer className="border-t bg-card">
-                <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-                    © {new Date().getFullYear()} SeekJobsLk. Use of this website is subject
-                    to these terms.
-                </div>
-            </footer>
+            <Footer />
         </>
     );
 };

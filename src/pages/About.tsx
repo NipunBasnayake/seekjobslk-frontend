@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
 import { Briefcase, ShieldCheck, Globe, Users } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const About = () => {
   return (
@@ -16,7 +17,7 @@ const About = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+      <section className="border-b">
         <div className="container mx-auto px-4 py-20 max-w-5xl text-center">
           <h1 className="text-4xl font-extrabold tracking-tight mb-4">
             About <span className="text-primary">SeekJobsLk</span>
@@ -99,12 +100,7 @@ const About = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-card">
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} SeekJobsLk. Built for job seekers in Sri
-          Lanka.
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 };

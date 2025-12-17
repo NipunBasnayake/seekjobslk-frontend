@@ -26,6 +26,7 @@ import PageViewsCounter from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import RelatedJobsAside from "@/components/RelatedJobsAside";
 import ApplyPopup from "@/components/ApplyPopup";
+import Footer from "@/components/Footer";
 
 type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
 
@@ -200,9 +201,6 @@ const JobDetails: React.FC = () => {
 ${jobUrl}
 
 🔔 Stay updated with new jobs
-
-WhatsApp Group:
-https://chat.whatsapp.com/DPOquPdltS281VTT4hOln4?mode=hqrt3
 
 WhatsApp Channel:
 https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
@@ -424,6 +422,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                     </div>
                 </main>
+                <Footer />
             </div>
         </>
     );

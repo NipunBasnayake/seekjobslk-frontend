@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
 import { ShieldCheck, Cookie, ExternalLink, CheckCircle } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const PrivacyPolicy = () => {
     return (
@@ -16,7 +17,7 @@ const PrivacyPolicy = () => {
             <Navbar />
 
             {/* Hero */}
-            <section className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+            <section className="border-b">
                 <div className="container mx-auto px-4 py-20 max-w-4xl text-center">
                     <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                         <ShieldCheck className="w-4 h-4" />
@@ -109,11 +110,7 @@ const PrivacyPolicy = () => {
             </main>
 
             {/* Footer */}
-            <footer className="border-t bg-card">
-                <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-                    © {new Date().getFullYear()} SeekJobsLk. Your privacy is important to us.
-                </div>
-            </footer>
+            <Footer />
         </>
     );
 };

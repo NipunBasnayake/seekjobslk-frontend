@@ -4,15 +4,15 @@ import {
   MapPin,
   Building2,
   Briefcase,
-  DollarSign,
   ChevronDown,
   ChevronUp,
   X,
+  Check,
 } from "lucide-react";
 import { getCategories, getCompanies } from "@/services/firebaseData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Category, Company } from "@/types/index";
+import { Category, Company } from "@/types";
 import {
   Popover,
   PopoverContent,
@@ -25,8 +25,6 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { Check } from "lucide-react";
-
 
 export interface FilterState {
   categories: string[];
@@ -49,7 +47,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   filters,
   onFilterChange,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  // 🔹 collapsed by default
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
 
@@ -59,7 +59,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         getCategories(),
         getCompanies(),
       ]);
-
       setCategories(cats);
       setCompanies(comps);
     };
@@ -82,9 +81,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   const handleLocationChange = (location: string) =>
     onFilterChange({ ...filters, location });
 
-  const handleSalaryChange = (value: number[]) =>
-    onFilterChange({ ...filters, salaryRange: [value[0], value[1]] });
-
   const clearFilters = () =>
     onFilterChange({
       categories: [],
@@ -98,27 +94,24 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     filters.categories.length +
     filters.companies.length +
     filters.jobTypes.length +
-    (filters.location && filters.location !== "all" ? 1 : 0) +
-    (filters.salaryRange[0] !== DEFAULT_SALARY[0] ||
-      filters.salaryRange[1] !== DEFAULT_SALARY[1]
-      ? 1
-      : 0);
+    (filters.location !== "all" ? 1 : 0);
 
   const showLocation =
     !filters.jobTypes.includes("Remote") || filters.jobTypes.length > 1;
 
   return (
-    <div className="bg-card rounded-xl shadow-card border border-border overflow-hidden transition-all duration-300">
+    <div className="bg-card rounded-xl border shadow-card overflow-hidden">
+      {/* Header */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-        onClick={() => setIsExpanded((prev) => !prev)}
+        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
+        onClick={() => setIsExpanded((p) => !p)}
       >
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-lg">
             <Filter className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-heading">Filter Jobs</h3>
+            <h3 className="font-semibold">Filter Jobs</h3>
             <p className="text-sm text-muted-foreground">
               {activeFiltersCount > 0
                 ? `${activeFiltersCount} filters applied`
@@ -130,13 +123,12 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         <div className="flex items-center gap-2">
           {activeFiltersCount > 0 && (
             <Button
-              variant="ghost"
               size="sm"
+              variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 clearFilters();
               }}
-              className="text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4 mr-1" /> Clear
             </Button>
@@ -149,73 +141,30 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
       </div>
 
+      {/* Content */}
       {isExpanded && (
         <div className="p-4 pt-0 space-y-6 animate-slide-up">
+          {/* Categories */}
           <FilterBlock icon={Briefcase} label="Categories">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full md:w-64 justify-between"
-                >
-                  {filters.categories.length > 0
-                    ? `${filters.categories.length} selected`
-                    : "Select categories"}
-                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-
-              <PopoverContent className="w-full md:w-64 p-0">
-                <Command>
-                  <CommandInput placeholder="Search categories..." />
-                  <CommandEmpty>No category found.</CommandEmpty>
-
-                  <CommandGroup>
-                    {categories.map((category) => {
-                      const isSelected = filters.categories.includes(category.id);
-
-                      return (
-                        <CommandItem
-                          key={category.id}
-                          value={category.name}
-                          onSelect={() => toggleValue("categories", category.id)}
-                        >
-                          <Check
-                            className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"
-                              }`}
-                          />
-                          {category.name}
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-
-            {filters.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {filters.categories.map((id) => {
-                  const cat = categories.find((c) => c.id === id);
-                  if (!cat) return null;
-
-                  return (
-                    <Badge
-                      key={id}
-                      variant="secondary"
-                      className="cursor-pointer"
-                      onClick={() => toggleValue("categories", id)}
-                    >
-                      {cat.name}
-                      <X className="ml-1 h-3 w-3" />
-                    </Badge>
-                  );
-                })}
-              </div>
-            )}
+            <SearchableDropdown
+              placeholder="Search categories..."
+              selected={filters.categories}
+              items={categories}
+              onSelect={(id) => toggleValue("categories", id)}
+            />
           </FilterBlock>
 
+          {/* Companies */}
+          <FilterBlock icon={Building2} label="Companies">
+            <SearchableDropdown
+              placeholder="Search companies..."
+              selected={filters.companies}
+              items={companies}
+              onSelect={(id) => toggleValue("companies", id)}
+            />
+          </FilterBlock>
+
+          {/* Job Types */}
           <FilterBlock icon={Briefcase} label="Job Type">
             {JOB_TYPES.map((type) => (
               <Badge
@@ -223,7 +172,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                 variant={
                   filters.jobTypes.includes(type) ? "default" : "outline"
                 }
-                className="cursor-pointer transition-all hover:scale-105"
+                className="cursor-pointer"
                 onClick={() => toggleValue("jobTypes", type)}
               >
                 {type}
@@ -231,19 +180,19 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             ))}
           </FilterBlock>
 
+          {/* Location */}
           {showLocation && (
             <FilterBlock icon={MapPin} label="Location">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    role="combobox"
                     className="w-full md:w-64 justify-between"
                   >
-                    {filters.location && filters.location !== "all"
+                    {filters.location !== "all"
                       ? filters.location
                       : "Select location"}
-                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <ChevronDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
 
@@ -258,7 +207,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                         onSelect={() => handleLocationChange("all")}
                       >
                         <Check
-                          className={`mr-2 h-4 w-4 ${filters.location === "all" ? "opacity-100" : "opacity-0"
+                          className={`mr-2 h-4 w-4 ${filters.location === "all"
+                              ? "opacity-100"
+                              : "opacity-0"
                             }`}
                         />
                         All Locations
@@ -271,7 +222,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                           onSelect={() => handleLocationChange(loc)}
                         >
                           <Check
-                            className={`mr-2 h-4 w-4 ${filters.location === loc ? "opacity-100" : "opacity-0"
+                            className={`mr-2 h-4 w-4 ${filters.location === loc
+                                ? "opacity-100"
+                                : "opacity-0"
                               }`}
                           />
                           {loc}
@@ -283,7 +236,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({
               </Popover>
             </FilterBlock>
           )}
-
         </div>
       )}
     </div>
@@ -292,18 +244,101 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 
 export default FilterSection;
 
-interface BlockProps {
+interface FilterBlockProps {
   icon: React.ElementType;
   label: string;
   children: React.ReactNode;
 }
 
-const FilterBlock: React.FC<BlockProps> = ({ icon: Icon, label, children }) => (
+const FilterBlock: React.FC<FilterBlockProps> = ({
+  icon: Icon,
+  label,
+  children,
+}) => (
   <div>
-    <label className="flex items-center gap-2 text-sm font-medium text-heading mb-3">
+    <label className="flex items-center gap-2 mb-3 text-sm font-medium">
       <Icon className="w-4 h-4 text-primary" />
       {label}
     </label>
     <div className="flex flex-wrap gap-2">{children}</div>
   </div>
+);
+
+interface DropdownItem {
+  id: string;
+  name: string;
+}
+
+interface SearchableDropdownProps {
+  items: DropdownItem[];
+  selected: string[];
+  placeholder: string;
+  onSelect: (id: string) => void;
+}
+
+const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
+  items,
+  selected,
+  placeholder,
+  onSelect,
+}) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        className="w-full md:w-64 justify-between"
+      >
+        {selected.length > 0
+          ? `${selected.length} selected`
+          : "Select"}
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </Button>
+    </PopoverTrigger>
+
+    <PopoverContent className="w-full md:w-64 p-0">
+      <Command>
+        <CommandInput placeholder={placeholder} />
+        <CommandEmpty>No results found.</CommandEmpty>
+
+        <CommandGroup>
+          {items.map((item) => (
+            <CommandItem
+              key={item.id}
+              value={item.name}
+              onSelect={() => onSelect(item.id)}
+            >
+              <Check
+                className={`mr-2 h-4 w-4 ${selected.includes(item.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                  }`}
+              />
+              {item.name}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </Command>
+    </PopoverContent>
+
+    {selected.length > 0 && (
+      <div className="flex flex-wrap gap-2 mt-2">
+        {selected.map((id) => {
+          const item = items.find((i) => i.id === id);
+          if (!item) return null;
+
+          return (
+            <Badge
+              key={id}
+              variant="secondary"
+              className="cursor-pointer"
+              onClick={() => onSelect(id)}
+            >
+              {item.name}
+              <X className="ml-1 h-3 w-3" />
+            </Badge>
+          );
+        })}
+      </div>
+    )}
+  </Popover>
 );

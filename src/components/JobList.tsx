@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Briefcase, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Briefcase, TrendingUp } from "lucide-react";
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
 import JobCardSkeleton from "./JobCardSkeleton";
+import Pagination from "./Pagination";
 
 interface JobListProps {
   filters: FilterState;
@@ -65,6 +66,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2">
@@ -87,6 +89,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         )}
       </div>
 
+      {/* Loading */}
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -95,6 +98,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
       )}
 
+      {/* Job List */}
       {!loading && paginatedJobs.length > 0 && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
@@ -109,45 +113,16 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
             ))}
           </div>
 
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 pt-4">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className="rounded-md border px-3 py-1 disabled:opacity-50"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const page = i + 1;
-                return (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`rounded-md px-3 py-1 text-sm ${
-                      currentPage === page
-                        ? "bg-primary text-primary-foreground"
-                        : "border"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className="rounded-md border px-3 py-1 disabled:opacity-50"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+          {/* Pagination (centered) */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </>
       )}
 
+      {/* Empty State */}
       {!loading && sortedJobs.length === 0 && (
         <div className="rounded-xl border bg-card p-12 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">

@@ -12,20 +12,31 @@ import {
     ExternalLink,
     Share2,
     Star,
-    CheckCircle2,
 } from "lucide-react";
+
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { getJobById, getJobs, incrementJobAppliedCount } from "@/services/firebaseData";
+
+import {
+    getJobById,
+    getJobs,
+    incrementJobAppliedCount,
+} from "@/services/firebaseData";
+
 import type { Job } from "@/types";
+
 import ConnectWithUs from "@/components/ConnectWithUs";
 import PageViewsCounter from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import RelatedJobsAside from "@/components/RelatedJobsAside";
 import ApplyPopup from "@/components/ApplyPopup";
+
+// ✅ NEW separated components
+import JobContent from "@/components/JobContent";
 
 type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
 
@@ -33,6 +44,7 @@ const APPLY_DELAY = 5;
 
 const JobDetails: React.FC = () => {
     const { jobId } = useParams<{ jobId: string }>();
+
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
     const [applyCountdown, setApplyCountdown] = useState(APPLY_DELAY);
@@ -41,6 +53,9 @@ const JobDetails: React.FC = () => {
     const [showApplyPopup, setShowApplyPopup] = useState(false);
     const [applyType, setApplyType] = useState<"email" | "whatsapp">("email");
 
+    /* =========================
+       Fetch job
+    ========================== */
     useEffect(() => {
         if (!jobId) return;
 
@@ -61,6 +76,9 @@ const JobDetails: React.FC = () => {
         };
     }, [jobId]);
 
+    /* =========================
+       Apply countdown
+    ========================== */
     useEffect(() => {
         if (loading) return;
 
@@ -78,10 +96,16 @@ const JobDetails: React.FC = () => {
         return () => clearInterval(timer);
     }, [loading]);
 
+    /* =========================
+       Load related jobs
+    ========================== */
     useEffect(() => {
         getJobs().then(setAllJobs).catch(() => setAllJobs(null));
     }, []);
 
+    /* =========================
+       Computed values
+    ========================== */
     const appliedCount = useMemo(
         () => (job?.applied_count ?? 0) + localApplied,
         [job, localApplied]
@@ -98,36 +122,9 @@ const JobDetails: React.FC = () => {
         return `Posted ${Math.floor(days / 7)} weeks ago`;
     }, [job]);
 
-    const requirements = useMemo(() => {
-        if (!job?.requirements) return [];
-        if (Array.isArray(job.requirements)) return job.requirements.filter(Boolean);
-        return job.requirements
-            .split(/\r?\n+/)
-            .map((r) => r.trim())
-            .filter(Boolean);
-    }, [job]);
-
-    const handleApply = async () => {
-        if (!job?.apply_url || applyCountdown > 0) return;
-
-        const type = detectApplyLinkType(job.apply_url);
-
-        setLocalApplied((p) => p + 1);
-        incrementJobAppliedCount(job.id).catch(() => {
-            setLocalApplied((p) => p - 1);
-        });
-
-        if (type === "url") {
-            window.open(job.apply_url, "_blank", "noopener,noreferrer");
-            return;
-        }
-
-        if (type === "email" || type === "whatsapp") {
-            setApplyType(type);
-            setShowApplyPopup(true);
-        }
-    };
-
+    /* =========================
+       Apply handling
+    ========================== */
     const detectApplyLinkType = (applyUrl: string): ApplyLinkType => {
         const url = applyUrl.trim().toLowerCase();
 
@@ -150,47 +147,36 @@ const JobDetails: React.FC = () => {
         return "unknown";
     };
 
-    const normalizeEmailLink = (value: string) => {
-        if (value.startsWith("mailto:")) return value;
-        return `mailto:${value}`;
-    };
+    const handleApply = async () => {
+        if (!job?.apply_url || applyCountdown > 0) return;
 
-    const handleShare = async () => {
-        if (!job) return;
+        const type = detectApplyLinkType(job.apply_url);
 
-        const isMobileDevice = () => {
-            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        };
-        const message = getShareMessage(job);
+        setLocalApplied((p) => p + 1);
+        incrementJobAppliedCount(job.id).catch(() =>
+            setLocalApplied((p) => p - 1)
+        );
 
-        try {
-            if (isMobileDevice() && navigator.share) {
-                await navigator.share({
-                    title: job.title,
-                    text: message,
-                });
-                return;
-            }
+        if (type === "url") {
+            window.open(job.apply_url, "_blank", "noopener,noreferrer");
+            return;
+        }
 
-            await navigator.clipboard.writeText(message);
-            toast({
-                title: "Copied",
-                description: "Job message copied to clipboard",
-            });
-
-        } catch (error) {
-            await navigator.clipboard.writeText(message);
-            toast({
-                title: "Copied",
-                description: "Job message copied to clipboard",
-            });
+        if (type === "email" || type === "whatsapp") {
+            setApplyType(type);
+            setShowApplyPopup(true);
         }
     };
 
-    const getShareMessage = (job: Job) => {
+    /* =========================
+       Share job
+    ========================== */
+    const handleShare = async () => {
+        if (!job) return;
+
         const jobUrl = `https://seekjobslk.com/job/${job.id}`;
 
-        return `📌 ${job.title}
+        const message = `📌 ${job.title}
 
 🏢 Company: ${job.company.name}
 📍 Location: ${job.location}
@@ -200,17 +186,30 @@ const JobDetails: React.FC = () => {
 ${jobUrl}
 
 🔔 Stay updated with new jobs
-
-WhatsApp Group:
-https://chat.whatsapp.com/DPOquPdltS281VTT4hOln4?mode=hqrt3
-
 WhatsApp Channel:
 https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: job.title,
+                    text: message,
+                });
+                return;
+            }
+
+            await navigator.clipboard.writeText(message);
+            toast({ title: "Copied", description: "Job copied to clipboard" });
+        } catch {
+            await navigator.clipboard.writeText(message);
+            toast({ title: "Copied", description: "Job copied to clipboard" });
+        }
     };
 
-    if (loading) {
-        return <JobDetailsSkeleton />;
-    }
+    /* =========================
+       Loading / Not found
+    ========================== */
+    if (loading) return <JobDetailsSkeleton />;
 
     if (!job) {
         return (
@@ -220,7 +219,8 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                     <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
                     <Button asChild>
                         <Link to="/">
-                            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to Jobs
                         </Link>
                     </Button>
                 </div>
@@ -228,41 +228,16 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
         );
     }
 
+    /* =========================
+       Render
+    ========================== */
     return (
         <>
             <Helmet>
-                <title>{`${job.title} – ${job.company.name} | Jobs in ${job.location} | SeekJobsLK`}</title>
-                <meta
-                    name="description"
-                    content={`${job.title} at ${job.company.name} in ${job.location}. ${job.job_type} position. Apply now on SeekJobsLK.`}
-                />
+                <title>{`${job.title} – ${job.company.name} | SeekJobsLK`}</title>
                 <link
                     rel="canonical"
                     href={`https://seekjobslk.com/job/${job.id}`}
-                />
-                <meta property="og:type" content="website" />
-                <meta property="og:title" content={`${job.title} – ${job.company.name}`} />
-                <meta
-                    property="og:description"
-                    content={`${job.location} | ${job.job_type} job opportunity`}
-                />
-                <meta
-                    property="og:image"
-                    content={job.company.logo_url}
-                />
-                <meta
-                    property="og:url"
-                    content={`https://seekjobslk.com/job/${job.id}`}
-                />
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={`${job.title} – ${job.company.name}`} />
-                <meta
-                    name="twitter:description"
-                    content={`${job.location} | ${job.job_type}`}
-                />
-                <meta
-                    name="twitter:image"
-                    content={job.company.logo_url}
                 />
             </Helmet>
 
@@ -270,16 +245,15 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                 <Navbar />
 
                 <main className="container mx-auto px-4 py-6 md:py-8">
-
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+                        {/* ================= LEFT ================= */}
                         <article className="lg:col-span-2 space-y-6">
-
+                            {/* Header */}
                             <section className="relative rounded-xl border bg-card p-6">
                                 {job.is_featured && (
-                                    <div
-                                        className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
-                                        <Star className="h-3 w-3 fill-current" /> Featured
+                                    <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
+                                        <Star className="h-3 w-3 fill-current" />
+                                        Featured
                                     </div>
                                 )}
 
@@ -297,29 +271,14 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                                         <div className="flex items-center gap-2 text-muted-foreground mb-4">
                                             <Building2 className="w-4 h-4" />
-
-                                            {job.company.website ? (
-                                                <a
-                                                    href={job.company.website}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center gap-1.5 hover:text-primary transition-colors"
-                                                >
-                                                    <span>{job.company.name}</span>
-                                                    <ExternalLink className="w-4 h-4" />
-                                                </a>
-                                            ) : (
-                                                <span>{job.company.name}</span>
-                                            )}
+                                            <span>{job.company.name}</span>
                                         </div>
 
                                         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                                            {!job.job_type?.toLowerCase().includes("remote") && (
-                                                <span className="flex items-center gap-1.5">
-                                                    <MapPin className="w-4 h-4 text-primary" />
-                                                    {job.company.location}
-                                                </span>
-                                            )}
+                                            <span className="flex items-center gap-1.5">
+                                                <MapPin className="w-4 h-4 text-primary" />
+                                                {job.location}
+                                            </span>
 
                                             <Badge variant="secondary">{job.job_type}</Badge>
 
@@ -332,36 +291,16 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                 </div>
                             </section>
 
-                            <section className="rounded-xl border bg-card p-6">
-                                <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <Briefcase className="w-5 h-5 text-primary" />
-                                    Job Description
-                                </h2>
-                                <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
-                                    {job.description}
-                                </p>
-                            </section>
+                            <JobContent
+                                description={job.description}
+                                requirements={job.requirements}
+                            />
 
-                            <section className="rounded-xl border bg-card p-6">
-                                <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                                    Requirements
-                                </h2>
-
-                                <ul className="space-y-3">
-                                    {requirements.map((req, i) => (
-                                        <li key={i} className="flex gap-3">
-                                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
-                                            <span className="text-muted-foreground">{req}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
                         </article>
 
+                        {/* ================= RIGHT ================= */}
                         <aside>
                             <div className="sticky top-24 space-y-5">
-
                                 <WhatsAppChannelBanner />
 
                                 <section className="rounded-xl border bg-card p-6">
@@ -375,16 +314,17 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                     )}
 
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                                        <Users className="w-4 h-4" /> {appliedCount} applied
+                                        <Users className="w-4 h-4" />
+                                        {appliedCount} applied
                                     </div>
 
-                                    <div className="space-y-3">
-                                        {applyCountdown > 0 && (
-                                            <p className="text-sm font-medium text-red-600 text-center">
-                                                Apply link will be generated in {applyCountdown} seconds
-                                            </p>
-                                        )}
+                                    {applyCountdown > 0 && (
+                                        <p className="text-sm font-medium text-red-600 text-center mb-2">
+                                            Apply link will be generated in {applyCountdown} seconds
+                                        </p>
+                                    )}
 
+                                    <div className="space-y-3">
                                         <Button
                                             size="lg"
                                             className="w-full gap-2"
@@ -401,15 +341,19 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                             variant="outline"
                                             onClick={handleShare}
                                         >
-                                            <Share2 className="w-4 h-4" /> Share Job
+                                            <Share2 className="w-4 h-4" />
+                                            Share Job
                                         </Button>
                                     </div>
                                 </section>
 
-                                <RelatedJobsAside jobs={allJobs} currentJob={job} limit={6} />
+                                <RelatedJobsAside
+                                    jobs={allJobs}
+                                    currentJob={job}
+                                    limit={6}
+                                />
 
                                 <ConnectWithUs />
-
                                 <PageViewsCounter />
 
                                 <ApplyPopup
@@ -418,12 +362,12 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
                                     applyUrl={job.apply_url}
                                     onClose={() => setShowApplyPopup(false)}
                                 />
-
                             </div>
                         </aside>
-
                     </div>
                 </main>
+
+                <Footer />
             </div>
         </>
     );

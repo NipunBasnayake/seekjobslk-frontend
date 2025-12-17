@@ -79,10 +79,7 @@ const Index: React.FC = () => {
 
 
             <div className="min-h-screen bg-background transition-colors duration-300">
-                <Navbar
-                    onCategorySelect={handleCategorySelect}
-                    onCompanySelect={handleCompanySelect}
-                />
+                <Navbar/>
 
                 <main className="container mx-auto px-4 py-6 md:py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

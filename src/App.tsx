@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import JobDetails from "./pages/JobDetails";
 import NotFound from "./pages/NotFound";
-import About from "./pages/about";
+import About from "./pages/About";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";

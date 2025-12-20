@@ -40,16 +40,20 @@ interface FilterSectionProps {
 }
 
 const JOB_TYPES = ["Full-Time", "Part-Time", "Contract", "Remote", "Hybrid"];
-const LOCATIONS = ["Colombo", "Kandy", "Galle", "Negombo", "Jaffna", "Remote"];
+const LOCATIONS = [
+  "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", "Galle",
+  "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya",
+  "Puttalam", "Kurunegala", "Anuradhapura", "Polonnaruwa", "Badulla", "Monaragala",
+  "Ratnapura", "Kegalle", "Trincomalee", "Batticaloa", "Ampara", "Remote",
+];
+
 const DEFAULT_SALARY: [number, number] = [0, 500000];
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   filters,
   onFilterChange,
 }) => {
-  // 🔹 collapsed by default
   const [isExpanded, setIsExpanded] = useState(false);
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
 
@@ -201,15 +205,15 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                     <CommandInput placeholder="Search location..." />
                     <CommandEmpty>No location found.</CommandEmpty>
 
-                    <CommandGroup>
+                    <CommandGroup className="max-h-64 overflow-y-auto">
                       <CommandItem
                         value="all"
                         onSelect={() => handleLocationChange("all")}
                       >
                         <Check
                           className={`mr-2 h-4 w-4 ${filters.location === "all"
-                              ? "opacity-100"
-                              : "opacity-0"
+                            ? "opacity-100"
+                            : "opacity-0"
                             }`}
                         />
                         All Locations
@@ -223,8 +227,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                         >
                           <Check
                             className={`mr-2 h-4 w-4 ${filters.location === loc
-                                ? "opacity-100"
-                                : "opacity-0"
+                              ? "opacity-100"
+                              : "opacity-0"
                               }`}
                           />
                           {loc}
@@ -243,6 +247,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 };
 
 export default FilterSection;
+
+/* ===================== Helpers ===================== */
 
 interface FilterBlockProps {
   icon: React.ElementType;
@@ -281,64 +287,65 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   selected,
   placeholder,
   onSelect,
-}) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        className="w-full md:w-64 justify-between"
-      >
-        {selected.length > 0
-          ? `${selected.length} selected`
-          : "Select"}
-        <ChevronDown className="h-4 w-4 opacity-50" />
-      </Button>
-    </PopoverTrigger>
+}) => {
+  const sortedItems = [...items].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
-    <PopoverContent className="w-full md:w-64 p-0">
-      <Command>
-        <CommandInput placeholder={placeholder} />
-        <CommandEmpty>No results found.</CommandEmpty>
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full md:w-64 justify-between">
+          {selected.length > 0 ? `${selected.length} selected` : "Select"}
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </Button>
+      </PopoverTrigger>
 
-        <CommandGroup>
-          {items.map((item) => (
-            <CommandItem
-              key={item.id}
-              value={item.name}
-              onSelect={() => onSelect(item.id)}
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${selected.includes(item.id)
+      <PopoverContent className="w-full md:w-64 p-0">
+        <Command>
+          <CommandInput placeholder={placeholder} />
+          <CommandEmpty>No results found.</CommandEmpty>
+
+          <CommandGroup className="max-h-64 overflow-y-auto">
+            {sortedItems.map((item) => (
+              <CommandItem
+                key={item.id}
+                value={item.name}
+                onSelect={() => onSelect(item.id)}
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${selected.includes(item.id)
                     ? "opacity-100"
                     : "opacity-0"
-                  }`}
-              />
-              {item.name}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </Command>
-    </PopoverContent>
+                    }`}
+                />
+                {item.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
 
-    {selected.length > 0 && (
-      <div className="flex flex-wrap gap-2 mt-2">
-        {selected.map((id) => {
-          const item = items.find((i) => i.id === id);
-          if (!item) return null;
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {selected.map((id) => {
+            const item = items.find((i) => i.id === id);
+            if (!item) return null;
 
-          return (
-            <Badge
-              key={id}
-              variant="secondary"
-              className="cursor-pointer"
-              onClick={() => onSelect(id)}
-            >
-              {item.name}
-              <X className="ml-1 h-3 w-3" />
-            </Badge>
-          );
-        })}
-      </div>
-    )}
-  </Popover>
-);
+            return (
+              <Badge
+                key={id}
+                variant="secondary"
+                className="cursor-pointer"
+                onClick={() => onSelect(id)}
+              >
+                {item.name}
+                <X className="ml-1 h-3 w-3" />
+              </Badge>
+            );
+          })}
+        </div>
+      )}
+    </Popover>
+  );
+};

@@ -1,6 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Clock, Users, Star, ExternalLink } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Users,
+  Star,
+  ExternalLink,
+} from "lucide-react";
 import type { Job } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +23,16 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
 
   const appliedCount = Number(job.applied_count) || 0;
 
+  const isNewJob = (() => {
+    if (!job.posted_date) return false;
+
+    const postedTime = job.posted_date.toDate().getTime();
+    const now = Date.now();
+    const diffInHours = (now - postedTime) / (1000 * 60 * 60);
+
+    return diffInHours < 12;
+  })();
+
   const getTimeAgo = (date?: Date) => {
     if (!date) return "Date unavailable";
     const diff = Math.floor((Date.now() - date.getTime()) / 86400000);
@@ -26,6 +42,9 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     if (diff < 30) return `${Math.floor(diff / 7)} weeks ago`;
     return `${Math.floor(diff / 30)} months ago`;
   };
+
+  const hasFeatured = !!job.is_featured;
+  const hasNew = isNewJob;
 
   return (
     <Link to={`/job/${job.id}`} className="block">
@@ -42,11 +61,30 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           max-w-[520px] w-full
         "
       >
+        {(hasFeatured || hasNew) && (
+          <div className="absolute top-0 right-0 flex text-[11px] font-bold uppercase tracking-wide overflow-hidden">
+            {hasNew && (
+              <div
+                className={`
+                  bg-emerald-500 text-white px-3 py-1
+                  ${hasFeatured ? "rounded-bl-2xl" : "rounded-tr-2xl rounded-bl-2xl"}
+                `}
+              >
+                New
+              </div>
+            )}
 
-        {job.is_featured && (
-          <div className="absolute top-0 right-0 rounded-bl-2xl rounded-tr-2xl bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
-            <Star className="h-3 w-3 fill-current" />
-            Featured
+            {hasFeatured && (
+              <div
+                className={`
+                  bg-primary text-primary-foreground px-3 py-1 flex items-center gap-1
+                  ${hasNew ? "rounded-tr-2xl" : "rounded-tr-2xl rounded-bl-2xl"}
+                `}
+              >
+                <Star className="h-3 w-3 fill-current" />
+                Featured
+              </div>
+            )}
           </div>
         )}
 
@@ -79,7 +117,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
             {job.job_type || "Job Type"}
           </Badge>
 
-          {/* Right aligned date */}
           <div className="ml-auto flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
             {getTimeAgo(job.posted_date?.toDate())}
@@ -96,6 +133,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
             variant="apply"
             size="sm"
             className="gap-1.5"
+            onClick={() => onApply(job.id)}
           >
             Apply
             <ExternalLink className="h-3.5 w-3.5" />

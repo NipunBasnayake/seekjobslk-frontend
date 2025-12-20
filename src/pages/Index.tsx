@@ -64,10 +64,9 @@ const Index: React.FC = () => {
 
             <div className="min-h-screen bg-background">
                 <Navbar />
-
                 <main className="container mx-auto px-4 py-6 md:py-8">
-                    {/* 🔹 MOBILE FILTER (TOP) */}
-                    <div className="mb-4 lg:hidden">
+                    <div className="lg:hidden mb-6 space-y-4">
+                        <WhatsAppChannelBanner />
                         <FilterSection
                             filters={filters}
                             onFilterChange={setFilters}
@@ -75,7 +74,6 @@ const Index: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        {/* 🔹 SIDEBAR (DESKTOP ONLY) */}
                         <aside className="hidden lg:block lg:col-span-1 space-y-5">
                             <WhatsAppChannelBanner />
                             <FilterSection
@@ -87,16 +85,21 @@ const Index: React.FC = () => {
                             <PageViewsCounter />
                         </aside>
 
-                        {/* 🔹 JOB LIST */}
-                        <section className="lg:col-span-3">
+                        <section className="lg:col-span-3 space-y-4">
                             {error && (
-                                <div className="mb-4 rounded-lg border bg-amber-50 p-4 text-sm text-amber-900">
+                                <div className="rounded-lg border bg-amber-50 p-4 text-sm text-amber-900">
                                     {error}
                                 </div>
                             )}
 
                             <JobList filters={filters} jobs={jobs} />
                         </section>
+                    </div>
+
+                    <div className="lg:hidden mt-8 space-y-4">
+                        <PopularJobsAside jobs={jobs} />
+                        <PageViewsCounter />
+                        <ConnectWithUs />
                     </div>
                 </main>
 

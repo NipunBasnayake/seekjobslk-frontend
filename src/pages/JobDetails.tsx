@@ -157,33 +157,38 @@ const JobDetails: React.FC = () => {
 
         const jobUrl = `https://seekjobslk.com/job/${job.id}`;
 
-        const message = `📌 ${job.title}
+        const message = `*📌 ${job.title}*
 
 🏢 Company: ${job.company.name}
 📍 Location: ${job.location}
 💼 Job Type: ${job.job_type}
 
-🔗 Apply here:
+Apply here:
 ${jobUrl}
 
-🔔 Stay updated with new jobs
 WhatsApp Channel:
-https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
+https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
+
+> Follow our WhatsApp Channel and enable 🔔 notifications.`;
 
         try {
-            if (navigator.share) {
-                await navigator.share({
-                    title: job.title,
-                    text: message,
-                });
-                return;
-            }
-
             await navigator.clipboard.writeText(message);
-            toast({ title: "Copied", description: "Job copied to clipboard" });
+            toast({
+                title: "Copied to clipboard",
+                description: "Job details are ready to share",
+            });
         } catch {
-            await navigator.clipboard.writeText(message);
-            toast({ title: "Copied", description: "Job copied to clipboard" });
+            const textarea = document.createElement("textarea");
+            textarea.value = message;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            toast({
+                title: "Copied to clipboard",
+                description: "Job details are ready to share",
+            });
         }
     };
 

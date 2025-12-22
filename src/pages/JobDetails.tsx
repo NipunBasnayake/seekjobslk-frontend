@@ -35,12 +35,11 @@ import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import RelatedJobsAside from "@/components/RelatedJobsAside";
 import ApplyPopup from "@/components/ApplyPopup";
 
-// ✅ NEW separated components
 import JobContent from "@/components/JobContent";
 
 type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
 
-const APPLY_DELAY = 5;
+const APPLY_DELAY = 8;
 
 const JobDetails: React.FC = () => {
     const { jobId } = useParams<{ jobId: string }>();
@@ -53,9 +52,6 @@ const JobDetails: React.FC = () => {
     const [showApplyPopup, setShowApplyPopup] = useState(false);
     const [applyType, setApplyType] = useState<"email" | "whatsapp">("email");
 
-    /* =========================
-       Fetch job
-    ========================== */
     useEffect(() => {
         if (!jobId) return;
 
@@ -76,9 +72,6 @@ const JobDetails: React.FC = () => {
         };
     }, [jobId]);
 
-    /* =========================
-       Apply countdown
-    ========================== */
     useEffect(() => {
         if (loading) return;
 
@@ -96,16 +89,10 @@ const JobDetails: React.FC = () => {
         return () => clearInterval(timer);
     }, [loading]);
 
-    /* =========================
-       Load related jobs
-    ========================== */
     useEffect(() => {
         getJobs().then(setAllJobs).catch(() => setAllJobs(null));
     }, []);
 
-    /* =========================
-       Computed values
-    ========================== */
     const appliedCount = useMemo(
         () => (job?.applied_count ?? 0) + localApplied,
         [job, localApplied]
@@ -122,9 +109,6 @@ const JobDetails: React.FC = () => {
         return `Posted ${Math.floor(days / 7)} weeks ago`;
     }, [job]);
 
-    /* =========================
-       Apply handling
-    ========================== */
     const detectApplyLinkType = (applyUrl: string): ApplyLinkType => {
         const url = applyUrl.trim().toLowerCase();
 
@@ -168,9 +152,6 @@ const JobDetails: React.FC = () => {
         }
     };
 
-    /* =========================
-       Share job
-    ========================== */
     const handleShare = async () => {
         if (!job) return;
 
@@ -206,9 +187,6 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
         }
     };
 
-    /* =========================
-       Loading / Not found
-    ========================== */
     if (loading) return <JobDetailsSkeleton />;
 
     if (!job) {
@@ -228,9 +206,6 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
         );
     }
 
-    /* =========================
-       Render
-    ========================== */
     return (
         <>
             <Helmet>
@@ -246,9 +221,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                 <main className="container mx-auto px-4 py-6 md:py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* ================= LEFT ================= */}
                         <article className="lg:col-span-2 space-y-6">
-                            {/* Header */}
                             <section className="relative rounded-xl border bg-card p-6">
                                 {job.is_featured && (
                                     <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
@@ -298,7 +271,6 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F`;
 
                         </article>
 
-                        {/* ================= RIGHT ================= */}
                         <aside>
                             <div className="sticky top-24 space-y-5">
                                 <WhatsAppChannelBanner />

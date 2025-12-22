@@ -6,11 +6,23 @@ interface Props {
     jobs: Job[] | null;
 }
 
+const POPULAR_JOB_DAYS = 14;
+
 export default function PopularJobsAside({ jobs }: Props) {
     if (!jobs || jobs.length === 0) return null;
 
+    const now = new Date();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(now.getDate() - POPULAR_JOB_DAYS);
+
     const popularJobs = [...jobs]
-        .filter(job => typeof job.applied_count === "number")
+        .filter(job => {
+            if (typeof job.applied_count !== "number") return false;
+            if (!job.posted_date) return false;
+
+            const jobDate = new Date(job.posted_date.toDate());
+            return jobDate >= cutoffDate;
+        })
         .sort((a, b) => (b.applied_count ?? 0) - (a.applied_count ?? 0))
         .slice(0, 7);
 
@@ -18,12 +30,16 @@ export default function PopularJobsAside({ jobs }: Props) {
 
     return (
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-            {/* Header */}
             <div className="mb-3 flex items-center gap-3">
                 <div className="rounded-lg bg-orange-100 p-2">
                     <Flame className="h-5 w-5 text-orange-500" />
                 </div>
-                <h3 className="text-md font-semibold">Popular Jobs</h3>
+                <div>
+                    <h3 className="text-md font-semibold">Popular Jobs</h3>
+                    <p className="text-xs text-muted-foreground">
+                        Last {POPULAR_JOB_DAYS} days
+                    </p>
+                </div>
             </div>
 
             <ul className="divide-y divide-border/60">
@@ -33,7 +49,6 @@ export default function PopularJobsAside({ jobs }: Props) {
                             to={`/job/${job.id}`}
                             className="flex gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
                         >
-                            {/* Company Logo */}
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center">
                                 {job.company?.logo_url ? (
                                     <img
@@ -47,7 +62,6 @@ export default function PopularJobsAside({ jobs }: Props) {
                                 )}
                             </div>
 
-                            {/* Job Info */}
                             <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium leading-snug line-clamp-2">
                                     {job.title}

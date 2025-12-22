@@ -112,13 +112,22 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
 
         <div className="relative w-full sm:w-96">
-          <Search className="absolute text-primary left-3 top-1/2 h-5 w-5 -translate-y-1/2" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+
           <input
             type="text"
             placeholder="Search jobs, companies, skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border  bg-white py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="
+                  w-full rounded-lg border
+                  bg-background
+                  py-3 pl-11 pr-4 text-sm
+                  text-foreground
+                  placeholder:text-muted-foreground
+                  focus:outline-none focus:ring-2 focus:ring-primary
+                  dark:border-border
+                "
           />
         </div>
       </div>

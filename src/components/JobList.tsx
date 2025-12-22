@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Briefcase, TrendingUp } from "lucide-react";
+import { Briefcase, Search } from "lucide-react";
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
@@ -16,7 +16,36 @@ const JOBS_PER_PAGE = 10;
 const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
   const loading = jobs === null;
   const safeJobs = jobs ?? [];
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const jobMatchesSearch = (job: Job, query: string): boolean => {
+    if (!query.trim()) return true;
+
+    const normalizedQuery = query.toLowerCase();
+
+    const flattenObject = (obj: any): string[] => {
+      return Object.values(obj).flatMap((value) => {
+        if (!value) return [];
+        if (typeof value === "string" || typeof value === "number") {
+          return [String(value)];
+        }
+        if (Array.isArray(value)) {
+          return value.map(String);
+        }
+        if (typeof value === "object") {
+          return flattenObject(value);
+        }
+        return [];
+      });
+    };
+
+    return flattenObject(job)
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery);
+  };
 
   const filteredJobs = useMemo(() => {
     return safeJobs.filter((job) => {
@@ -34,9 +63,11 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         if (salary < filters.salaryRange[0] || salary > filters.salaryRange[1]) return false;
       }
 
+      if (!jobMatchesSearch(job, searchQuery)) return false;
+
       return true;
     });
-  }, [safeJobs, filters]);
+  }, [safeJobs, filters, searchQuery]);
 
   const sortedJobs = useMemo(() => {
     return [...filteredJobs].sort((a, b) => {
@@ -48,7 +79,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters, searchQuery]);
 
   const totalPages = Math.ceil(sortedJobs.length / JOBS_PER_PAGE);
 
@@ -66,7 +97,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2">
@@ -81,15 +111,27 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
           </div>
         </div>
 
-        {featuredCount > 0 && (
-          <div className="flex items-center gap-1.5 text-sm font-medium text-accent">
-            <TrendingUp className="h-4 w-4" />
-            Hot jobs available
-          </div>
-        )}
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+
+          <input
+            type="text"
+            placeholder="Search jobs, companies, skills..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="
+                  w-full rounded-lg border
+                  bg-background
+                  py-3 pl-11 pr-4 text-sm
+                  text-foreground
+                  placeholder:text-muted-foreground
+                  focus:outline-none focus:ring-2 focus:ring-primary
+                  dark:border-border
+                "
+          />
+        </div>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -98,7 +140,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
       )}
 
-      {/* Job List */}
       {!loading && paginatedJobs.length > 0 && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
@@ -113,7 +154,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
             ))}
           </div>
 
-          {/* Pagination (centered) */}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -122,7 +162,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </>
       )}
 
-      {/* Empty State */}
       {!loading && sortedJobs.length === 0 && (
         <div className="rounded-xl border bg-card p-12 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -130,7 +169,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
           </div>
           <h3 className="mb-1 text-lg font-semibold">No jobs found</h3>
           <p className="text-muted-foreground">
-            Try adjusting your filters to see more results
+            Try adjusting filters or search keywords
           </p>
         </div>
       )}

@@ -1,12 +1,15 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { Button } from "@/components/ui/button";
+"use client";
 
-const Navbar: React.FC = () => {
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/contexts/ThemeContext";
+
+const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -17,30 +20,29 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-navbar shadow-navbar">
+    <nav className="sticky top-0 z-50 shadow-navbar" style={{ backgroundColor: 'hsl(var(--navbar))' }}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 md:h-20 items-center justify-between">
-
-          {/* Logo */}
           <Link
-            to="/"
-            className="flex items-center gap-2 font-bold text-navbar-foreground text-xl md:text-2xl"
+            href="/"
+            className="flex items-center gap-2 font-bold text-xl md:text-2xl hover:opacity-90 transition-opacity"
+            style={{ color: 'hsl(var(--navbar-foreground))' }}
           >
             <Briefcase className="w-7 h-7" />
             SeekJobsLk
           </Link>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                to={link.path}
-                className={`px-3 py-2 rounded-md text-white text-sm font-regular transition
-                  ${location.pathname === link.path
-                    ? "bg-navbar-foreground/10"
-                    : "hover:bg-navbar-foreground/10"
-                  }`}
+                href={link.path}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  pathname === link.path
+                    ? "bg-white/20 dark:bg-white/10"
+                    : "hover:bg-white/15 dark:hover:bg-white/10"
+                }`}
+                style={{ color: 'hsl(var(--navbar-foreground))' }}
               >
                 {link.label}
               </Link>
@@ -50,37 +52,49 @@ const Navbar: React.FC = () => {
               variant="navbar"
               size="icon"
               onClick={toggleTheme}
-              className="ml-2"
+              className="ml-2 hover:bg-white/15 dark:hover:bg-white/10 transition-colors"
+              aria-label="Toggle theme"
             >
-              {theme === "light" ? <Moon /> : <Sun />}
+              {theme === "light" ? <Moon className="w-5 h-5 text-white" /> : <Sun className="w-5 h-5" />}
             </Button>
           </div>
 
-          {/* Mobile buttons */}
           <div className="flex md:hidden items-center gap-2">
-            <Button variant="navbar" size="icon" onClick={toggleTheme}>
-              {theme === "light" ? <Moon /> : <Sun />}
+            <Button 
+              variant="navbar" 
+              size="icon" 
+              onClick={toggleTheme}
+              className="hover:bg-white/15 dark:hover:bg-white/10"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? <Moon className="w-5 h-5 text-white" /> : <Sun className="w-5 h-5" />}
             </Button>
 
             <Button
               variant="navbar"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="hover:bg-white/15 dark:hover:bg-white/10"
+              aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X /> : <Menu />}
+              {isMobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
             </Button>
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t py-4 space-y-2 animate-slide-up">
+          <div className="md:hidden border-t border-white/20 dark:border-white/10 py-4 space-y-2 animate-slide-up">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm rounded-md hover:bg-navbar-foreground/10"
+                className={`block px-4 py-2 text-sm rounded-md transition-colors ${
+                  pathname === link.path
+                    ? "bg-white/20 dark:bg-white/10"
+                    : "hover:bg-white/15 dark:hover:bg-white/10"
+                }`}
+                style={{ color: 'hsl(var(--navbar-foreground))' }}
               >
                 {link.label}
               </Link>

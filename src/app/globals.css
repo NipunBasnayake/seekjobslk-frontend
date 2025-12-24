@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -114,11 +111,9 @@
     --sidebar-border: 208 36% 25%;
     --sidebar-ring: 189 76% 43%;
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   html {
@@ -126,8 +121,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
@@ -209,7 +207,7 @@
   }
 
   .filter-section {
-    @apply transition-all duration-300 ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
 
   @keyframes seekjobs-gradient {
@@ -266,3 +264,4 @@
     animation: float 1.6s ease-in-out infinite;
   }
 }
+

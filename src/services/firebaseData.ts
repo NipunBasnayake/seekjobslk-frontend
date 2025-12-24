@@ -89,7 +89,7 @@ const SESSION_KEY = "seekjobslk-visitor-counted";
 export const registerVisitor = async (): Promise<number> => {
     if (sessionStorage.getItem(SESSION_KEY)) {
         const snap = await getDoc(VISITOR_DOC);
-        return snap.exists() ? snap.data().count : 0;
+        return snap.exists() ? (snap.data()?.count ?? 0) : 0;
     }
 
     const snap = await getDoc(VISITOR_DOC);
@@ -107,12 +107,12 @@ export const registerVisitor = async (): Promise<number> => {
     sessionStorage.setItem(SESSION_KEY, "true");
 
     const updatedSnap = await getDoc(VISITOR_DOC);
-    return updatedSnap.data().count;
+    return updatedSnap.data()?.count ?? 0;
 };
 
 export const getVisitorCount = async (): Promise<number> => {
     const snap = await getDoc(VISITOR_DOC);
-    return snap.exists() ? snap.data().count : 0;
+    return snap.exists() ? (snap.data()?.count ?? 0) : 0;
 };
 
 export const incrementJobAppliedCount = async (jobId: string): Promise<void> => {

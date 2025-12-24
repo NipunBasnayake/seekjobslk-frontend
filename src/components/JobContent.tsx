@@ -4,8 +4,8 @@ import remarkGfm from "remark-gfm";
 import { Briefcase, CheckCircle2 } from "lucide-react";
 
 interface JobContentProps {
-    description?: string;
-    requirements?: string[] | string;
+  description?: string;
+  requirements?: string[] | string;
 }
 
 const markdownClass = `
@@ -33,61 +33,51 @@ const markdownClass = `
   prose-hr:my-6
 `;
 
-const JobContent: React.FC<JobContentProps> = ({
-    description,
-    requirements,
-}) => {
-    const normalizedRequirements = useMemo(() => {
-        if (!requirements) return "";
+const JobContent: React.FC<JobContentProps> = ({ description, requirements }) => {
+  const normalizedRequirements = useMemo(() => {
+    if (!requirements) return "";
+    if (Array.isArray(requirements)) {
+      return requirements.filter(Boolean).map((r) => `- ${r}`).join("\n");
+    }
+    return requirements;
+  }, [requirements]);
 
-        if (Array.isArray(requirements)) {
-            // Convert array → markdown list
-            return requirements.filter(Boolean).map(r => `- ${r}`).join("\n");
-        }
+  const hasDescription = Boolean(description?.trim());
+  const hasRequirements = Boolean(normalizedRequirements.trim());
 
-        return requirements;
-    }, [requirements]);
+  if (!hasDescription && !hasRequirements) return null;
 
-    const hasDescription = Boolean(description?.trim());
-    const hasRequirements = Boolean(normalizedRequirements.trim());
+  return (
+    <>
+      {/* ================= Job Description ================= */}
+      {hasDescription && (
+        <section className="rounded-xl border bg-card p-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
+            <Briefcase className="w-5 h-5 text-primary" />
+            Job Description
+          </h2>
+          <div className={markdownClass}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{description!}</ReactMarkdown>
+          </div>
+        </section>
+      )}
 
-    if (!hasDescription && !hasRequirements) return null;
-
-    return (
-        <>
-            {/* ================= Job Description ================= */}
-            {hasDescription && (
-                <section className="rounded-xl border bg-card p-6">
-                    <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                        <Briefcase className="w-5 h-5 text-primary" />
-                        Job Description
-                    </h2>
-
-                    <div className={markdownClass}>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {description!}
-                        </ReactMarkdown>
-                    </div>
-                </section>
-            )}
-
-            {/* ================= Requirements ================= */}
-            {hasRequirements && (
-                <section className="rounded-xl border bg-card p-6">
-                    <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
-                        <CheckCircle2 className="w-5 h-5 text-primary" />
-                        Requirements
-                    </h2>
-
-                    <div className={markdownClass}>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {normalizedRequirements}
-                        </ReactMarkdown>
-                    </div>
-                </section>
-            )}
-        </>
-    );
+      {/* ================= Requirements ================= */}
+      {hasRequirements && (
+        <section className="rounded-xl border bg-card p-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold mb-4">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+            Requirements
+          </h2>
+          <div className={markdownClass}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {normalizedRequirements}
+            </ReactMarkdown>
+          </div>
+        </section>
+      )}
+    </>
+  );
 };
 
 export default JobContent;

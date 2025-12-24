@@ -1,22 +1,35 @@
 import Navbar from "@/components/Navbar";
-import { Helmet } from "react-helmet-async";
-import { Briefcase, ShieldCheck, Globe, Users } from "lucide-react";
 import Footer from "@/components/Footer";
+import { Briefcase, ShieldCheck, Globe, Users } from "lucide-react";
+import type { ReactNode } from "react";
+
+export const metadata = {
+  title: "About Us | SeekJobsLk",
+  description:
+    "Learn more about SeekJobsLk, a Sri Lanka focused job portal helping job seekers connect with real opportunities.",
+};
+
+const Feature = ({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) => (
+  <div className="rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition">
+    <div className="mb-3 text-primary">{icon}</div>
+    <h3 className="font-semibold mb-1">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+  </div>
+);
 
 const About = () => {
   return (
     <>
-      <Helmet>
-        <title>About Us | SeekJobsLk</title>
-        <meta
-          name="description"
-          content="Learn more about SeekJobsLk, a Sri Lanka focused job portal helping job seekers connect with real opportunities."
-        />
-      </Helmet>
-
       <Navbar />
 
-      {/* Hero Section */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-20 max-w-5xl text-center">
           <h1 className="text-4xl font-extrabold tracking-tight mb-4">
@@ -29,9 +42,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-16 max-w-5xl">
-        {/* Who We Are */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold mb-4">Who We Are</h2>
           <p className="text-muted-foreground mb-4 leading-relaxed">
@@ -46,7 +57,6 @@ const About = () => {
           </p>
         </section>
 
-        {/* Feature Cards */}
         <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-16">
           <Feature
             icon={<Briefcase />}
@@ -70,7 +80,6 @@ const About = () => {
           />
         </section>
 
-        {/* Mission */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
           <p className="text-muted-foreground leading-relaxed">
@@ -81,7 +90,6 @@ const About = () => {
           </p>
         </section>
 
-        {/* Transparency & Disclaimer */}
         <section className="rounded-2xl border bg-muted/30 p-8">
           <h2 className="text-2xl font-bold mb-4">
             Transparency & Disclaimer
@@ -99,28 +107,9 @@ const About = () => {
         </section>
       </main>
 
-      {/* Footer */}
       <Footer />
     </>
   );
 };
 
 export default About;
-
-/* ---------------- Feature Card ---------------- */
-
-const Feature = ({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) => (
-  <div className="rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition">
-    <div className="mb-3 text-primary">{icon}</div>
-    <h3 className="font-semibold mb-1">{title}</h3>
-    <p className="text-sm text-muted-foreground">{description}</p>
-  </div>
-);

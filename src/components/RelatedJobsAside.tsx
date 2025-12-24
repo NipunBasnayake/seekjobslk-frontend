@@ -1,5 +1,5 @@
 import { Layers, Users, Building2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import type { Job } from "@/types";
 
 interface Props {
@@ -16,23 +16,18 @@ export default function RelatedJobsAside({
   if (!jobs || jobs.length === 0) return null;
 
   const currentCategory =
-    currentJob.category.name ||
-    currentJob.category.id ||
+    currentJob.category?.name ||
+    currentJob.category?.id ||
     currentJob.job_type;
 
   if (!currentCategory) return null;
 
   const relatedJobs = jobs
-    .filter(job => {
+    .filter((job) => {
       const jobCategory =
-        job.category.name ||
-        job.category.id ||
-        job.job_type;
+        job.category?.name || job.category?.id || job.job_type;
 
-      return (
-        job.id !== currentJob.id &&
-        jobCategory === currentCategory
-      );
+      return job.id !== currentJob.id && jobCategory === currentCategory;
     })
     .sort((a, b) => (b.applied_count ?? 0) - (a.applied_count ?? 0))
     .slice(0, limit);
@@ -49,12 +44,9 @@ export default function RelatedJobsAside({
       </div>
 
       <ul className="divide-y divide-border/60">
-        {relatedJobs.map(job => (
+        {relatedJobs.map((job) => (
           <li key={job.id}>
-            <Link
-              to={`/job/${job.id}`}
-              className="flex gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
-            >
+            <Link href={`/job/${job.id}`} className="flex gap-3 px-2 py-3 transition-colors hover:bg-muted/50">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center">
                 {job.company?.logo_url ? (
                   <img

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import {
     ArrowLeft,
     MapPin,
@@ -34,15 +35,14 @@ import PageViewsCounter from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import RelatedJobsAside from "@/components/RelatedJobsAside";
 import ApplyPopup from "@/components/ApplyPopup";
-
 import JobContent from "@/components/JobContent";
 
 type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
-
 const APPLY_DELAY = 8;
 
 const JobDetails: React.FC = () => {
-    const { jobId } = useParams<{ jobId: string }>();
+    const router = useRouter();
+    const { jobId } = router.query as { jobId: string };
 
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
@@ -54,7 +54,6 @@ const JobDetails: React.FC = () => {
 
     useEffect(() => {
         if (!jobId) return;
-
         let mounted = true;
 
         const load = async () => {
@@ -67,9 +66,7 @@ const JobDetails: React.FC = () => {
         };
 
         load();
-        return () => {
-            mounted = false;
-        };
+        return () => { mounted = false; };
     }, [jobId]);
 
     useEffect(() => {
@@ -111,23 +108,9 @@ const JobDetails: React.FC = () => {
 
     const detectApplyLinkType = (applyUrl: string): ApplyLinkType => {
         const url = applyUrl.trim().toLowerCase();
-
-        if (url.startsWith("mailto:") || /^[\w.+-]+@[\w-]+\.[\w.-]+$/.test(url)) {
-            return "email";
-        }
-
-        if (
-            url.startsWith("https://wa.me/") ||
-            url.startsWith("http://wa.me/") ||
-            url.includes("whatsapp.com")
-        ) {
-            return "whatsapp";
-        }
-
-        if (url.startsWith("http://") || url.startsWith("https://")) {
-            return "url";
-        }
-
+        if (url.startsWith("mailto:") || /^[\w.+-]+@[\w-]+\.[\w.-]+$/.test(url)) return "email";
+        if (url.startsWith("https://wa.me/") || url.startsWith("http://wa.me/") || url.includes("whatsapp.com")) return "whatsapp";
+        if (url.startsWith("http://") || url.startsWith("https://")) return "url";
         return "unknown";
     };
 
@@ -137,9 +120,7 @@ const JobDetails: React.FC = () => {
         const type = detectApplyLinkType(job.apply_url);
 
         setLocalApplied((p) => p + 1);
-        incrementJobAppliedCount(job.id).catch(() =>
-            setLocalApplied((p) => p - 1)
-        );
+        incrementJobAppliedCount(job.id).catch(() => setLocalApplied((p) => p - 1));
 
         if (type === "url") {
             window.open(job.apply_url, "_blank", "noopener,noreferrer");
@@ -156,27 +137,11 @@ const JobDetails: React.FC = () => {
         if (!job) return;
 
         const jobUrl = `https://seekjobslk.com/job/${job.id}`;
-
-        const message = `*📌 ${job.title}*
-
-🏢 Company: ${job.company.name}
-📍 Location: ${job.location}
-💼 Job Type: ${job.job_type}
-
-Apply here:
-${jobUrl}
-
-WhatsApp Channel:
-https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
-
-> Follow our WhatsApp Channel and enable 🔔 notifications.`;
+        const message = `*📌 ${job.title}*\n🏢 Company: ${job.company.name}\n📍 Location: ${job.location}\n💼 Job Type: ${job.job_type}\n\nApply here:\n${jobUrl}\n\nWhatsApp Channel:\nhttps://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F\n\n> Follow our WhatsApp Channel and enable 🔔 notifications.`;
 
         try {
             await navigator.clipboard.writeText(message);
-            toast({
-                title: "Copied to clipboard",
-                description: "Job details are ready to share",
-            });
+            toast({ title: "Copied to clipboard", description: "Job details are ready to share" });
         } catch {
             const textarea = document.createElement("textarea");
             textarea.value = message;
@@ -185,10 +150,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
             document.execCommand("copy");
             document.body.removeChild(textarea);
 
-            toast({
-                title: "Copied to clipboard",
-                description: "Job details are ready to share",
-            });
+            toast({ title: "Copied to clipboard", description: "Job details are ready to share" });
         }
     };
 
@@ -201,9 +163,10 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                 <div className="container mx-auto px-4 py-24 text-center">
                     <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
                     <Button asChild>
-                        <Link to="/">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Jobs
+                        <Link href="/">
+                            <a className="flex items-center justify-center gap-2">
+                                <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                            </a>
                         </Link>
                     </Button>
                 </div>
@@ -213,13 +176,10 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
 
     return (
         <>
-            <Helmet>
+            <Head>
                 <title>{`${job.title} – ${job.company.name} | SeekJobsLK`}</title>
-                <link
-                    rel="canonical"
-                    href={`https://seekjobslk.com/job/${job.id}`}
-                />
-            </Helmet>
+                <link rel="canonical" href={`https://seekjobslk.com/job/${job.id}`} />
+            </Head>
 
             <div className="min-h-screen bg-background">
                 <Navbar />
@@ -230,8 +190,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                             <section className="relative rounded-xl border bg-card p-6">
                                 {job.is_featured && (
                                     <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
-                                        <Star className="h-3 w-3 fill-current" />
-                                        Featured
+                                        <Star className="h-3 w-3 fill-current" /> Featured
                                     </div>
                                 )}
 
@@ -318,8 +277,7 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                                             variant="outline"
                                             onClick={handleShare}
                                         >
-                                            <Share2 className="w-4 h-4" />
-                                            Share Job
+                                            <Share2 className="w-4 h-4" /> Share Job
                                         </Button>
                                     </div>
                                 </section>

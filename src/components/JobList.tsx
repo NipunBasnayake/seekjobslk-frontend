@@ -1,5 +1,6 @@
+"use client";
+
 import React, { useMemo, useState, useEffect } from "react";
-import { Briefcase, Search } from "lucide-react";
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
@@ -31,12 +32,8 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         if (typeof value === "string" || typeof value === "number") {
           return [String(value)];
         }
-        if (Array.isArray(value)) {
-          return value.map(String);
-        }
-        if (typeof value === "object") {
-          return flattenObject(value);
-        }
+        if (Array.isArray(value)) return value.map(String);
+        if (typeof value === "object") return flattenObject(value);
         return [];
       });
     };
@@ -88,50 +85,8 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
     return sortedJobs.slice(start, start + JOBS_PER_PAGE);
   }, [sortedJobs, currentPage]);
 
-  const featuredCount = sortedJobs.filter((j) => j.is_featured).length;
-
-  const handleApply = (jobId: string) => {
-    const job = safeJobs.find((j) => j.id === jobId);
-    if (job) job.applied_count += 1;
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Briefcase className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Available Jobs</h2>
-            <p className="text-sm text-muted-foreground">
-              {sortedJobs.length} jobs found
-              {featuredCount > 0 && ` • ${featuredCount} featured`}
-            </p>
-          </div>
-        </div>
-
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-
-          <input
-            type="text"
-            placeholder="Search jobs, companies, skills..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="
-                  w-full rounded-lg border
-                  bg-background
-                  py-3 pl-11 pr-4 text-sm
-                  text-foreground
-                  placeholder:text-muted-foreground
-                  focus:outline-none focus:ring-2 focus:ring-primary
-                  dark:border-border
-                "
-          />
-        </div>
-      </div>
-
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -141,36 +96,18 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
       )}
 
       {!loading && paginatedJobs.length > 0 && (
-        <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
-            {paginatedJobs.map((job, i) => (
-              <div
-                key={job.id}
-                className="animate-fade-in w-full"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <JobCard job={job} onApply={handleApply} />
-              </div>
-            ))}
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
+          {paginatedJobs.map((job, i) => (
+            <JobCard key={job.id} job={job} onApply={() => {}} />
+          ))}
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+        </div>
       )}
 
       {!loading && sortedJobs.length === 0 && (
         <div className="rounded-xl border bg-card p-12 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-            <Briefcase className="h-8 w-8 text-muted-foreground" />
-          </div>
           <h3 className="mb-1 text-lg font-semibold">No jobs found</h3>
-          <p className="text-muted-foreground">
-            Try adjusting filters or search keywords
-          </p>
+          <p className="text-muted-foreground">Try adjusting filters or search keywords</p>
         </div>
       )}
     </div>

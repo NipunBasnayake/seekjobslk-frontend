@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +9,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Snowfall from "react-snowfall";
+import ChristmasPopup from "@/components/ChristmasPopup";
+
 import Index from "./pages/Index";
 import JobDetails from "./pages/JobDetails";
 import NotFound from "./pages/NotFound";
@@ -19,12 +23,27 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const isMobile = useIsMobile();
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    const seenPopup = localStorage.getItem("christmas-popup-seen");
+    if (!seenPopup) {
+      setShowPopup(true);
+    }
+  }, []);
+
+  const closePopup = () => {
+    localStorage.setItem("christmas-popup-seen", "true");
+    setShowPopup(false);
+  };
 
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <TooltipProvider>
+
+            {showPopup && <ChristmasPopup onClose={closePopup} />}
 
             <Snowfall
               color="rgba(182, 227, 252, 0.7)"

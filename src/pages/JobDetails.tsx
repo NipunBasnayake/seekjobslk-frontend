@@ -214,10 +214,42 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
     return (
         <>
             <Helmet>
-                <title>{`${job.title} – ${job.company.name} | SeekJobsLK`}</title>
+                <title>{`${job.title} at ${job.company.name} | SeekJobsLK`}</title>
+                <meta
+                    name="description"
+                    content={`Apply for ${job.title} at ${job.company.name} in ${job.location}. ${job.job_type} position. View salary, requirements, and apply now.`}
+                />
+                <meta
+                    name="keywords"
+                    content={`${job.title}, ${job.company.name}, jobs in ${job.location}, Sri Lanka jobs, ${job.job_type}`}
+                />
                 <link
                     rel="canonical"
                     href={`https://seekjobslk.com/job/${job.id}`}
+                />
+                <meta property="og:type" content="article" />
+                <meta property="og:title" content={`${job.title} – ${job.company.name}`} />
+                <meta
+                    property="og:description"
+                    content={`📍 ${job.location} | 💼 ${job.job_type}\nApply now on SeekJobsLK`}
+                />
+                <meta
+                    property="og:url"
+                    content={`https://seekjobslk.com/job/${job.id}`}
+                />
+                <meta
+                    property="og:image"
+                    content={job.company.logo_url}
+                />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${job.title} – ${job.company.name}`} />
+                <meta
+                    name="twitter:description"
+                    content={`Apply for ${job.title} at ${job.company.name}`}
+                />
+                <meta
+                    name="twitter:image"
+                    content={job.company.logo_url}
                 />
             </Helmet>
 

@@ -1,5 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Briefcase, Search } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
@@ -16,8 +18,18 @@ const JOBS_PER_PAGE = 10;
 const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
   const loading = jobs === null;
   const safeJobs = jobs ?? [];
+  const isFirstRender = useRef(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const setPage = (page: number) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", String(page));
+      return params;
+    });
+  };
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const jobMatchesSearch = (job: Job, query: string): boolean => {
@@ -25,8 +37,8 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
     const normalizedQuery = query.toLowerCase();
 
-    const flattenObject = (obj: any): string[] => {
-      return Object.values(obj).flatMap((value) => {
+    const flattenObject = (obj: any): string[] =>
+      Object.values(obj).flatMap((value) => {
         if (!value) return [];
         if (typeof value === "string" || typeof value === "number") {
           return [String(value)];
@@ -39,7 +51,6 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         }
         return [];
       });
-    };
 
     return flattenObject(job)
       .join(" ")
@@ -49,18 +60,38 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   const filteredJobs = useMemo(() => {
     return safeJobs.filter((job) => {
-      if (filters.categories.length && !filters.categories.includes(job.category.id)) return false;
-      if (filters.companies.length && !filters.companies.includes(job.company.id)) return false;
-      if (filters.jobTypes.length && !filters.jobTypes.includes(job.job_type)) return false;
+      if (
+        filters.categories.length &&
+        !filters.categories.includes(job.category.id)
+      )
+        return false;
+
+      if (
+        filters.companies.length &&
+        !filters.companies.includes(job.company.id)
+      )
+        return false;
+
+      if (
+        filters.jobTypes.length &&
+        !filters.jobTypes.includes(job.job_type)
+      )
+        return false;
 
       if (filters.location && filters.location !== "all") {
-        if (job.job_type === "Remote" && filters.location !== "Remote") return false;
-        if (job.job_type !== "Remote" && job.location !== filters.location) return false;
+        if (job.job_type === "Remote" && filters.location !== "Remote")
+          return false;
+        if (job.job_type !== "Remote" && job.location !== filters.location)
+          return false;
       }
 
       const salary = parseFloat(job.salary);
       if (!Number.isNaN(salary)) {
-        if (salary < filters.salaryRange[0] || salary > filters.salaryRange[1]) return false;
+        if (
+          salary < filters.salaryRange[0] ||
+          salary > filters.salaryRange[1]
+        )
+          return false;
       }
 
       if (!jobMatchesSearch(job, searchQuery)) return false;
@@ -73,12 +104,20 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
     return [...filteredJobs].sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1;
       if (!a.is_featured && b.is_featured) return 1;
-      return b.posted_date.toDate().getTime() - a.posted_date.toDate().getTime();
+      return (
+        b.posted_date.toDate().getTime() -
+        a.posted_date.toDate().getTime()
+      );
     });
   }, [filteredJobs]);
 
   useEffect(() => {
-    setCurrentPage(1);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    setPage(1);
   }, [filters, searchQuery]);
 
   const totalPages = Math.ceil(sortedJobs.length / JOBS_PER_PAGE);
@@ -97,6 +136,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2">
@@ -111,27 +151,25 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
           </div>
         </div>
 
+        {/* Search */}
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-
           <input
             type="text"
             placeholder="Search jobs, companies, skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="
-                  w-full rounded-lg border
-                  bg-background
-                  py-3 pl-11 pr-4 text-sm
-                  text-foreground
-                  placeholder:text-muted-foreground
-                  focus:outline-none focus:ring-2 focus:ring-primary
-                  dark:border-border
-                "
+              w-full rounded-lg border bg-background
+              py-3 pl-11 pr-4 text-sm
+              text-foreground placeholder:text-muted-foreground
+              focus:outline-none focus:ring-2 focus:ring-primary
+            "
           />
         </div>
       </div>
 
+      {/* Loading */}
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -140,6 +178,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
         </div>
       )}
 
+      {/* Jobs */}
       {!loading && paginatedJobs.length > 0 && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-items-center">
@@ -157,11 +196,12 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={setPage}
           />
         </>
       )}
 
+      {/* Empty */}
       {!loading && sortedJobs.length === 0 && (
         <div className="rounded-xl border bg-card p-12 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">

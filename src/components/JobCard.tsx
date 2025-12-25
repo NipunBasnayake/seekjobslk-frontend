@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   MapPin,
   Clock,
@@ -22,6 +22,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     "https://ui-avatars.com/api/?name=Company&background=287194&color=fff&size=128";
 
   const appliedCount = Number(job.applied_count) || 0;
+  const location = useLocation();
 
   const isNewJob = (() => {
     if (!job.posted_date) return false;
@@ -47,7 +48,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const hasNew = isNewJob;
 
   return (
-    <Link to={`/job/${job.id}`} className="block">
+    <Link to={{ pathname: `/job/${job.id}`, search: location.search, }} className="block" >
       <article
         className="
           relative group

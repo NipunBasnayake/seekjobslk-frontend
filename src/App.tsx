@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import Snowfall from "react-snowfall";
 
 import Index from "./pages/Index";
 import JobDetails from "./pages/JobDetails";
@@ -26,27 +25,8 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <TooltipProvider>
-
-            <Snowfall
-              color="rgba(182, 227, 252, 0.7)"
-              snowflakeCount={isMobile ? 80 : 120}
-              radius={[1, 2.5]}
-              speed={isMobile ? [0.3, 1.3] : [0.8, 2]}
-              wind={isMobile ? [-0.1, 0.3] : [-0.5, 1]}
-              style={{
-                position: "fixed",
-                inset: 0,
-                zIndex: 10,
-                pointerEvents: "none",
-                filter: isMobile
-                  ? "drop-shadow(0 0 2px rgba(182,227,252,0.3))"
-                  : "drop-shadow(0 0 4px rgba(182,227,252,0.5))",
-              }}
-            />
-
             <Toaster />
             <Sonner />
-
             <BrowserRouter
               future={{
                 v7_startTransition: true,

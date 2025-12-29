@@ -282,6 +282,17 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                                         <div className="flex items-center gap-2 text-muted-foreground mb-4">
                                             <Building2 className="w-4 h-4" />
                                             <span>{job.company.name}</span>
+                                            {job.company.website && (
+                                                <a
+                                                    href={job.company.website}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center text-primary hover:underline"
+                                                    aria-label={`Visit ${job.company.name} website`}
+                                                >
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">

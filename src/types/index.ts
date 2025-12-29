@@ -1,10 +1,14 @@
-import {Timestamp} from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
 export interface Job {
     id: string;
     title: string;
     company: Company;
     category: Category;
+
+    companyId?: string;
+    categoryId?: string;
+
     job_type: 'Full-Time' | 'Part-Time' | 'Remote' | 'Hybrid';
     salary: string;
     location: string;

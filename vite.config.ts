@@ -4,7 +4,6 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import compression from "vite-plugin-compression";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -17,14 +16,14 @@ export default defineConfig(({ mode }) => ({
       verbose: true,
       disable: false,
       threshold: 10240,
-      algorithm: "brotli",
+      algorithm: "brotli" as any,
       ext: ".br",
     }),
     compression({
       verbose: true,
       disable: false,
       threshold: 10240,
-      algorithm: "gzip",
+      algorithm: "gzip" as any,
       ext: ".gz",
     }),
   ].filter(Boolean),
@@ -34,11 +33,10 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Code splitting configuration
     rollupOptions: {
+      external: ["firebase"],
       output: {
         manualChunks: {
-          // Vendor chunks
           "vendor-react": ["react", "react-dom"],
           "vendor-router": ["react-router-dom"],
           "vendor-ui": [
@@ -55,24 +53,11 @@ export default defineConfig(({ mode }) => ({
             "react-helmet-async",
             "@tanstack/react-query",
             "sonner",
-            "firebase",
           ],
         },
       },
     },
-    // Minification settings
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        passes: 2,
-      },
-      format: {
-        comments: false,
-      },
-    },
-    // Other optimizations
+    minify: "esbuild",
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,

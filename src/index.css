@@ -1,10 +1,27 @@
+/* Preload Google Fonts display: swap for faster rendering */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Critical CSS - Above the fold */
 @layer base {
+  /* Optimize font loading */
+  html {
+    font-feature-settings: "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   :root {
     --background: 0 0% 96.5%;
     --foreground: 0 0% 13%;

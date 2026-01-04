@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 export default function WhatsAppChannelBanner() {
     return (
@@ -15,9 +16,13 @@ export default function WhatsAppChannelBanner() {
 
                 <div className="relative z-10 flex items-center gap-5">
                     <div className="relative">
-                        <img
+                        <OptimizedImage
                             src="/whatsapp.svg"
                             alt="WhatsApp"
+                            width={48}
+                            height={48}
+                            lazy={false}
+                            skeleton={false}
                             className="h-12 w-12 animate-pulse-soft"
                         />
                     </div>
@@ -34,9 +39,13 @@ export default function WhatsAppChannelBanner() {
                     </div>
                 </div>
                 <div className="relative z-10 flex items-center">
-                    <img
+                    <OptimizedImage
                         src="/handtap.gif"
                         alt="Click Here"
+                        width={64}
+                        height={64}
+                        lazy={false}
+                        skeleton={false}
                         className="h-16 w-16 animate-float"
                     />
                 </div>

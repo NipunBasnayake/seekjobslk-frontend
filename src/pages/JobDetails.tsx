@@ -19,6 +19,7 @@ import Footer from "@/components/Footer";
 import JobDetailsSkeleton from "@/components/JobDetailsSkeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { toast } from "@/hooks/use-toast";
 
 import {
@@ -268,9 +269,12 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                                 )}
 
                                 <div className="flex gap-5">
-                                    <img
+                                    <OptimizedImage
                                         src={job.company.logo_url}
                                         alt={job.company.name}
+                                        width={80}
+                                        height={80}
+                                        lazy={false}
                                         className="h-20 w-20 rounded-xl border object-cover"
                                     />
 

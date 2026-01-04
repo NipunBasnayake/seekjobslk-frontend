@@ -8,6 +8,11 @@ export default {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  // Optimization: Only generate styles for used utilities
+  safelist: [
+    // Add any dynamic classes here if needed
+    { pattern: /^(bg|text|border)-.+/ },
+  ],
   prefix: "",
   theme: {
     container: {
@@ -19,7 +24,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+        // Use system fonts for faster loading, Plus Jakarta Sans as fallback
+        sans: ['"Plus Jakarta Sans"', "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

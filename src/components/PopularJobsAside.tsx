@@ -1,6 +1,7 @@
 import { Flame, Users, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Job } from "@/types";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface Props {
     jobs: Job[] | null;
@@ -51,11 +52,14 @@ export default function PopularJobsAside({ jobs }: Props) {
                         >
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center">
                                 {job.company?.logo_url ? (
-                                    <img
+                                    <OptimizedImage
                                         src={job.company.logo_url}
                                         alt={job.company.name || "Company logo"}
+                                        width={32}
+                                        height={32}
+                                        lazy={true}
+                                        skeleton={false}
                                         className="h-8 w-8 rounded-sm object-contain"
-                                        loading="lazy"
                                     />
                                 ) : (
                                     <Building2 className="h-5 w-5 text-muted-foreground" />

@@ -10,6 +10,7 @@ import {
 import type { Job } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface JobCardProps {
   job: Job;
@@ -105,9 +106,12 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
         )}
 
         <div className="flex items-start gap-4">
-          <img
+          <OptimizedImage
             src={logoSrc}
             alt={job.company?.name || "Company Logo"}
+            width={64}
+            height={64}
+            lazy={true}
             className="h-16 w-16 rounded-xl border object-cover transition-transform group-hover:scale-105"
           />
 

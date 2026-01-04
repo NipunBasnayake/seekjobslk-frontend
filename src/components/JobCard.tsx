@@ -17,21 +17,26 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
+  const location = useLocation();
+
   const logoSrc =
     job.company?.logo_url ||
     "https://ui-avatars.com/api/?name=Company&background=287194&color=fff&size=128";
 
   const appliedCount = Number(job.applied_count) || 0;
-  const location = useLocation();
-
   const isNewJob = (() => {
     if (!job.posted_date) return false;
-
     const postedTime = job.posted_date.toDate().getTime();
     const now = Date.now();
     const diffInHours = (now - postedTime) / (1000 * 60 * 60);
-
     return diffInHours < 12;
+  })();
+  const is3WeeksOld = (() => {
+    if (!job.posted_date) return false;
+    const postedTime = job.posted_date.toDate().getTime();
+    const now = Date.now();
+    const diffInWeeks = (now - postedTime) / (1000 * 60 * 60 * 24 * 7);
+    return diffInWeeks >= 3;
   })();
 
   const getTimeAgo = (date?: Date) => {
@@ -45,10 +50,15 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   };
 
   const hasFeatured = !!job.is_featured;
-  const hasNew = isNewJob;
 
   return (
-    <Link to={{ pathname: `/job/${job.id}`, search: location.search, }} className="block" >
+    <Link
+      to={{
+        pathname: `/job/${job.id}`,
+        search: location.search,
+      }}
+      className="block"
+    >
       <article
         className="
           relative group
@@ -62,25 +72,30 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           max-w-[520px] w-full
         "
       >
-        {(hasFeatured || hasNew) && (
+        {(hasFeatured || isNewJob || is3WeeksOld) && (
           <div className="absolute top-0 right-0 flex text-[11px] font-bold uppercase tracking-wide overflow-hidden">
-            {hasNew && (
+            {isNewJob && (
               <div
-                className={`
-                  bg-emerald-500 text-white px-3 py-1
-                  ${hasFeatured ? "rounded-bl-2xl" : "rounded-tr-2xl rounded-bl-2xl"}
-                `}
+                className={`bg-emerald-500 text-white px-3 py-1 ${hasFeatured ? "rounded-bl-2xl" : "rounded-tr-2xl rounded-bl-2xl"
+                  }`}
               >
                 New
               </div>
             )}
 
+            {is3WeeksOld && (
+              <div
+                className={`bg-orange-400 text-white px-3 py-1 ${hasFeatured ? "rounded-bl-2xl" : "rounded-tr-2xl rounded-bl-2xl"
+                  }`}
+              >
+                Posted 3 weeks ago
+              </div>
+            )}
+
             {hasFeatured && (
               <div
-                className={`
-                  bg-primary text-primary-foreground px-3 py-1 flex items-center gap-1
-                  ${hasNew ? "rounded-tr-2xl" : "rounded-tr-2xl rounded-bl-2xl"}
-                `}
+                className={`bg-primary text-primary-foreground px-3 py-1 flex items-center gap-1 ${isNewJob ? "rounded-tr-2xl" : "rounded-tr-2xl rounded-bl-2xl"
+                  }`}
               >
                 <Star className="h-3 w-3 fill-current" />
                 Featured
@@ -92,7 +107,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
         <div className="flex items-start gap-4">
           <img
             src={logoSrc}
-            alt={job.company?.name}
+            alt={job.company?.name || "Company Logo"}
             className="h-16 w-16 rounded-xl border object-cover transition-transform group-hover:scale-105"
           />
 
@@ -101,7 +116,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
               {job.title || "Untitled Position"}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {job.company?.name}
+              {job.company?.name || "Company"}
             </p>
           </div>
         </div>

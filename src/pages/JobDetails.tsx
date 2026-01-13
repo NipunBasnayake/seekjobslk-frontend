@@ -21,6 +21,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { toast } from "@/hooks/use-toast";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import {
     getJobById,
@@ -41,6 +51,34 @@ import JobContent from "@/components/JobContent";
 type ApplyLinkType = "url" | "email" | "whatsapp" | "unknown";
 
 const APPLY_DELAY = 8;
+const STORAGE_KEY = "seekjobslk_applied_jobs";
+
+const getAppliedJobs = (): string[] => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
+
+const addAppliedJob = (jobId: string): void => {
+    try {
+        const appliedJobs = getAppliedJobs();
+        if (!appliedJobs.includes(jobId)) {
+            appliedJobs.push(jobId);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appliedJobs));
+        }
+    } catch {
+        // Silently fail if localStorage is not available
+    }
+};
+
+const checkIfApplied = (jobId: string): boolean => {
+    return getAppliedJobs().includes(jobId);
+};
 
 const JobDetails: React.FC = () => {
     const { jobId } = useParams<{ jobId: string }>();
@@ -52,6 +90,8 @@ const JobDetails: React.FC = () => {
     const [allJobs, setAllJobs] = useState<Job[] | null>(null);
     const [showApplyPopup, setShowApplyPopup] = useState(false);
     const [applyType, setApplyType] = useState<"email" | "whatsapp">("email");
+    const [hasApplied, setHasApplied] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     useEffect(() => {
         if (!jobId) return;
@@ -94,6 +134,12 @@ const JobDetails: React.FC = () => {
         getJobs().then(setAllJobs).catch(() => setAllJobs(null));
     }, []);
 
+    useEffect(() => {
+        if (jobId) {
+            setHasApplied(checkIfApplied(jobId));
+        }
+    }, [jobId]);
+
     const appliedCount = useMemo(
         () => (job?.applied_count ?? 0) + localApplied,
         [job, localApplied]
@@ -135,6 +181,20 @@ const JobDetails: React.FC = () => {
     const handleApply = async () => {
         if (!job?.apply_url || applyCountdown > 0) return;
 
+        if (hasApplied) {
+            setShowConfirmDialog(true);
+            return;
+        }
+
+        proceedWithApply();
+    };
+
+    const proceedWithApply = () => {
+        if (!job?.apply_url) return;
+
+        addAppliedJob(job.id);
+        setHasApplied(true);
+
         const type = detectApplyLinkType(job.apply_url);
 
         setLocalApplied((p) => p + 1);
@@ -151,6 +211,11 @@ const JobDetails: React.FC = () => {
             setApplyType(type);
             setShowApplyPopup(true);
         }
+    };
+
+    const handleConfirmReapply = () => {
+        setShowConfirmDialog(false);
+        proceedWithApply();
     };
 
     const handleShare = async () => {
@@ -352,12 +417,23 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                                         <Button
                                             size="lg"
                                             className="w-full gap-2"
-                                            variant="apply"
+                                            variant={hasApplied ? "outline" : "apply"}
                                             disabled={applyCountdown > 0}
                                             onClick={handleApply}
                                         >
-                                            Apply Now <ExternalLink className="w-4 h-4" />
+                                            {hasApplied ? (
+                                                "You already applied"
+                                            ) : (
+                                                <>
+                                                    Apply Now <ExternalLink className="w-4 h-4" />
+                                                </>
+                                            )}
                                         </Button>
+                                        {hasApplied && (
+                                            <p className="text-xs text-muted-foreground text-center">
+                                                Click again to re-apply if needed
+                                            </p>
+                                        )}
 
                                         <Button
                                             size="lg"
@@ -386,6 +462,23 @@ https://whatsapp.com/channel/0029Vb70WYoD38CXiV7HaX0F
                                     applyUrl={job.apply_url}
                                     onClose={() => setShowApplyPopup(false)}
                                 />
+
+                                <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Already Applied</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                You have already applied for this job. Are you sure you want to apply again?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleConfirmReapply}>
+                                                Apply Again
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </aside>
                     </div>

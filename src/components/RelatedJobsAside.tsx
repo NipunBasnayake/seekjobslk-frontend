@@ -8,6 +8,8 @@ interface Props {
   limit?: number;
 }
 
+const RELATED_JOB_DAYS = 14;
+
 export default function RelatedJobsAside({
   jobs,
   currentJob,
@@ -22,6 +24,9 @@ export default function RelatedJobsAside({
 
   if (!currentCategory) return null;
 
+  const threeWeeksAgo = new Date();
+  threeWeeksAgo.setDate(threeWeeksAgo.getDate() - RELATED_JOB_DAYS);
+
   const relatedJobs = jobs
     .filter(job => {
       const jobCategory =
@@ -29,9 +34,13 @@ export default function RelatedJobsAside({
         job.category.id ||
         job.job_type;
 
+      const jobPostedDate = job.posted_date.toDate();
+      const isRecent = jobPostedDate >= threeWeeksAgo;
+
       return (
         job.id !== currentJob.id &&
-        jobCategory === currentCategory
+        jobCategory === currentCategory &&
+        isRecent
       );
     })
     .sort((a, b) => (b.applied_count ?? 0) - (a.applied_count ?? 0))
@@ -45,7 +54,10 @@ export default function RelatedJobsAside({
         <div className="rounded-lg bg-primary/10 p-2">
           <Layers className="h-5 w-5 text-primary" />
         </div>
-        <h3 className="text-md font-semibold">Related Jobs</h3>
+        <div>
+          <h3 className="text-md font-semibold">Related Jobs</h3>
+          <p className="text-xs text-muted-foreground">Posted within 14 days</p>
+        </div>
       </div>
 
       <ul className="divide-y divide-border/60">

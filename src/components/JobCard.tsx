@@ -89,7 +89,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
                 className={`bg-orange-400 text-white px-3 py-1 ${hasFeatured ? "rounded-bl-2xl" : "rounded-tr-2xl rounded-bl-2xl"
                   }`}
               >
-                Posted 3 weeks ago
+                old
               </div>
             )}
 

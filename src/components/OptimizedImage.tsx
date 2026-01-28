@@ -1,5 +1,6 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface OptimizedImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt"> {
@@ -11,7 +12,7 @@ interface OptimizedImageProps
   skeleton?: boolean;
   onLoad?: () => void;
   onError?: () => void;
-  placeholderColor?: string;
+  placeholderColor?: string; // tailwind class, e.g. "bg-gray-200"
 }
 
 export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageProps>(
@@ -32,18 +33,14 @@ export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageP
     ref
   ) => {
     const [isLoaded, setIsLoaded] = useState(!skeleton);
-    const [imageSrc, setImageSrc] = useState<string>(src);
+    const [imageSrc, setImageSrc] = useState(src);
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
       setImageSrc(src);
       setHasError(false);
-
-      if (!lazy) {
-        const img = new Image();
-        img.src = src;
-      }
-    }, [src, lazy]);
+      setIsLoaded(!skeleton);
+    }, [src, skeleton]);
 
     const handleLoad = () => {
       setIsLoaded(true);
@@ -58,8 +55,12 @@ export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageP
     return (
       <div className="relative overflow-hidden" style={{ width, height }}>
         {!isLoaded && skeleton && !hasError && (
-          <Skeleton className={`absolute inset-0 ${placeholderColor}`} />
+          <div
+            className={`absolute inset-0 animate-pulse ${placeholderColor}`}
+            aria-hidden="true"
+          />
         )}
+
         <img
           ref={ref}
           src={imageSrc}
@@ -75,8 +76,11 @@ export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageP
           onError={handleError}
           {...props}
         />
+
         {hasError && (
-          <div className={`absolute inset-0 ${placeholderColor} flex items-center justify-center`}>
+          <div
+            className={`absolute inset-0 ${placeholderColor} flex items-center justify-center`}
+          >
             <span className="text-xs text-gray-500">Image not available</span>
           </div>
         )}
@@ -86,5 +90,4 @@ export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageP
 );
 
 OptimizedImage.displayName = "OptimizedImage";
-
 export default OptimizedImage;

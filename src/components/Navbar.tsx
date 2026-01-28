@@ -1,12 +1,15 @@
+"use client";
+
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -23,7 +26,7 @@ const Navbar: React.FC = () => {
 
           {/* Logo */}
           <Link
-            to="/"
+            href="/"
             className="flex items-center gap-2 font-bold text-navbar-foreground text-xl md:text-2xl"
           >
             <Briefcase className="w-7 h-7" />
@@ -35,9 +38,9 @@ const Navbar: React.FC = () => {
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 className={`px-3 py-2 rounded-md text-white text-sm font-regular transition
-                  ${location.pathname === link.path
+                  ${pathname === link.path
                     ? "bg-navbar-foreground/10"
                     : "hover:bg-navbar-foreground/10"
                   }`}
@@ -78,7 +81,7 @@ const Navbar: React.FC = () => {
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-4 py-2 text-sm rounded-md hover:bg-navbar-foreground/10"
               >

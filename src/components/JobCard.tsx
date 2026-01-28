@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   MapPin,
   Clock,
@@ -11,6 +14,7 @@ import type { Job } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { getJobDate } from "@/lib/jobUtils";
 
 interface JobCardProps {
   job: Job;
@@ -18,7 +22,9 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
-  const location = useLocation();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const href = search ? `/job/${job.id}?${search}` : `/job/${job.id}`;
 
   const logoSrc =
     job.company?.logo_url ||
@@ -26,15 +32,17 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
 
   const appliedCount = Number(job.applied_count) || 0;
   const isNewJob = (() => {
-    if (!job.posted_date) return false;
-    const postedTime = job.posted_date.toDate().getTime();
+    const postedDate = getJobDate(job.posted_date);
+    if (!postedDate) return false;
+    const postedTime = postedDate.getTime();
     const now = Date.now();
     const diffInHours = (now - postedTime) / (1000 * 60 * 60);
     return diffInHours < 12;
   })();
   const is3WeeksOld = (() => {
-    if (!job.posted_date) return false;
-    const postedTime = job.posted_date.toDate().getTime();
+    const postedDate = getJobDate(job.posted_date);
+    if (!postedDate) return false;
+    const postedTime = postedDate.getTime();
     const now = Date.now();
     const diffInWeeks = (now - postedTime) / (1000 * 60 * 60 * 24 * 7);
     return diffInWeeks >= 3;
@@ -53,13 +61,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const hasFeatured = !!job.is_featured;
 
   return (
-    <Link
-      to={{
-        pathname: `/job/${job.id}`,
-        search: location.search,
-      }}
-      className="block"
-    >
+    <Link href={href} className="block">
       <article
         className="
           relative group
@@ -139,7 +141,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
 
           <div className="ml-auto flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
-            {getTimeAgo(job.posted_date?.toDate())}
+            {getTimeAgo(getJobDate(job.posted_date))}
           </div>
         </div>
 

@@ -1,5 +1,12 @@
 import { Timestamp } from 'firebase/firestore';
 
+export type JobDate =
+    | Timestamp
+    | Date
+    | string
+    | { seconds?: number; nanoseconds?: number }
+    | null;
+
 export interface Job {
     id: string;
     title: string;
@@ -17,7 +24,7 @@ export interface Job {
     apply_url: string;
     status: 'Active' | 'Inactive';
     is_featured: boolean;
-    posted_date: Timestamp;
+    posted_date: JobDate;
     applied_count: number;
 }
 

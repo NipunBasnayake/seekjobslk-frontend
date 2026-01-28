@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -10,10 +12,14 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem('seekjobslk-theme');
-    return (stored as Theme) || 'light';
-  });
+  const [theme, setTheme] = useState<Theme>('light');
+
+  useEffect(() => {
+    const stored = localStorage.getItem('seekjobslk-theme') as Theme | null;
+    if (stored === 'light' || stored === 'dark') {
+      setTheme(stored);
+    }
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;

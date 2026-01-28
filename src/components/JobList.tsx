@@ -1,12 +1,15 @@
+"use client";
+
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Briefcase, Search } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { Job } from "@/types";
 import type { FilterState } from "./FilterSection";
 import JobCard from "./JobCard";
 import JobCardSkeleton from "./JobCardSkeleton";
 import Pagination from "./Pagination";
+import { getJobTimestamp } from "@/lib/jobUtils";
 
 interface JobListProps {
   filters: FilterState;
@@ -19,15 +22,16 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
   const loading = jobs === null;
   const safeJobs = jobs ?? [];
   const isFirstRender = useRef(true);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
 
   const setPage = (page: number) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("page", String(page));
-      return params;
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -105,8 +109,7 @@ const JobList: React.FC<JobListProps> = ({ filters, jobs }) => {
       if (a.is_featured && !b.is_featured) return -1;
       if (!a.is_featured && b.is_featured) return 1;
       return (
-        b.posted_date.toDate().getTime() -
-        a.posted_date.toDate().getTime()
+        getJobTimestamp(b.posted_date) - getJobTimestamp(a.posted_date)
       );
     });
   }, [filteredJobs]);

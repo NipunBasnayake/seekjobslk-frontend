@@ -1,6 +1,7 @@
 import { Layers, Users, Building2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import type { Job } from "@/types";
+import { getJobDate } from "@/lib/jobUtils";
 
 interface Props {
   jobs: Job[] | null;
@@ -34,8 +35,8 @@ export default function RelatedJobsAside({
         job.category.id ||
         job.job_type;
 
-      const jobPostedDate = job.posted_date.toDate();
-      const isRecent = jobPostedDate >= threeWeeksAgo;
+      const jobPostedDate = getJobDate(job.posted_date);
+      const isRecent = jobPostedDate ? jobPostedDate >= threeWeeksAgo : false;
 
       return (
         job.id !== currentJob.id &&
@@ -64,7 +65,7 @@ export default function RelatedJobsAside({
         {relatedJobs.map(job => (
           <li key={job.id}>
             <Link
-              to={`/job/${job.id}`}
+              href={`/job/${job.id}`}
               className="flex gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center">

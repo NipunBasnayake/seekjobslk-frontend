@@ -1,7 +1,8 @@
 import { Flame, Users, Building2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import type { Job } from "@/types";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { getJobDate } from "@/lib/jobUtils";
 
 interface Props {
     jobs: Job[] | null;
@@ -19,9 +20,8 @@ export default function PopularJobsAside({ jobs }: Props) {
     const popularJobs = [...jobs]
         .filter(job => {
             if (typeof job.applied_count !== "number") return false;
-            if (!job.posted_date) return false;
-
-            const jobDate = new Date(job.posted_date.toDate());
+            const jobDate = getJobDate(job.posted_date);
+            if (!jobDate) return false;
             return jobDate >= cutoffDate;
         })
         .sort((a, b) => (b.applied_count ?? 0) - (a.applied_count ?? 0))
@@ -47,7 +47,7 @@ export default function PopularJobsAside({ jobs }: Props) {
                 {popularJobs.map(job => (
                     <li key={job.id}>
                         <Link
-                            to={`/job/${job.id}`}
+                            href={`/job/${job.id}`}
                             className="flex gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
                         >
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center">

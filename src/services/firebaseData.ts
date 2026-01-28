@@ -1,3 +1,5 @@
+"use client";
+
 import {
   collection,
   getDocs,
@@ -8,23 +10,9 @@ import {
   increment,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebaseClient";
 import type { Company, Category, Job } from "@/types/index";
-
-const normalizeMultiline = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/\r?\n/)
-      .map((v) => v.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-};
+import { normalizeMultilineValues } from "@/lib/normalize";
 
 const mapCompany = (id: string, data: any): Company => ({
   id,
@@ -54,7 +42,7 @@ const mapJob = (id: string, raw: any): Job => ({
   location: raw?.location ?? "Sri Lanka",
 
   description: raw?.description ?? "",
-  requirements: normalizeMultiline(raw?.requirements),
+  requirements: normalizeMultilineValues(raw?.requirements),
   apply_url: raw?.apply_url ?? "#",
   status: raw?.status ?? "Active",
   is_featured: Boolean(raw?.is_featured),

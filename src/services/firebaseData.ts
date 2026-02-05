@@ -1,123 +1,196 @@
 import {
   collection,
-  getDocs,
   doc,
   getDoc,
-  updateDoc,
-  setDoc,
+  getDocs,
   increment,
-  Timestamp,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { Company, Category, Job } from "@/types/index";
+import { db } from "@/lib/firebaseClient";
+import { getJobTimestamp } from "@/lib/jobUtils";
+import type { Category, Company, Job } from "@/types";
 
-const normalizeMultiline = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean);
+function mapCompany(
+  id: string,
+  data: Partial<Company> | undefined,
+): Company {
+  return {
+    id,
+    name: data?.name?.trim() || "Unknown Company",
+    logo_url: data?.logo_url,
+    website: data?.website,
+    email: data?.email,
+    phone: data?.phone,
+    location: data?.location,
+    description: data?.description,
+    created_at: data?.created_at ?? null,
+    updated_at: data?.updated_at ?? null,
+  };
+}
+
+function mapCategory(
+  id: string,
+  data: Partial<Category> | undefined,
+): Category {
+  return {
+    id,
+    name: data?.name?.trim() || "General",
+    slug: data?.slug,
+    description: data?.description,
+    created_at: data?.created_at ?? null,
+    updated_at: data?.updated_at ?? null,
+  };
+}
+
+function mapJob(id: string, data: Partial<Job> | undefined): Job {
+  return {
+    id,
+    title: data?.title?.trim() || "Untitled Job",
+    description: data?.description,
+    requirements: data?.requirements,
+    responsibilities: data?.responsibilities,
+    benefits: data?.benefits,
+    skills: data?.skills,
+    location: data?.location,
+    job_type: data?.job_type,
+    employment_type: data?.employment_type,
+    work_mode: data?.work_mode,
+    salary_text: data?.salary_text,
+    salary_currency: data?.salary_currency,
+    salary_min: data?.salary_min ?? null,
+    salary_max: data?.salary_max ?? null,
+    apply_url: data?.apply_url,
+    is_active: data?.is_active ?? true,
+    is_featured: data?.is_featured ?? false,
+    applied_count: data?.applied_count ?? 0,
+    category_id: data?.category_id,
+    company_id: data?.company_id,
+    company: data?.company,
+    category: data?.category,
+    posted_date: data?.posted_date ?? null,
+    deadline: data?.deadline ?? null,
+    created_at: data?.created_at ?? null,
+    updated_at: data?.updated_at ?? null,
+  };
+}
+
+export async function getCompanies(): Promise<Company[]> {
+  if (!db) {
+    return [];
   }
 
-  if (typeof value === "string") {
-    return value
-      .split(/\r?\n/)
-      .map((v) => v.trim())
-      .filter(Boolean);
+  try {
+    const companiesRef = collection(db, "companies");
+    const snapshot = await getDocs(query(companiesRef, orderBy("name", "asc")));
+
+    return snapshot.docs.map((companyDoc) =>
+      mapCompany(companyDoc.id, companyDoc.data() as Partial<Company>),
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function getCategories(): Promise<Category[]> {
+  if (!db) {
+    return [];
   }
 
-  return [];
-};
+  try {
+    const categoriesRef = collection(db, "categories");
+    const snapshot = await getDocs(query(categoriesRef, orderBy("name", "asc")));
 
-const mapCompany = (id: string, data: any): Company => ({
-  id,
-  name: typeof data?.name === "string" ? data.name : "Unknown Company",
-  logo_url: typeof data?.logo_url === "string" ? data.logo_url : "",
-  location: typeof data?.location === "string" ? data.location : "",
-  website: typeof data?.website === "string" ? data.website : undefined,
-});
+    return snapshot.docs.map((categoryDoc) =>
+      mapCategory(categoryDoc.id, categoryDoc.data() as Partial<Category>),
+    );
+  } catch {
+    return [];
+  }
+}
 
-const mapCategory = (id: string, data: any): Category => ({
-  id,
-  name: typeof data?.name === "string" ? data.name : "General",
-});
-
-const mapJob = (id: string, raw: any): Job => ({
-  id,
-  title: raw?.title ?? "Untitled Job",
-
-  company: raw?.company ?? (raw?.companyId ? { id: raw.companyId, name: "Unknown Company", logo_url: "", location: "" } : undefined),
-  category: raw?.category ?? (raw?.categoryId ? { id: raw.categoryId, name: "General" } : undefined),
-
-  companyId: raw?.companyId,
-  categoryId: raw?.categoryId,
-
-  job_type: raw?.job_type ?? "Full-Time",
-  salary: raw?.salary ?? "Negotiable",
-  location: raw?.location ?? "Sri Lanka",
-
-  description: raw?.description ?? "",
-  requirements: normalizeMultiline(raw?.requirements),
-  apply_url: raw?.apply_url ?? "#",
-  status: raw?.status ?? "Active",
-  is_featured: Boolean(raw?.is_featured),
-  posted_date:
-    raw?.posted_date instanceof Timestamp
-      ? raw.posted_date
-      : Timestamp.fromDate(new Date()),
-  applied_count: Number(raw?.applied_count) || 0,
-});
-
-export const getCompanies = async (): Promise<Company[]> => {
-  const snapshot = await getDocs(collection(db, "companies"));
-  return snapshot.docs.map((d) => mapCompany(d.id, d.data()));
-};
-
-export const getCategories = async (): Promise<Category[]> => {
-  const snapshot = await getDocs(collection(db, "categories"));
-  return snapshot.docs.map((d) => mapCategory(d.id, d.data()));
-};
-
-export const getJobs = async (): Promise<Job[]> => {
-  const snapshot = await getDocs(collection(db, "jobs"));
-  return snapshot.docs.map((d) => mapJob(d.id, d.data()));
-};
-
-export const getJobById = async (jobId: string): Promise<Job | null> => {
-  if (!jobId) return null;
-  const snap = await getDoc(doc(db, "jobs", jobId));
-  if (!snap.exists()) return null;
-  return mapJob(snap.id, snap.data());
-};
-
-const VISITOR_DOC = doc(db, "stats", "visitors");
-const SESSION_KEY = "seekjobslk-visitor-counted";
-
-export const registerVisitor = async (): Promise<number> => {
-  if (sessionStorage.getItem(SESSION_KEY)) {
-    const snap = await getDoc(VISITOR_DOC);
-    return snap.exists() ? snap.data().count : 0;
+export async function getJobs(): Promise<Job[]> {
+  if (!db) {
+    return [];
   }
 
-  const snap = await getDoc(VISITOR_DOC);
+  const jobsRef = collection(db, "jobs");
 
-  if (!snap.exists()) {
-    await setDoc(VISITOR_DOC, { count: 1 });
-    sessionStorage.setItem(SESSION_KEY, "true");
-    return 1;
+  try {
+    const activeJobsQuery = query(
+      jobsRef,
+      where("is_active", "==", true),
+      orderBy("posted_date", "desc"),
+    );
+
+    const snapshot = await getDocs(activeJobsQuery);
+    return snapshot.docs
+      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
+      .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
+  } catch {
+    const fallbackSnapshot = await getDocs(jobsRef);
+    return fallbackSnapshot.docs
+      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
+      .filter((job) => job.is_active !== false)
+      .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
+  }
+}
+
+export async function registerVisitor(): Promise<number> {
+  if (!db) {
+    return 0;
   }
 
-  await updateDoc(VISITOR_DOC, { count: increment(1) });
-  sessionStorage.setItem(SESSION_KEY, "true");
+  const visitorsRef = doc(db, "stats", "visitors");
 
-  const updatedSnap = await getDoc(VISITOR_DOC);
-  return updatedSnap.data().count;
-};
+  try {
+    await setDoc(
+      visitorsRef,
+      {
+        count: increment(1),
+        updated_at: serverTimestamp(),
+      },
+      { merge: true },
+    );
 
-export const getVisitorCount = async (): Promise<number> => {
-  const snap = await getDoc(VISITOR_DOC);
-  return snap.exists() ? snap.data().count : 0;
-};
+    const updatedSnapshot = await getDoc(visitorsRef);
+    const data = updatedSnapshot.data();
+    return typeof data?.count === "number" ? data.count : 0;
+  } catch {
+    return getVisitorCount();
+  }
+}
 
-export const incrementJobAppliedCount = async (jobId: string): Promise<void> => {
-  if (!jobId) return;
-  const jobRef = doc(db, "jobs", jobId);
-  await updateDoc(jobRef, { applied_count: increment(1) });
-};
+export async function getVisitorCount(): Promise<number> {
+  if (!db) {
+    return 0;
+  }
+
+  try {
+    const snapshot = await getDoc(doc(db, "stats", "visitors"));
+    const data = snapshot.data();
+    return typeof data?.count === "number" ? data.count : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function incrementJobAppliedCount(jobId: string): Promise<void> {
+  if (!db || !jobId) {
+    return;
+  }
+
+  try {
+    const jobRef = doc(db, "jobs", jobId);
+    await updateDoc(jobRef, {
+      applied_count: increment(1),
+      updated_at: serverTimestamp(),
+    });
+  } catch {
+    // no-op so UI remains responsive even if analytics update fails
+  }
+}

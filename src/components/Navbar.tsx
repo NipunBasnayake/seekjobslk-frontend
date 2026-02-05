@@ -1,95 +1,170 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { Button } from "@/components/ui/button";
+"use client";
 
-const Navbar: React.FC = () => {
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
+
+interface NavbarProps {
+  totalJobs?: number;
+}
+
+export function Navbar({ totalJobs }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { label: "About", path: "/about" },
-    { label: "Contact", path: "/contact" },
-    { label: "Privacy Policy", path: "/privacy-policy" },
-    { label: "Terms", path: "/terms" },
-  ];
+  const navLinks = useMemo(
+    () => [
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms", href: "/terms" },
+    ],
+    []
+  );
+
+  const isActive = (href: string) =>
+    href === "/"
+      ? pathname === href
+      : pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <nav className="sticky top-0 z-50 bg-navbar shadow-navbar">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 md:h-20 items-center justify-between">
-
-          {/* Logo */}
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo + Jobs count */}
+        <div className="flex items-center gap-3">
           <Link
-            to="/"
-            className="flex items-center gap-2 font-bold text-navbar-foreground text-xl md:text-2xl"
+            href="/"
+            className="group inline-flex items-center "
           >
-            <Briefcase className="w-7 h-7" />
-            SeekJobsLk
+            <span className="grid h-8 w-8 place-items-center ">
+              <Briefcase className="h-4 w-4" />
+            </span>
+            <span>SeekJobsLk</span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-3 py-2 rounded-md text-white text-sm font-regular transition
-                  ${location.pathname === link.path
-                    ? "bg-navbar-foreground/10"
-                    : "hover:bg-navbar-foreground/10"
-                  }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <Button
-              variant="navbar"
-              size="icon"
-              onClick={toggleTheme}
-              className="ml-2"
-            >
-              {theme === "light" ? <Moon /> : <Sun />}
-            </Button>
-          </div>
-
-          {/* Mobile buttons */}
-          <div className="flex md:hidden items-center gap-2">
-            <Button variant="navbar" size="icon" onClick={toggleTheme}>
-              {theme === "light" ? <Moon /> : <Sun />}
-            </Button>
-
-            <Button
-              variant="navbar"
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
-            </Button>
-          </div>
+          {typeof totalJobs === "number" ? (
+            <span className="hidden items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {totalJobs} active jobs
+            </span>
+          ) : null}
         </div>
 
-        {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t py-4 space-y-2 animate-slide-up">
-            {navLinks.map((link) => (
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          {navLinks.map((link) => {
+            const active = isActive(link.href);
+            return (
               <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm rounded-md hover:bg-navbar-foreground/10"
+                key={link.href}
+                href={link.href}
+                className={[
+                  "rounded-lg px-3 py-2 text-sm transition",
+                  active
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ].join(" ")}
               >
                 {link.label}
               </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
+            );
+          })}
 
-export default Navbar;
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="ml-2 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-card transition hover:border-primary/40"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-4 w-4" />
+                <span className="hidden lg:inline">Light</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4" />
+                <span className="hidden lg:inline">Dark</span>
+              </>
+            )}
+          </button>
+        </nav>
+
+        {/* Mobile actions */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-card transition hover:border-primary/40"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-card transition hover:border-primary/40"
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        id="mobile-nav"
+        className={[
+          "md:hidden overflow-hidden border-t border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70",
+          isMobileMenuOpen ? "max-h-96" : "max-h-0",
+        ].join(" ")}
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-1">
+            {navLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={[
+                    "rounded-lg px-3 py-2 text-sm transition",
+                    active
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            {typeof totalJobs === "number" ? (
+              <div className="pt-2">
+                <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  {totalJobs} active jobs
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

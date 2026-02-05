@@ -1,90 +1,62 @@
-import React, { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+"use client";
 
-interface OptimizedImageProps
-  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt"> {
-  src: string;
+import Image, { type ImageProps } from "next/image";
+import { useMemo, useState } from "react";
+import { cn } from "@/lib/cn";
+
+interface OptimizedImageProps extends Omit<ImageProps, "src" | "alt"> {
+  src?: string | null;
   alt: string;
-  width?: number | string;
-  height?: number | string;
-  lazy?: boolean;
-  skeleton?: boolean;
-  onLoad?: () => void;
-  onError?: () => void;
-  placeholderColor?: string;
+  fallbackSrc?: string;
+  showSkeleton?: boolean;
+  containerClassName?: string;
 }
 
-export const OptimizedImage = React.forwardRef<HTMLImageElement, OptimizedImageProps>(
-  (
-    {
-      src,
-      alt,
-      lazy = true,
-      skeleton = true,
-      onLoad,
-      onError,
-      placeholderColor = "bg-gray-200",
-      className = "",
-      width,
-      height,
-      ...props
-    },
-    ref
-  ) => {
-    const [isLoaded, setIsLoaded] = useState(!skeleton);
-    const [imageSrc, setImageSrc] = useState<string>(src);
-    const [hasError, setHasError] = useState(false);
+export function OptimizedImage({
+  src,
+  alt,
+  fallbackSrc = "/globe.svg",
+  showSkeleton = false,
+  className,
+  containerClassName,
+  onError,
+  onLoad,
+  ...imageProps
+}: OptimizedImageProps) {
+  const [hasError, setHasError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-    useEffect(() => {
-      setImageSrc(src);
-      setHasError(false);
+  const resolvedSrc = useMemo(() => {
+    if (!src || hasError) {
+      return fallbackSrc;
+    }
 
-      if (!lazy) {
-        const img = new Image();
-        img.src = src;
-      }
-    }, [src, lazy]);
+    return src;
+  }, [fallbackSrc, hasError, src]);
 
-    const handleLoad = () => {
-      setIsLoaded(true);
-      onLoad?.();
-    };
-
-    const handleError = () => {
-      setHasError(true);
-      onError?.();
-    };
-
-    return (
-      <div className="relative overflow-hidden" style={{ width, height }}>
-        {!isLoaded && skeleton && !hasError && (
-          <Skeleton className={`absolute inset-0 ${placeholderColor}`} />
+  return (
+    <div className={cn("relative overflow-hidden", containerClassName)}>
+      {showSkeleton && !loaded ? (
+        <div className="absolute inset-0 animate-pulse bg-muted" />
+      ) : null}
+      <Image
+        {...imageProps}
+        src={resolvedSrc}
+        alt={alt}
+        className={cn(
+          "object-cover transition-opacity duration-300",
+          loaded ? "opacity-100" : "opacity-0",
+          className,
         )}
-        <img
-          ref={ref}
-          src={imageSrc}
-          alt={alt}
-          loading={lazy ? "lazy" : "eager"}
-          decoding="async"
-          className={`transition-opacity duration-300 ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          } ${className}`}
-          width={width}
-          height={height}
-          onLoad={handleLoad}
-          onError={handleError}
-          {...props}
-        />
-        {hasError && (
-          <div className={`absolute inset-0 ${placeholderColor} flex items-center justify-center`}>
-            <span className="text-xs text-gray-500">Image not available</span>
-          </div>
-        )}
-      </div>
-    );
-  }
-);
-
-OptimizedImage.displayName = "OptimizedImage";
-
-export default OptimizedImage;
+        onError={(event) => {
+          setHasError(true);
+          onError?.(event);
+        }}
+        onLoad={(event) => {
+          setLoaded(true);
+          onLoad?.(event);
+        }}
+      />
+    </div>
+  );
+}

@@ -1,43 +1,40 @@
-import React, { useEffect, useState } from "react";
-import { Eye } from "lucide-react";
-import { registerVisitor } from "@/services/firebaseData";
+"use client";
 
-const PageViewsCounter: React.FC = () => {
-  const [views, setViews] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+import { useEffect, useState } from "react";
+
+interface PageViewsCounterProps {
+  count: number;
+}
+
+export function PageViewsCounter({ count }: PageViewsCounterProps) {
+  const [displayCount, setDisplayCount] = useState(0);
 
   useEffect(() => {
-    registerVisitor()
-      .then((count) => setViews(count))
-      .catch((err) => {
-        console.error("Failed to load visitor count:", err);
-        setViews(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    let frame = 0;
+    const duration = 600;
+    const startTime = performance.now();
 
-  const formatNumber = (num: number) => {
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-    return num.toLocaleString();
-  };
+    const animate = (time: number) => {
+      const progress = Math.min((time - startTime) / duration, 1);
+      setDisplayCount(Math.floor(progress * count));
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(animate);
+      }
+    };
+
+    frame = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [count]);
 
   return (
-    <div className="bg-card rounded-xl border border-border p-4 shadow-card">
-      <div className="flex items-center justify-center gap-3">
-        <div className="p-2 bg-accent/10 rounded-lg">
-          <Eye className="w-5 h-5 text-accent" />
-        </div>
-
-        <div className="text-center">
-          <p className="text-2xl font-bold text-heading">
-            {loading ? "—" : views !== null ? formatNumber(views) : "N/A"}
-          </p>
-          <p className="text-xs text-muted-foreground">Total Visitors</p>
-        </div>
-      </div>
-    </div>
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <h3 className="text-base font-semibold text-card-foreground">Visitor Counter</h3>
+      <p className="mt-2 text-3xl font-bold text-primary">{displayCount.toLocaleString()}</p>
+      <p className="mt-1 text-sm text-muted-foreground">Total platform visitors</p>
+    </section>
   );
-};
-
-export default PageViewsCounter;
+}

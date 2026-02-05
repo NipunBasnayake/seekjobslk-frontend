@@ -1,115 +1,66 @@
-import React, { useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+"use client";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  siblingCount?: number;
 }
 
-const DOTS = "dots";
+function getVisiblePages(currentPage: number, totalPages: number): number[] {
+  const pages = new Set<number>([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+  return Array.from(pages)
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((a, b) => a - b);
+}
 
-const Pagination: React.FC<PaginationProps> = ({
+export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  siblingCount = 1,
-}) => {
-  const paginationRange = useMemo(() => {
-    const totalPageNumbers = siblingCount * 2 + 5;
+}: PaginationProps) {
+  if (totalPages <= 1) {
+    return null;
+  }
 
-    if (totalPages <= totalPageNumbers) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
-    const rightSiblingIndex = Math.min(
-      currentPage + siblingCount,
-      totalPages
-    );
-
-    const showLeftDots = leftSiblingIndex > 2;
-    const showRightDots = rightSiblingIndex < totalPages - 1;
-
-    const range: (number | typeof DOTS)[] = [];
-
-    range.push(1);
-
-    if (showLeftDots) {
-      range.push(DOTS);
-    }
-
-    for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
-      if (i !== 1 && i !== totalPages) {
-        range.push(i);
-      }
-    }
-
-    if (showRightDots) {
-      range.push(DOTS);
-    }
-
-    if (totalPages !== 1) {
-      range.push(totalPages);
-    }
-
-    return range;
-  }, [currentPage, totalPages, siblingCount]);
-
-  if (totalPages <= 1) return null;
+  const pages = getVisiblePages(currentPage, totalPages);
 
   return (
-    <div className="flex justify-center items-center gap-1 pt-4 flex-wrap">
-      {/* Previous */}
+    <nav
+      className="mt-6 flex flex-wrap items-center justify-center gap-2"
+      aria-label="Jobs pagination"
+    >
       <button
-        disabled={currentPage === 1}
+        type="button"
         onClick={() => onPageChange(currentPage - 1)}
-        className="rounded-md border px-3 py-1 disabled:opacity-50"
-        aria-label="Previous page"
+        disabled={currentPage === 1}
+        className="rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronLeft className="h-4 w-4" />
+        Previous
       </button>
 
-      {/* Pages */}
-      {paginationRange.map((item, index) => {
-        if (item === DOTS) {
-          return (
-            <span
-              key={`dots-${index}`}
-              className="px-2 text-muted-foreground"
-            >
-              …
-            </span>
-          );
-        }
+      {pages.map((page) => (
+        <button
+          key={page}
+          type="button"
+          onClick={() => onPageChange(page)}
+          className={
+            page === currentPage
+              ? "rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+              : "rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+          }
+        >
+          {page}
+        </button>
+      ))}
 
-        return (
-          <button
-            key={item}
-            onClick={() => onPageChange(item)}
-            className={`rounded-md px-3 py-1 text-sm transition ${
-              currentPage === item
-                ? "bg-primary text-primary-foreground"
-                : "border hover:bg-muted"
-            }`}
-          >
-            {item}
-          </button>
-        );
-      })}
-
-      {/* Next */}
       <button
-        disabled={currentPage === totalPages}
+        type="button"
         onClick={() => onPageChange(currentPage + 1)}
-        className="rounded-md border px-3 py-1 disabled:opacity-50"
-        aria-label="Next page"
+        disabled={currentPage === totalPages}
+        className="rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronRight className="h-4 w-4" />
+        Next
       </button>
-    </div>
+    </nav>
   );
-};
-
-export default Pagination;
+}

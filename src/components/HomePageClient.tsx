@@ -11,7 +11,7 @@ import { Navbar } from "@/components/Navbar";
 import { PageViewsCounter } from "@/components/PageViewsCounter";
 import { Pagination } from "@/components/Pagination";
 import { PopularJobsAside } from "@/components/PopularJobsAside";
-import { WhatsAppChannelBanner } from "@/components/WhatsAppChannelBanner";
+import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import type { JobFilterState } from "@/components/homeTypes";
 import {
   getCategories,

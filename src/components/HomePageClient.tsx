@@ -185,8 +185,6 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
           </p>
         </section>
 
-        <WhatsAppChannelBanner />
-
         <div id="jobs" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
           <div className="space-y-6">
             <FilterSection
@@ -224,6 +222,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
           </div>
 
           <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
+            <WhatsAppChannelBanner />
             <PopularJobsAside jobs={popularJobs} />
             <ConnectWithUs />
             <VisitorCountCard count={visitorCount} />

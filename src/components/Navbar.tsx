@@ -1,29 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Moon, Sun, Menu, X, Briefcase } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
+import { Menu, X, Briefcase } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface NavbarProps {
   totalJobs?: number;
 }
 
+const navLinks = [
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms", href: "/terms" },
+];
+
 export function Navbar({ totalJobs }: NavbarProps) {
-  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navLinks = useMemo(
-    () => [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacy-policy" },
-      { label: "Terms", href: "/terms" },
-    ],
-    []
-  );
 
   const isActive = (href: string) =>
     href === "/"
@@ -31,87 +27,49 @@ export function Navbar({ totalJobs }: NavbarProps) {
       : pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo + Jobs count */}
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 border-b border-border/85 bg-background/92 backdrop-blur-xl supports-[backdrop-filter]:bg-background/88">
+      <div className="ui-shell flex h-[4.5rem] items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/"
-            className="group inline-flex items-center "
+            className="inline-flex items-center gap-3 rounded-full px-1 py-1 text-foreground"
+            aria-label="SeekJobsLk home"
           >
-            <span className="grid h-8 w-8 place-items-center ">
+            <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-primary/10 text-primary shadow-card">
               <Briefcase className="h-4 w-4" />
             </span>
-            <span>SeekJobsLk</span>
+            <span className="truncate text-base font-semibold tracking-tight">SeekJobsLk</span>
           </Link>
 
           {typeof totalJobs === "number" ? (
-            <span className="hidden items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground lg:inline-flex">
+              <span className="h-2 w-2 rounded-full bg-primary" />
               {totalJobs} active jobs
             </span>
           ) : null}
         </div>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary">
           {navLinks.map((link) => {
             const active = isActive(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={[
-                  "rounded-lg px-3 py-2 text-sm transition",
-                  active
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                ].join(" ")}
+                aria-current={active ? "page" : undefined}
+                className={cn("ui-nav-link", active && "ui-nav-link-active")}
               >
                 {link.label}
               </Link>
             );
           })}
-
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="ml-2 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-card transition hover:border-primary/40"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="h-4 w-4" />
-                <span className="hidden lg:inline">Light</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4" />
-                <span className="hidden lg:inline">Dark</span>
-              </>
-            )}
-          </button>
         </nav>
 
-        {/* Mobile actions */}
-        <div className="flex items-center gap-2 md:hidden">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-card transition hover:border-primary/40"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
-
+        <div className="flex items-center md:hidden">
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-card transition hover:border-primary/40"
+            className="ui-button ui-button-secondary h-11 w-11 px-0 shadow-card"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-nav"
@@ -125,16 +83,15 @@ export function Navbar({ totalJobs }: NavbarProps) {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <div
         id="mobile-nav"
-        className={[
-          "md:hidden overflow-hidden border-t border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70",
-          isMobileMenuOpen ? "max-h-96" : "max-h-0",
-        ].join(" ")}
+        className={cn(
+          "overflow-hidden border-t border-border/70 bg-background/96 backdrop-blur-xl transition-[max-height,opacity] duration-200 md:hidden",
+          isMobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0",
+        )}
       >
-        <div className="mx-auto w-full max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-1">
+        <div className="ui-shell py-3">
+          <div className="flex flex-col gap-1.5">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
@@ -142,12 +99,8 @@ export function Navbar({ totalJobs }: NavbarProps) {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={[
-                    "rounded-lg px-3 py-2 text-sm transition",
-                    active
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  ].join(" ")}
+                  aria-current={active ? "page" : undefined}
+                  className={cn("ui-nav-link w-full justify-start rounded-2xl", active && "ui-nav-link-active")}
                 >
                   {link.label}
                 </Link>
@@ -156,8 +109,8 @@ export function Navbar({ totalJobs }: NavbarProps) {
 
             {typeof totalJobs === "number" ? (
               <div className="pt-2">
-                <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground">
+                  <span className="h-2 w-2 rounded-full bg-primary" />
                   {totalJobs} active jobs
                 </span>
               </div>

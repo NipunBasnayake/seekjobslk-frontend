@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -55,7 +54,7 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} ${spaceGrotesk.variable} min-h-screen bg-background font-sans text-foreground antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
       </body>
     </html>
   );

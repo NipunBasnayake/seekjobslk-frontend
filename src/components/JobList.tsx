@@ -20,9 +20,9 @@ export function JobList({ jobs, loading = false }: JobListProps) {
 
   if (!jobs.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center shadow-card">
-        <h3 className="text-lg font-semibold text-card-foreground">No jobs found</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="ui-card border-dashed p-10 text-center">
+        <h3 className="ui-section-title">No jobs found</h3>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
           Try changing filters or search terms.
         </p>
       </div>
@@ -30,7 +30,7 @@ export function JobList({ jobs, loading = false }: JobListProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       {jobs.map((job) => (
         <JobCard key={job.id} job={job} />
       ))}

@@ -48,6 +48,7 @@ function formatSalary(job: Job): string {
 
 export function JobDetailClient({ job }: JobDetailClientProps) {
   const [appliedCount, setAppliedCount] = useState(job.applied_count ?? 0);
+  const canApply = Boolean(job.apply_url);
 
   const requirements = useMemo(
     () => normalizeMultilineValues(job.requirements),
@@ -61,11 +62,21 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
   const benefits = useMemo(() => normalizeMultilineValues(job.benefits), [job.benefits]);
 
+  const handleApply = () => {
+    if (!job.apply_url) {
+      return;
+    }
+
+    setAppliedCount((count) => count + 1);
+    void incrementJobAppliedCount(job.id);
+    window.open(job.apply_url, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
-      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="ui-card p-5 sm:p-6 lg:p-7">
+      <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex gap-3">
-          <div className="size-14 rounded-xl border border-border bg-background p-1.5">
+          <div className="size-14 rounded-2xl border border-border bg-background p-1.5">
             <OptimizedImage
               src={job.company?.logo_url}
               fallbackSrc="/globe.svg"
@@ -76,7 +87,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-card-foreground">{job.title}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-card-foreground">{job.title}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {job.company?.name || "Unknown Company"} - {job.location || "Sri Lanka"}
             </p>
@@ -88,52 +99,47 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
         <button
           type="button"
-          onClick={() => {
-            setAppliedCount((count) => count + 1);
-            void incrementJobAppliedCount(job.id);
-
-            if (job.apply_url) {
-              window.open(job.apply_url, "_blank", "noopener,noreferrer");
-            }
-          }}
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+          onClick={handleApply}
+          disabled={!canApply}
+          aria-label={canApply ? `Apply for ${job.title}` : `Application unavailable for ${job.title}`}
+          className="ui-button ui-button-primary"
         >
-          Apply now ({appliedCount})
+          {canApply ? `Apply now (${appliedCount})` : "Application unavailable"}
         </button>
       </header>
 
-      <div className="grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-3">
+      <div className="grid gap-3 rounded-2xl border border-border bg-background p-4 sm:grid-cols-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Category</p>
-          <p className="text-sm font-medium text-card-foreground">
+          <p className="ui-label">Category</p>
+          <p className="mt-1 text-sm font-semibold text-card-foreground">
             {job.category?.name || "General"}
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Job Type</p>
-          <p className="text-sm font-medium text-card-foreground">{job.job_type || "N/A"}</p>
+          <p className="ui-label">Job Type</p>
+          <p className="mt-1 text-sm font-semibold text-card-foreground">{job.job_type || "N/A"}</p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Salary</p>
-          <p className="text-sm font-medium text-card-foreground">{formatSalary(job)}</p>
+          <p className="ui-label">Salary</p>
+          <p className="mt-1 text-sm font-semibold text-card-foreground">{formatSalary(job)}</p>
         </div>
       </div>
 
       {job.description ? (
-        <section className="mt-6">
-          <h2 className="mb-2 text-lg font-semibold text-card-foreground">Job Description</h2>
-          <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
+        <section className="mt-8">
+          <h2 className="ui-section-title">Job Description</h2>
+          <p className="ui-reading mt-3 max-w-none whitespace-pre-line">
             {job.description}
           </p>
         </section>
       ) : null}
 
       {requirements.length ? (
-        <section className="mt-6">
-          <h2 className="mb-2 text-lg font-semibold text-card-foreground">Requirements</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground">
+        <section className="mt-8">
+          <h2 className="ui-section-title">Requirements</h2>
+          <ul className="ui-zebra mt-3 space-y-2">
             {requirements.map((item) => (
-              <li key={item} className="rounded-lg bg-muted px-3 py-2">
+              <li key={item} className="ui-list-item text-sm leading-6 text-muted-foreground">
                 {item}
               </li>
             ))}
@@ -142,11 +148,11 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
       ) : null}
 
       {responsibilities.length ? (
-        <section className="mt-6">
-          <h2 className="mb-2 text-lg font-semibold text-card-foreground">Responsibilities</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground">
+        <section className="mt-8">
+          <h2 className="ui-section-title">Responsibilities</h2>
+          <ul className="ui-zebra mt-3 space-y-2">
             {responsibilities.map((item) => (
-              <li key={item} className="rounded-lg bg-muted px-3 py-2">
+              <li key={item} className="ui-list-item text-sm leading-6 text-muted-foreground">
                 {item}
               </li>
             ))}
@@ -155,11 +161,11 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
       ) : null}
 
       {benefits.length ? (
-        <section className="mt-6">
-          <h2 className="mb-2 text-lg font-semibold text-card-foreground">Benefits</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground">
+        <section className="mt-8">
+          <h2 className="ui-section-title">Benefits</h2>
+          <ul className="ui-zebra mt-3 space-y-2">
             {benefits.map((item) => (
-              <li key={item} className="rounded-lg bg-muted px-3 py-2">
+              <li key={item} className="ui-list-item text-sm leading-6 text-muted-foreground">
                 {item}
               </li>
             ))}

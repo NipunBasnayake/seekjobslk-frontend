@@ -23,21 +23,23 @@ export function FilterSection({
   onReset,
 }: FilterSectionProps) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-card sm:p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-card-foreground">Filter Jobs</h2>
+    <section className="ui-card p-5 sm:p-6" aria-labelledby="filters-title">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="filters-title" className="ui-section-title">
+          Filter Jobs
+        </h2>
         <button
           type="button"
           onClick={onReset}
-          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+          className="ui-button ui-button-ghost min-h-10 px-3.5 text-xs"
         >
           Reset filters
         </button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">Search</span>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <label className="flex flex-col gap-2">
+          <span className="ui-label">Search</span>
           <input
             type="text"
             value={value.search}
@@ -48,12 +50,13 @@ export function FilterSection({
               })
             }
             placeholder="Search jobs, companies, keywords"
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+            className="ui-input"
           />
+          <span className="ui-helper">Search by title, company, or relevant keywords.</span>
         </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">Category</span>
+        <label className="flex flex-col gap-2">
+          <span className="ui-label">Category</span>
           <select
             value={value.categoryId}
             onChange={(event) =>
@@ -62,7 +65,7 @@ export function FilterSection({
                 categoryId: event.target.value,
               })
             }
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+            className="ui-select"
           >
             <option value="">All categories</option>
             {categories.map((category) => (
@@ -73,8 +76,8 @@ export function FilterSection({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">Company</span>
+        <label className="flex flex-col gap-2">
+          <span className="ui-label">Company</span>
           <select
             value={value.companyId}
             onChange={(event) =>
@@ -83,7 +86,7 @@ export function FilterSection({
                 companyId: event.target.value,
               })
             }
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+            className="ui-select"
           >
             <option value="">All companies</option>
             {companies.map((company) => (
@@ -94,8 +97,8 @@ export function FilterSection({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">Job Type</span>
+        <label className="flex flex-col gap-2">
+          <span className="ui-label">Job Type</span>
           <select
             value={value.jobType}
             onChange={(event) =>
@@ -104,7 +107,7 @@ export function FilterSection({
                 jobType: event.target.value,
               })
             }
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+            className="ui-select"
           >
             <option value="">All types</option>
             {jobTypes.map((jobType) => (
@@ -115,8 +118,8 @@ export function FilterSection({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">Location</span>
+        <label className="flex flex-col gap-2">
+          <span className="ui-label">Location</span>
           <select
             value={value.location}
             onChange={(event) =>
@@ -125,7 +128,7 @@ export function FilterSection({
                 location: event.target.value,
               })
             }
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+            className="ui-select"
           >
             <option value="">All locations</option>
             {locations.map((location) => (
@@ -136,9 +139,9 @@ export function FilterSection({
           </select>
         </label>
 
-        <div className="grid grid-cols-2 gap-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Min Salary</span>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-2">
+            <span className="ui-label">Min Salary</span>
             <input
               type="number"
               min={0}
@@ -150,11 +153,11 @@ export function FilterSection({
                 })
               }
               placeholder="0"
-              className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+              className="ui-input"
             />
           </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Max Salary</span>
+          <label className="flex flex-col gap-2">
+            <span className="ui-label">Max Salary</span>
             <input
               type="number"
               min={0}
@@ -166,10 +169,14 @@ export function FilterSection({
                 })
               }
               placeholder="Any"
-              className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
+              className="ui-input"
             />
           </label>
         </div>
+
+        <p className="ui-helper col-span-full">
+          Salary filters are optional and work best with your preferred monthly range.
+        </p>
       </div>
     </section>
   );

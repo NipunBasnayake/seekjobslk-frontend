@@ -7,17 +7,20 @@ interface PopularJobsAsideProps {
 
 export function PopularJobsAside({ jobs }: PopularJobsAsideProps) {
   return (
-    <aside className="rounded-2xl border border-border bg-card p-5 shadow-card">
-      <h3 className="mb-4 text-base font-semibold text-card-foreground">Popular Jobs</h3>
-      <ul className="space-y-3">
+    <aside className="ui-card p-5 sm:p-6">
+      <h3 className="ui-card-title">Popular Jobs</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        Roles with the highest recent application activity.
+      </p>
+      <ul className="ui-zebra mt-4 space-y-2.5">
         {jobs.slice(0, 6).map((job) => (
           <li key={job.id}>
             <Link
               href={`/job/${job.id}`}
-              className="block rounded-xl border border-border p-3 transition hover:border-primary/40"
+              className="ui-list-item hover:border-primary/40"
             >
               <p className="line-clamp-2 text-sm font-medium text-card-foreground">{job.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 {job.company?.name || "Unknown Company"} - {job.applied_count ?? 0} applications
               </p>
             </Link>

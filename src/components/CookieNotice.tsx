@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Cookie, X } from "lucide-react";
+import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
 
 const COOKIE_STORAGE_KEY = "seekjobs-cookie-notice";
+const EXIT_DURATION_MS = 220;
 
 export function CookieNotice() {
   const [visible, setVisible] = useState(false);
@@ -16,10 +18,13 @@ export function CookieNotice() {
     const consent = window.localStorage.getItem(COOKIE_STORAGE_KEY);
     if (consent === "accepted") return;
 
-    setMounted(true);
-    const timer = window.setTimeout(() => setVisible(true), 600);
+    const mountTimer = window.setTimeout(() => setMounted(true), 0);
+    const revealTimer = window.setTimeout(() => setVisible(true), 600);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(mountTimer);
+      window.clearTimeout(revealTimer);
+    };
   }, []);
 
   const hideNotice = (status: "accepted" | "dismissed") => {
@@ -31,58 +36,62 @@ export function CookieNotice() {
 
     window.setTimeout(() => {
       setMounted(false);
-    }, 600);
+    }, EXIT_DURATION_MS);
   };
 
   if (!mounted) return null;
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-50 transform transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
-        ${
-          visible
-            ? "translate-y-0 opacity-100 scale-100"
-            : "translate-y-12 opacity-0 scale-95"
-        }
-      `}
-      role="dialog"
-      aria-live="polite"
-      aria-label="Cookie notice"
+      className={cn(
+        "fixed inset-0 z-50 flex items-end justify-center px-4 pb-4 sm:px-6 sm:pb-6",
+        visible ? "pointer-events-auto" : "pointer-events-none",
+      )}
     >
-      <div className="mx-auto max-w-5xl px-3 pb-4">
+      <div
+        className={cn(
+          "absolute inset-0 bg-black/20 transition-opacity duration-200",
+          visible ? "opacity-100" : "opacity-0",
+        )}
+        aria-hidden="true"
+        onClick={() => hideNotice("dismissed")}
+      />
+
+      <div className="w-full max-w-4xl">
         <div
-          className="
-            relative overflow-hidden rounded-2xl
-            bg-primary/90 text-white
-            backdrop-blur-md
-            border border-white/15
-            shadow-[0_20px_50px_rgba(0,0,0,0.25)]
-          "
+          role="dialog"
+          aria-live="polite"
+          aria-label="Cookie notice"
+          aria-modal="false"
+          className={cn(
+            "ui-toast relative w-full overflow-hidden px-5 py-5 transition-all duration-200 sm:px-6",
+            visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-[0.98] opacity-0",
+          )}
         >
           <button
             type="button"
             onClick={() => hideNotice("dismissed")}
-            className="absolute right-4 top-4 text-white/70 hover:text-white transition"
+            className="ui-button ui-button-ghost absolute right-3 top-3 h-10 w-10 px-0"
             aria-label="Close cookie notice"
           >
             <X className="h-5 w-5" />
           </button>
 
-          <div className="flex flex-col gap-4 p-6 sm:flex-row">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex-shrink-0">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/15 border border-white/20">
-                <Cookie className="h-8 w-8 text-white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-primary/10 text-primary">
+                <Cookie className="h-7 w-7" />
               </div>
             </div>
 
             <div className="flex-1">
-              <h4 className="mb-1 text-sm font-semibold">We value your privacy 🍪</h4>
-              <p className="text-sm text-white/80 leading-relaxed">
+              <h4 className="text-base font-semibold text-card-foreground">We value your privacy</h4>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 We use cookies to improve your browsing experience and measure job page visits.
                 By continuing, you agree to our{" "}
                 <a
                   href="/privacy-policy"
-                  className="underline underline-offset-2 hover:text-white"
+                  className="font-medium text-foreground underline decoration-primary/60 underline-offset-4 hover:decoration-primary"
                 >
                   cookie policy
                 </a>
@@ -90,32 +99,16 @@ export function CookieNotice() {
               </p>
             </div>
 
-            <div className="flex gap-2 sm:ml-auto sm:self-center">
-              <Button
-                size="sm"
-                className="bg-white text-primary hover:bg-white/90"
-                onClick={() => hideNotice("accepted")}
-              >
+            <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:self-center">
+              <Button size="sm" onClick={() => hideNotice("accepted")}>
                 Accept
               </Button>
 
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-white hover:bg-white/15"
-                onClick={() => hideNotice("dismissed")}
-              >
+              <Button size="sm" variant="secondary" onClick={() => hideNotice("dismissed")}>
                 Later
               </Button>
             </div>
           </div>
-
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-6px); }
-            }
-          `}</style>
         </div>
       </div>
     </div>

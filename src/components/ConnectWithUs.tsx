@@ -1,16 +1,17 @@
 export function ConnectWithUs() {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-      <h3 className="mb-3 text-base font-semibold text-card-foreground">Connect With Us</h3>
-      <p className="mb-4 text-sm text-muted-foreground">
+    <section className="ui-card p-5 sm:p-6">
+      <h3 className="ui-card-title">Connect With Us</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
         Follow SeekJobsLk on social channels for hiring tips and job updates.
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <a
           href="https://www.facebook.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-xl border border-border px-3 py-2 text-sm transition hover:border-primary/40"
+          aria-label="Visit our Facebook page"
+          className="ui-button ui-button-secondary min-h-10 px-3.5 text-sm"
         >
           Facebook
         </a>
@@ -18,7 +19,8 @@ export function ConnectWithUs() {
           href="https://www.linkedin.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-xl border border-border px-3 py-2 text-sm transition hover:border-primary/40"
+          aria-label="Visit our LinkedIn page"
+          className="ui-button ui-button-secondary min-h-10 px-3.5 text-sm"
         >
           LinkedIn
         </a>
@@ -26,7 +28,8 @@ export function ConnectWithUs() {
           href="https://x.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-xl border border-border px-3 py-2 text-sm transition hover:border-primary/40"
+          aria-label="Visit our X profile"
+          className="ui-button ui-button-secondary min-h-10 px-3.5 text-sm"
         >
           X
         </a>

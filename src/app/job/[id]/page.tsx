@@ -148,7 +148,7 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="ui-shell flex w-full flex-col gap-6 py-6 sm:gap-8 sm:py-8 lg:py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -158,20 +158,23 @@ export default async function JobDetailPage({ params }: JobPageProps) {
 
       <Link
         href="/"
-        className="inline-flex rounded-xl border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+        className="ui-button ui-button-secondary w-fit"
+        aria-label="Back to all jobs"
       >
         Back to jobs
       </Link>
 
       <JobDetailClient job={job} />
 
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
-        <h2 className="mb-4 text-xl font-semibold text-card-foreground">Related Jobs</h2>
+      <section className="ui-card p-5 sm:p-6">
+        <h2 className="ui-section-title">Related Jobs</h2>
 
         {relatedJobs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No related jobs available right now.</p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            No related jobs available right now.
+          </p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {relatedJobs.map((relatedJob) => {
               const postedDate = getJobDate(relatedJob.posted_date ?? null);
               const formattedDate = postedDate
@@ -186,7 +189,7 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                 <Link
                   key={relatedJob.id}
                   href={`/job/${relatedJob.id}`}
-                  className="rounded-xl border border-border bg-background p-4 transition hover:border-primary/40"
+                  className="ui-list-item hover:border-primary/40"
                 >
                   <p className="line-clamp-2 text-sm font-semibold text-card-foreground">
                     {relatedJob.title}

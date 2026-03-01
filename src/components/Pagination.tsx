@@ -26,14 +26,15 @@ export function Pagination({
 
   return (
     <nav
-      className="mt-6 flex flex-wrap items-center justify-center gap-2"
+      className="mt-8 flex flex-wrap items-center justify-center gap-2.5"
       aria-label="Jobs pagination"
     >
       <button
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
+        aria-label="Go to previous page"
       >
         Previous
       </button>
@@ -43,10 +44,12 @@ export function Pagination({
           key={page}
           type="button"
           onClick={() => onPageChange(page)}
+          aria-current={page === currentPage ? "page" : undefined}
+          aria-label={`Go to page ${page}`}
           className={
             page === currentPage
-              ? "rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
-              : "rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+              ? "ui-button ui-button-primary min-h-10 w-10 px-0 text-sm"
+              : "ui-button ui-button-secondary min-h-10 w-10 px-0 text-sm"
           }
         >
           {page}
@@ -57,7 +60,8 @@ export function Pagination({
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
+        aria-label="Go to next page"
       >
         Next
       </button>

@@ -172,13 +172,14 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     <>
       <Navbar totalJobs={jobs.length} />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
-          <h1 className="inline-flex items-center gap-2 text-3xl font-bold tracking-tight text-card-foreground">
-            <Rocket className="size-7 text-primary" />
-            <span>Find Your Next Career Move</span>
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+      <main className="ui-shell flex w-full flex-col gap-6 py-6 sm:gap-8 sm:py-8 lg:py-10">
+        <section className="ui-card ui-hero">
+          <span className="ui-kicker">
+            <Rocket className="h-3.5 w-3.5 text-primary" />
+            Verified job board
+          </span>
+          <h1 className="ui-page-title mt-4">Find Your Next Career Move</h1>
+          <p className="ui-page-intro mt-4">
             Discover verified jobs from leading Sri Lankan companies. Filter by company,
             category, salary, and location.
           </p>
@@ -186,8 +187,8 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
 
         <WhatsAppChannelBanner />
 
-        <div id="jobs" className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-4">
+        <div id="jobs" className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+          <div className="space-y-5">
             <FilterSection
               categories={categories}
               companies={companies}
@@ -219,7 +220,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
             />
           </div>
 
-          <div className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+          <div className="space-y-5 lg:sticky lg:top-28 lg:h-fit">
             <PopularJobsAside jobs={popularJobs} />
             <ConnectWithUs />
             <PageViewsCounter count={visitorCount} />

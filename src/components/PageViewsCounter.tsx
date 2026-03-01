@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-interface PageViewsCounterProps {
+export interface VisitorCountCardProps {
   count: number;
 }
 
-export function PageViewsCounter({ count }: PageViewsCounterProps) {
+export function VisitorCountCard({ count }: VisitorCountCardProps) {
   const [displayCount, setDisplayCount] = useState(0);
 
   useEffect(() => {
@@ -33,16 +33,28 @@ export function PageViewsCounter({ count }: PageViewsCounterProps) {
   return (
     <section className="ui-card p-5 sm:p-6">
       <span className="ui-kicker">Traffic</span>
-      <h3 className="mt-4 text-base font-semibold text-card-foreground">Visitor Counter</h3>
-      <div className="mt-4 rounded-2xl border border-border bg-background px-4 py-4">
-        <p className="text-4xl font-bold tracking-tight text-card-foreground tabular-nums" aria-live="polite">
-          {displayCount.toLocaleString()}
-        </p>
-        <p className="mt-2 inline-flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-          Total platform visitors
-        </p>
+      <div className="mt-4 space-y-1">
+        <h3 className="ui-card-title">Visitor Counter</h3>
+        <p className="ui-section-subtitle">A live snapshot of platform traffic.</p>
+      </div>
+
+      <div className="mt-5 rounded-[16px] border border-border bg-background p-4">
+        <div className="flex items-end justify-between gap-3">
+          <p
+            className="text-4xl font-bold tracking-tight text-card-foreground tabular-nums sm:text-[2.75rem]"
+            aria-live="polite"
+          >
+            {displayCount.toLocaleString()}
+          </p>
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+            Live
+          </span>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">Total platform visitors</p>
       </div>
     </section>
   );
 }
+
+export { VisitorCountCard as PageViewsCounter };

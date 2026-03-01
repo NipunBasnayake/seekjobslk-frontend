@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { CompanyAvatar } from "@/components/ui/company-avatar";
 import type { Job } from "@/types";
 
 interface PopularJobsAsideProps {
@@ -15,14 +16,25 @@ export function PopularJobsAside({ jobs }: PopularJobsAsideProps) {
       <ul className="ui-zebra mt-4 space-y-2.5">
         {jobs.slice(0, 6).map((job) => (
           <li key={job.id}>
-            <Link
-              href={`/job/${job.id}`}
-              className="ui-list-item hover:border-primary/40"
-            >
-              <p className="line-clamp-2 text-sm font-medium text-card-foreground">{job.title}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                {job.company?.name || "Unknown Company"} - {job.applied_count ?? 0} applications
-              </p>
+            <Link href={`/job/${job.id}`} className="ui-list-item hover:border-primary/40">
+              <div className="flex items-start gap-3">
+                <CompanyAvatar
+                  name={job.company?.name || "Unknown Company"}
+                  logoUrl={job.company?.logo_url}
+                  size={44}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm font-semibold leading-5 text-card-foreground">
+                    {job.title}
+                  </p>
+                  <p className="mt-1 truncate text-xs font-medium uppercase tracking-[0.03em] text-muted-foreground">
+                    {job.company?.name || "Unknown Company"}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {job.applied_count ?? 0} applications
+                  </p>
+                </div>
+              </div>
             </Link>
           </li>
         ))}

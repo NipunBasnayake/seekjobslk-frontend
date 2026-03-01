@@ -10,7 +10,7 @@ interface JobListProps {
 export function JobList({ jobs, loading = false }: JobListProps) {
   if (loading) {
     return (
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         {Array.from({ length: 6 }).map((_, index) => (
           <JobCardSkeleton key={index} />
         ))}

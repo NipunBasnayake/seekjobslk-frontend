@@ -8,9 +8,9 @@ import { FilterSection } from "@/components/FilterSection";
 import { Footer } from "@/components/Footer";
 import { JobList } from "@/components/JobList";
 import { Navbar } from "@/components/Navbar";
-import { PageViewsCounter } from "@/components/PageViewsCounter";
 import { Pagination } from "@/components/Pagination";
 import { PopularJobsAside } from "@/components/PopularJobsAside";
+import { VisitorCountCard } from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import type { JobFilterState } from "@/components/homeTypes";
 import {
@@ -151,8 +151,8 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     });
   }, [filters, jobs]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / ITEMS_PER_PAGE));
-  const activePage = Math.min(currentPage, totalPages);
+  const totalPages = filteredJobs.length === 0 ? 0 : Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
+  const activePage = totalPages === 0 ? 1 : Math.min(currentPage, totalPages);
 
   const paginatedJobs = useMemo(() => {
     const start = (activePage - 1) * ITEMS_PER_PAGE;
@@ -172,7 +172,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     <>
       <Navbar totalJobs={jobs.length} />
 
-      <main className="ui-shell flex w-full flex-col gap-6 py-6 sm:gap-8 sm:py-8 lg:py-10">
+      <main className="ui-shell flex w-full flex-col gap-8 py-6 sm:py-8 lg:gap-10 lg:py-10">
         <section className="ui-card ui-hero">
           <span className="ui-kicker">
             <Rocket className="h-3.5 w-3.5 text-primary" />
@@ -187,8 +187,8 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
 
         <WhatsAppChannelBanner />
 
-        <div id="jobs" className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-          <div className="space-y-5">
+        <div id="jobs" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+          <div className="space-y-6">
             <FilterSection
               categories={categories}
               companies={companies}
@@ -210,6 +210,9 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
             <Pagination
               currentPage={activePage}
               totalPages={totalPages}
+              totalItems={filteredJobs.length}
+              pageSize={ITEMS_PER_PAGE}
+              currentItemCount={paginatedJobs.length}
               onPageChange={(page) => {
                 if (page < 1 || page > totalPages) {
                   return;
@@ -220,10 +223,10 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
             />
           </div>
 
-          <div className="space-y-5 lg:sticky lg:top-28 lg:h-fit">
+          <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
             <PopularJobsAside jobs={popularJobs} />
             <ConnectWithUs />
-            <PageViewsCounter count={visitorCount} />
+            <VisitorCountCard count={visitorCount} />
           </div>
         </div>
       </main>

@@ -1,13 +1,14 @@
 "use client";
 
 import Image, { type ImageProps } from "next/image";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 
 interface OptimizedImageProps extends Omit<ImageProps, "src" | "alt"> {
   src?: string | null;
   alt: string;
   fallbackSrc?: string;
+  fallbackContent?: ReactNode;
   showSkeleton?: boolean;
   containerClassName?: string;
 }
@@ -16,6 +17,7 @@ export function OptimizedImage({
   src,
   alt,
   fallbackSrc = "/globe.svg",
+  fallbackContent,
   showSkeleton = false,
   className,
   containerClassName,
@@ -33,6 +35,10 @@ export function OptimizedImage({
 
     return src;
   }, [fallbackSrc, hasError, src]);
+
+  if (fallbackContent && (!src || hasError)) {
+    return <div className={cn("relative overflow-hidden", containerClassName)}>{fallbackContent}</div>;
+  }
 
   return (
     <div className={cn("relative overflow-hidden", containerClassName)}>

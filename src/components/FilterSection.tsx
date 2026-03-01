@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField, type SelectOption } from "@/components/ui/select-field";
 import type { Category, Company } from "@/types";
 import type { JobFilterState } from "@/components/homeTypes";
 
@@ -22,12 +23,47 @@ export function FilterSection({
   onChange,
   onReset,
 }: FilterSectionProps) {
+  const categoryOptions: SelectOption[] = [
+    { label: "All categories", value: "" },
+    ...categories.map((category) => ({
+      label: category.name,
+      value: category.id,
+    })),
+  ];
+
+  const companyOptions: SelectOption[] = [
+    { label: "All companies", value: "" },
+    ...companies.map((company) => ({
+      label: company.name,
+      value: company.id,
+    })),
+  ];
+
+  const jobTypeOptions: SelectOption[] = [
+    { label: "All types", value: "" },
+    ...jobTypes.map((jobType) => ({
+      label: jobType,
+      value: jobType,
+    })),
+  ];
+
+  const locationOptions: SelectOption[] = [
+    { label: "All locations", value: "" },
+    ...locations.map((location) => ({
+      label: location,
+      value: location,
+    })),
+  ];
+
   return (
     <section className="ui-card p-5 sm:p-6" aria-labelledby="filters-title">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h2 id="filters-title" className="ui-section-title">
-          Filter Jobs
-        </h2>
+        <div className="space-y-1">
+          <h2 id="filters-title" className="ui-section-title">
+            Filter Jobs
+          </h2>
+          <p className="ui-section-subtitle">Refine results without leaving the page.</p>
+        </div>
         <button
           type="button"
           onClick={onReset}
@@ -38,7 +74,7 @@ export function FilterSection({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <label className="flex flex-col gap-2">
+        <div className="ui-field">
           <span className="ui-label">Search</span>
           <input
             type="text"
@@ -51,96 +87,78 @@ export function FilterSection({
             }
             placeholder="Search jobs, companies, keywords"
             className="ui-input"
+            aria-label="Search jobs"
+            autoComplete="off"
           />
           <span className="ui-helper">Search by title, company, or relevant keywords.</span>
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-2">
+        <div className="ui-field">
           <span className="ui-label">Category</span>
-          <select
+          <SelectField
             value={value.categoryId}
-            onChange={(event) =>
+            placeholder="All categories"
+            options={categoryOptions}
+            ariaLabel="Filter by category"
+            onChange={(categoryId) =>
               onChange({
                 ...value,
-                categoryId: event.target.value,
+                categoryId,
               })
             }
-            className="ui-select"
-          >
-            <option value="">All categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
 
-        <label className="flex flex-col gap-2">
+        <div className="ui-field">
           <span className="ui-label">Company</span>
-          <select
+          <SelectField
             value={value.companyId}
-            onChange={(event) =>
+            placeholder="All companies"
+            options={companyOptions}
+            ariaLabel="Filter by company"
+            onChange={(companyId) =>
               onChange({
                 ...value,
-                companyId: event.target.value,
+                companyId,
               })
             }
-            className="ui-select"
-          >
-            <option value="">All companies</option>
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
 
-        <label className="flex flex-col gap-2">
+        <div className="ui-field">
           <span className="ui-label">Job Type</span>
-          <select
+          <SelectField
             value={value.jobType}
-            onChange={(event) =>
+            placeholder="All types"
+            options={jobTypeOptions}
+            ariaLabel="Filter by job type"
+            onChange={(jobType) =>
               onChange({
                 ...value,
-                jobType: event.target.value,
+                jobType,
               })
             }
-            className="ui-select"
-          >
-            <option value="">All types</option>
-            {jobTypes.map((jobType) => (
-              <option key={jobType} value={jobType}>
-                {jobType}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
 
-        <label className="flex flex-col gap-2">
+        <div className="ui-field">
           <span className="ui-label">Location</span>
-          <select
+          <SelectField
             value={value.location}
-            onChange={(event) =>
+            placeholder="All locations"
+            options={locationOptions}
+            ariaLabel="Filter by location"
+            onChange={(location) =>
               onChange({
                 ...value,
-                location: event.target.value,
+                location,
               })
             }
-            className="ui-select"
-          >
-            <option value="">All locations</option>
-            {locations.map((location) => (
-              <option key={location} value={location}>
-                {location}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-2">
+          <div className="ui-field">
             <span className="ui-label">Min Salary</span>
             <input
               type="number"
@@ -154,9 +172,11 @@ export function FilterSection({
               }
               placeholder="0"
               className="ui-input"
+              aria-label="Minimum salary"
+              inputMode="numeric"
             />
-          </label>
-          <label className="flex flex-col gap-2">
+          </div>
+          <div className="ui-field">
             <span className="ui-label">Max Salary</span>
             <input
               type="number"
@@ -170,8 +190,10 @@ export function FilterSection({
               }
               placeholder="Any"
               className="ui-input"
+              aria-label="Maximum salary"
+              inputMode="numeric"
             />
-          </label>
+          </div>
         </div>
 
         <p className="ui-helper col-span-full">

@@ -213,45 +213,41 @@ export function SelectField({
         />
       </button>
 
-      <div
-        className={cn(
-          "ui-select-panel transition duration-150 ease-out",
-          open ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-1 scale-[0.98] opacity-0",
-        )}
-        aria-hidden={!open}
-      >
-        <ul
-          ref={listRef}
-          id={listboxId}
-          role="listbox"
-          aria-activedescendant={open ? `${listboxId}-${activeIndex}` : undefined}
-          tabIndex={open ? 0 : -1}
-          className="max-h-64 overflow-y-auto p-1.5"
-          onKeyDown={handleListKeyDown}
-        >
-          {options.map((option, index) => {
-            const isSelected = option.value === value;
-            const isActive = index === activeIndex;
+      {open && (
+        <div className="ui-select-panel">
+          <ul
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            aria-activedescendant={open ? `${listboxId}-${activeIndex}` : undefined}
+            tabIndex={open ? 0 : -1}
+            className="max-h-64 overflow-y-auto p-1.5"
+            onKeyDown={handleListKeyDown}
+          >
+            {options.map((option, index) => {
+              const isSelected = option.value === value;
+              const isActive = index === activeIndex;
 
-            return (
-              <li key={option.value || "__all"} id={`${listboxId}-${index}`} role="option" aria-selected={isSelected}>
-                <button
-                  type="button"
-                  className="ui-select-option rounded-[12px]"
-                  data-active={isActive ? "true" : undefined}
-                  data-selected={isSelected ? "true" : undefined}
-                  tabIndex={-1}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => commitSelection(option.value)}
-                >
-                  <span className="truncate">{option.label}</span>
-                  {isSelected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : null}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+              return (
+                <li key={option.value || "__all"} id={`${listboxId}-${index}`} role="option" aria-selected={isSelected}>
+                  <button
+                    type="button"
+                    className="ui-select-option rounded-xl"
+                    data-active={isActive ? "true" : undefined}
+                    data-selected={isSelected ? "true" : undefined}
+                    tabIndex={-1}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => commitSelection(option.value)}
+                  >
+                    <span className="truncate">{option.label}</span>
+                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

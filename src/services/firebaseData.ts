@@ -114,7 +114,10 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getJobs(): Promise<Job[]> {
+  console.log('[CLIENT] Fetching jobs...');
+  
   if (!db) {
+    console.log('[CLIENT] No Firebase database connection');
     return [];
   }
 
@@ -128,15 +131,25 @@ export async function getJobs(): Promise<Job[]> {
     );
 
     const snapshot = await getDocs(activeJobsQuery);
-    return snapshot.docs
+    console.log('[CLIENT] Retrieved snapshot with', snapshot.docs.length, 'documents');
+    
+    const jobs = snapshot.docs
       .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
       .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
-  } catch {
+    
+    console.log('[CLIENT] Returning', jobs.length, 'active jobs');
+    console.log('[CLIENT] Jobs:', jobs);
+    return jobs;
+  } catch (error) {
+    console.log('[CLIENT] Error fetching active jobs, using fallback', error);
     const fallbackSnapshot = await getDocs(jobsRef);
-    return fallbackSnapshot.docs
+    const jobs = fallbackSnapshot.docs
       .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
       .filter((job) => job.is_active !== false)
       .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
+    
+    console.log('[CLIENT] Fallback returned', jobs.length, 'jobs');
+    return jobs;
   }
 }
 

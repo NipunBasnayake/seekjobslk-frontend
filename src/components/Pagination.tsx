@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -58,8 +60,31 @@ export function Pagination({
   const items = buildPaginationItems(safeCurrentPage, safeTotalPages);
   const showControls = safeTotalPages > 1;
 
-  // There is no UI test harness in this repo yet, so the range text is derived from
-  // the same filtered length and page size that drive slicing on the Home page.
+  // 🔎 Log when pagination state changes
+  useEffect(() => {
+    console.log("📄 Pagination Rendered");
+    console.log("Current Page:", safeCurrentPage);
+    console.log("Total Pages:", safeTotalPages);
+    console.log("Total Items:", totalItems);
+    console.log("Page Size:", pageSize);
+  }, [safeCurrentPage, safeTotalPages, totalItems, pageSize]);
+
+  // 🔥 Centralized click handler with logging
+  const handlePageClick = (targetPage: number, source: string) => {
+    console.log("🖱 Pagination Clicked");
+    console.log("Source:", source);
+    console.log("Current Page:", safeCurrentPage);
+    console.log("Target Page:", targetPage);
+    console.log("Total Pages:", safeTotalPages);
+
+    if (targetPage < 1 || targetPage > safeTotalPages) {
+      console.warn("⚠ Invalid page navigation blocked:", targetPage);
+      return;
+    }
+
+    onPageChange(targetPage);
+  };
+
   const hasRangeData = totalItems > 0 && pageSize > 0;
   const rangeStart = hasRangeData ? (safeCurrentPage - 1) * pageSize + 1 : 0;
   const fallbackItemCount = hasRangeData
@@ -69,7 +94,10 @@ export function Pagination({
   const rangeEnd = hasRangeData ? Math.min(totalItems, rangeStart + resolvedItemCount - 1) : 0;
 
   return (
-    <nav className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" aria-label="Jobs pagination">
+    <nav
+      className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      aria-label="Jobs pagination"
+    >
       <p className="text-sm text-muted-foreground">
         {hasRangeData
           ? `Showing ${rangeStart}\u2013${rangeEnd} of ${totalItems}`
@@ -80,10 +108,9 @@ export function Pagination({
         <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
           <button
             type="button"
-            onClick={() => onPageChange(safeCurrentPage - 1)}
+            onClick={() => handlePageClick(safeCurrentPage - 1, "Previous")}
             disabled={safeCurrentPage === 1}
             className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
-            aria-label="Go to previous page"
           >
             Previous
           </button>
@@ -93,9 +120,8 @@ export function Pagination({
               <button
                 key={item}
                 type="button"
-                onClick={() => onPageChange(item)}
+                onClick={() => handlePageClick(item, `Page ${item}`)}
                 aria-current={item === safeCurrentPage ? "page" : undefined}
-                aria-label={`Go to page ${item}`}
                 className={
                   item === safeCurrentPage
                     ? "ui-button ui-button-primary min-h-10 w-10 px-0 text-sm"
@@ -108,7 +134,6 @@ export function Pagination({
               <span
                 key={`${item}-${index}`}
                 className="inline-flex h-10 min-w-10 items-center justify-center rounded-[14px] px-2 text-sm text-muted-foreground"
-                aria-hidden="true"
               >
                 ...
               </span>
@@ -117,10 +142,9 @@ export function Pagination({
 
           <button
             type="button"
-            onClick={() => onPageChange(safeCurrentPage + 1)}
+            onClick={() => handlePageClick(safeCurrentPage + 1, "Next")}
             disabled={safeCurrentPage === safeTotalPages}
             className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
-            aria-label="Go to next page"
           >
             Next
           </button>

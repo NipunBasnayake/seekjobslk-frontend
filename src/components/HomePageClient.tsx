@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Rocket } from "lucide-react";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
 import { CookieNotice } from "@/components/CookieNotice";
@@ -40,13 +41,36 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ initialJobs }: HomePageClientProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  console.log("🔵 [RENDER] HomePageClient render start");
+  
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [visitorCount, setVisitorCount] = useState(0);
   const [filters, setFilters] = useState<JobFilterState>(defaultFilters);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+
+  // URL is the single source of truth for pagination
+  const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+  const currentPage = Math.max(1, pageFromUrl);
+  console.log("🔵 [URL-SOURCE] pageFromUrl:", pageFromUrl, "currentPage:", currentPage);
+
+  // Helper to update page in URL (only place that modifies URL)
+  const navigateToPage = (page: number) => {
+    console.log("🟢 [NAVIGATE] Navigating to page:", page);
+    const params = new URLSearchParams(searchParams.toString());
+    if (page === 1) {
+      params.delete("page");
+    } else {
+      params.set("page", page.toString());
+    }
+    const newUrl = params.toString() ? `?${params.toString()}` : "/";
+    console.log("🟢 [NAVIGATE] New URL:", newUrl);
+    router.push(newUrl, { scroll: false });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -152,12 +176,26 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
   }, [filters, jobs]);
 
   const totalPages = filteredJobs.length === 0 ? 0 : Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
-  const activePage = totalPages === 0 ? 1 : Math.min(currentPage, totalPages);
+  console.log("🔵 [CALC] totalPages:", totalPages, "filteredJobs.length:", filteredJobs.length, "pageSize:", ITEMS_PER_PAGE);
+  
+  // Clamp currentPage to valid range and auto-navigate if out of bounds
+  const activePage = totalPages === 0 ? 1 : Math.min(Math.max(1, currentPage), totalPages);
+  console.log("🔵 [CALC] activePage:", activePage, "currentPage:", currentPage, "totalPages:", totalPages);
+  
+  // Auto-navigate if page is out of bounds (but only if we're actually out of bounds)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      console.log("⚠️ [AUTO-CLAMP] currentPage", currentPage, "> totalPages", totalPages, "- navigating to", totalPages);
+      navigateToPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const paginatedJobs = useMemo(() => {
     const start = (activePage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
-    return filteredJobs.slice(start, end);
+    const sliced = filteredJobs.slice(start, end);
+    console.log("🔵 [SLICE] activePage:", activePage, "start:", start, "end:", end, "sliced.length:", sliced.length, "first job:", sliced[0]?.title);
+    return sliced;
   }, [activePage, filteredJobs]);
 
   const popularJobs = useMemo(
@@ -174,10 +212,6 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
 
       <main className="ui-shell flex w-full flex-col gap-8 py-6 sm:py-8 lg:gap-10 lg:py-10">
         <section className="ui-card ui-hero">
-          <span className="ui-kicker">
-            <Rocket className="h-3.5 w-3.5 text-primary" />
-            Verified job board
-          </span>
           <h1 className="ui-page-title mt-4">Find Your Next Career Move</h1>
           <p className="ui-page-intro mt-4">
             Discover verified jobs from leading Sri Lankan companies. Filter by company,
@@ -194,12 +228,14 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
               locations={locations}
               value={filters}
               onChange={(nextFilters) => {
+                console.log("🟡 [FILTER-CHANGE] Filters changed, resetting to page 1");
                 setFilters(nextFilters);
-                setCurrentPage(1);
+                navigateToPage(1);
               }}
               onReset={() => {
+                console.log("🟡 [FILTER-RESET] Filters reset, resetting to page 1");
                 setFilters(defaultFilters);
-                setCurrentPage(1);
+                navigateToPage(1);
               }}
             />
 
@@ -212,11 +248,20 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
               pageSize={ITEMS_PER_PAGE}
               currentItemCount={paginatedJobs.length}
               onPageChange={(page) => {
+                console.log("🟡 [PAGINATION-CLICK] Page change requested:", page, "totalPages:", totalPages);
+                
                 if (page < 1 || page > totalPages) {
+                  console.log("⚠️ [PAGINATION-CLICK] Page out of range, ignoring");
                   return;
                 }
 
-                setCurrentPage(page);
+                navigateToPage(page);
+                
+                // Scroll to jobs section
+                const jobsSection = document.getElementById('jobs');
+                if (jobsSection) {
+                  jobsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
               }}
             />
           </div>

@@ -268,10 +268,20 @@ export async function getActiveJobsServer(): Promise<Job[]> {
           getJobTimestamp(a.posted_date ?? null),
       );
 
-    return hydrateJobs(jobs);
-  } catch {
+    const hydratedJobs = await hydrateJobs(jobs);
+    console.log('[SERVER] getActiveJobsServer SUCCESS: returned', hydratedJobs.length, 'jobs');
+    return hydratedJobs;
+  } catch (error) {
+    console.log('[SERVER] ⚠️ Error fetching active jobs (likely missing index), falling back to getJobsServer', error);
     const jobs = await getJobsServer();
-    return jobs.filter((job) => job.is_active !== false);
+    const activeJobs = jobs.filter((job) => job.is_active !== false)
+      .sort(
+        (a, b) =>
+          getJobTimestamp(b.posted_date ?? null) -
+          getJobTimestamp(a.posted_date ?? null),
+      );
+    console.log('[SERVER] getActiveJobsServer FALLBACK: returned', activeJobs.length, 'active jobs from', jobs.length, 'total');
+    return activeJobs;
   }
 }
 

@@ -7,6 +7,7 @@ import { normalizeMultilineValues } from "@/lib/normalize";
 import { getSiteUrl } from "@/lib/site";
 import {
   getJobByIdServer,
+  getJobsServer,
   getRelatedJobsServer,
 } from "@/services/firestore.server";
 
@@ -15,6 +16,15 @@ interface JobPageProps {
     id: string;
   }>;
 }
+
+export async function generateStaticParams() {
+  const jobs = await getJobsServer();
+  return jobs.map((job) => ({
+    id: job.id,
+  }));
+}
+
+export const dynamicParams = false;
 
 function buildJobDescription(description?: string, requirements?: string[] | string): string {
   if (description?.trim()) {

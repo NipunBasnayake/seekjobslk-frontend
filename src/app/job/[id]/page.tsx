@@ -78,11 +78,8 @@ interface JobPageProps {
   }>;
 }
 
-// Dynamic params allows Next.js to render job pages not generated at build time
-// This ensures newly added jobs are immediately available without a rebuild
-// Combined with revalidation, this provides a balance of performance and freshness
 export const dynamicParams = true;
-export const revalidate = 60; // Revalidate every 60 seconds for fresh data
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
   const { id } = await params;
@@ -103,26 +100,37 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
 
   const companyName = getCompanyName(job);
   const metaTitle = `${job.title} at ${companyName}`;
-  const description = buildJobDescription(job);
+  const location = job.location?.trim();
+  const employmentType = (job.employment_type ?? job.job_type)?.trim();
+
+  const descriptionParts = [companyName, location, employmentType].filter(Boolean);
+  const description = descriptionParts.join(" • ") || "Verified job in Sri Lanka";
   const ogImage = `${toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`)}`;
 
   return {
-    title: metaTitle,
+    title: `${job.title} at ${companyName}`,
     description,
     alternates: { canonical },
     openGraph: {
       type: "article",
       url: canonical,
-      title: metaTitle,
+      title: `${job.title} at ${companyName}`,
       description,
-      images: [ogImage],
       siteName: "SeekJobsLk",
+      images: [
+        {
+          url: toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`),
+          width: 1200,
+          height: 630,
+          alt: `${job.title} at ${companyName}`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: metaTitle,
+      title: `${job.title} at ${companyName}`,
       description,
-      images: [ogImage],
+      images: [toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`)],
     },
   };
 }

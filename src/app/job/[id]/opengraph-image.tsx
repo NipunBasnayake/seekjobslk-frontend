@@ -1,21 +1,39 @@
 import { ImageResponse } from "next/og";
-import { getJobByIdServer } from "@/services/firestore.server";
 import { getCompanyName } from "@/lib/jobPresentation";
+import { resolveOgCompanyLogoUrl } from "@/lib/ogImage";
+import { getJobByIdServer } from "@/services/firestore.server";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const size = {
+  width: 1200,
+  height: 630,
+};
+export const contentType = "image/png";
+export const revalidate = 60;
 
-const FALLBACK_LOGO = "https://seekjobslk.com/images/SeekJobsLk%20Icon.png";
-
-function safeLogoUrl(url?: string | null) {
-  if (!url || !/^https?:\/\//.test(url)) return FALLBACK_LOGO;
-  return url;
+interface JobOgImageProps {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const job = await getJobByIdServer(params.id);
+function trimValue(value: string | undefined, maxLength: number): string {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return "";
+  }
+
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 1)}...` : normalized;
+}
+
+function buildSubtitle(location: string, employmentType?: string): string {
+  const normalizedType = employmentType?.trim();
+  return normalizedType ? `${location} | ${normalizedType}` : location;
+}
+
+export default async function Image({ params }: JobOgImageProps) {
+  const { id } = await params;
+  const job = await getJobByIdServer(id);
 
   if (!job) {
     return new ImageResponse(
@@ -25,21 +43,27 @@ export async function GET(
             width: 1200,
             height: 630,
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            background: "#fff",
-            border: "1px solid #eee",
+            background: "#ffffff",
+            color: "#0f172a",
           }}
         >
-          <span style={{ fontSize: 48, color: "#333" }}>Job Not Found</span>
+          <div style={{ fontSize: 52, fontWeight: 800, marginBottom: "14px" }}>Job Not Found</div>
+          <div style={{ fontSize: 26, color: "#475569" }}>SeekJobsLk</div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      size,
     );
   }
 
-  const companyName = getCompanyName(job);
-  const logoUrl = safeLogoUrl(job.company?.logo_url);
+  const jobTitle = trimValue(job.title, 88) || "Job Opportunity";
+  const companyName = trimValue(getCompanyName(job), 64) || "Unknown Company";
+  const location = trimValue(job.location ?? "Sri Lanka", 50) || "Sri Lanka";
+  const employmentType = trimValue(job.employment_type ?? job.job_type, 28);
+  const subtitle = buildSubtitle(location, employmentType);
+  const logoUrl = resolveOgCompanyLogoUrl(job.company?.logo_url);
 
   return new ImageResponse(
     (
@@ -48,39 +72,114 @@ export async function GET(
           width: 1200,
           height: 630,
           display: "flex",
-          flexDirection: "row",
+          flexDirection: "column",
           alignItems: "center",
-          background: "#fff",
-          border: "1px solid #eee",
-          padding: 48,
+          justifyContent: "center",
+          background: "#ffffff",
+          padding: "58px",
           boxSizing: "border-box",
         }}
       >
-        <div style={{ flex: "0 0 240px", display: "flex", justifyContent: "center" }}>
-          <img
-            src={logoUrl}
-            width={160}
-            height={160}
-            style={{ borderRadius: 24, background: "#f3f3f3", objectFit: "contain" }}
-          />
-        </div>
-        <div style={{ flex: 1, marginLeft: 48 }}>
-          <div style={{ fontSize: 44, fontWeight: 700, color: "#1a202c", marginBottom: 16, fontFamily: "sans-serif" }}>
-            {job.title}
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "38px",
+          }}
+        >
+          <div
+            style={{
+              width: "156px",
+              height: "156px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "32px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={logoUrl}
+              alt={`${companyName} logo`}
+              width={110}
+              height={110}
+              style={{ objectFit: "contain" }}
+            />
           </div>
-          <div style={{ fontSize: 28, color: "#444", marginBottom: 8, fontFamily: "sans-serif" }}>
+          <div style={{ fontSize: 24, color: "#64748b", fontWeight: 700 }}>seekjobslk.com</div>
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 64,
+              lineHeight: 1.04,
+              fontWeight: 800,
+              letterSpacing: "-1px",
+              color: "#0f172a",
+              marginBottom: "22px",
+            }}
+          >
+            {jobTitle}
+          </div>
+
+          <div
+            style={{
+              fontSize: 36,
+              lineHeight: 1.2,
+              color: "#1e293b",
+              fontWeight: 600,
+              marginBottom: "14px",
+            }}
+          >
             {companyName}
           </div>
-          <div style={{ fontSize: 22, color: "#666", marginBottom: 8, fontFamily: "sans-serif" }}>
-            {job.location || "Sri Lanka"}
-            {job.employment_type ? ` • ${job.employment_type}` : ""}
+
+          <div
+            style={{
+              fontSize: 26,
+              lineHeight: 1.2,
+              color: "#475569",
+              fontWeight: 500,
+            }}
+          >
+            {subtitle}
           </div>
-          <div style={{ fontSize: 20, color: "#888", marginTop: 32, fontFamily: "sans-serif" }}>
-            SeekJobsLk.com
-          </div>
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            marginTop: "34px",
+            height: "1px",
+            background: "#e2e8f0",
+          }}
+        />
+
+        <div
+          style={{
+            width: "100%",
+            marginTop: "22px",
+            display: "flex",
+            justifyContent: "flex-start",
+            fontSize: 22,
+            color: "#64748b",
+          }}
+        >
+          Verified jobs in Sri Lanka
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    size,
   );
 }

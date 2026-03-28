@@ -87,34 +87,29 @@ export const revalidate = 60; // Revalidate every 60 seconds for fresh data
 export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
   const { id } = await params;
   const canonical = toAbsoluteUrl(`/job/${id}`);
-  const fallbackImage = toAbsoluteUrl("/og-default.png");
+  const fallbackImage = toAbsoluteUrl("/opengraph-image");
   const job = await getJobByIdServer(id);
 
   if (!job) {
     return {
       title: "Job not found | SeekJobsLk",
       description: "This job listing could not be found.",
-      alternates: {
-        canonical,
-      },
-      robots: {
-        index: false,
-        follow: false,
-      },
+      alternates: { canonical },
+      robots: { index: false, follow: false },
+      openGraph: { images: [fallbackImage] },
+      twitter: { images: [fallbackImage] },
     };
   }
 
   const companyName = getCompanyName(job);
-  const metaTitle = `${job.title} at ${companyName} | SeekJobsLk`;
+  const metaTitle = `${job.title} at ${companyName}`;
   const description = buildJobDescription(job);
-  const ogImage = sanitizeSocialImageUrl(job.company?.logo_url) ?? fallbackImage;
+  const ogImage = toAbsoluteUrl(`/job/${id}/opengraph-image`);
 
   return {
     title: metaTitle,
     description,
-    alternates: {
-      canonical,
-    },
+    alternates: { canonical },
     openGraph: {
       type: "article",
       url: canonical,

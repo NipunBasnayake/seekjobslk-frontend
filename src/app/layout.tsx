@@ -16,7 +16,7 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
-const siteUrl = getSiteUrl();
+const siteUrl = "https://seekjobslk.com";
 const siteName = "SeekJobsLk";
 const defaultDescription =
   "Discover verified jobs in Sri Lanka. Search by category, company, location, and salary on SeekJobsLk.";
@@ -94,13 +94,13 @@ export const metadata: Metadata = {
     locale: "en_LK",
     title: `${siteName} | Sri Lanka Job Portal`,
     description: defaultDescription,
-    images: [`${siteUrl}/og-default.png`],
+    images: [`${siteUrl}/opengraph-image`],
   },
   twitter: {
     card: "summary_large_image",
     title: `${siteName} | Sri Lanka Job Portal`,
     description: defaultDescription,
-    images: [`${siteUrl}/og-default.png`],
+    images: [`${siteUrl}/opengraph-image`],
   },
 };
 

@@ -136,13 +136,12 @@ export function ApplyButton({
       return `Verifying job availability`;
     }
 
-    if (applyTarget.kind === "url") {
-      return "Continue to employer application";
-    }
-
     // For email/phone
     return "Apply Now";
   })();
+
+  // For bold rendering only when label is 'Apply Now'
+  const buttonLabelNode = buttonLabel === "Apply Now" ? <strong>Apply Now</strong> : buttonLabel;
 
   const buttonIcon = (() => {
     if (isApplying) {
@@ -214,7 +213,7 @@ export function ApplyButton({
           )}
         >
           {buttonIcon}
-          <span>{buttonLabel}</span>
+          <span>{buttonLabelNode}</span>
         </button>
       </div>
 

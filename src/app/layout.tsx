@@ -114,7 +114,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/png" href="/images/SeekJobsLk Icon.png" />
+        <link rel="icon" type="image/x-icon" href="/images/SeekJobsLk.ico" />
       </head>
       <body
         suppressHydrationWarning
@@ -122,7 +122,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

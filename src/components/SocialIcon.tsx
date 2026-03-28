@@ -28,7 +28,12 @@ export function SocialIcon({
   const accessibleLabel = label ?? config.label;
 
   const iconContent = failed ? (
-    <span className="text-[11px] font-semibold uppercase">{accessibleLabel.slice(0, 2)}</span>
+    <span
+      className="text-[11px] font-semibold uppercase"
+      style={{ color: '#2DA5BC' }}
+    >
+      {accessibleLabel.slice(0, 2)}
+    </span>
   ) : (
     <Image
       src={config.src}
@@ -37,10 +42,9 @@ export function SocialIcon({
       height={size}
       className={cn(
         "h-4.5 w-4.5 object-contain",
-        "brightness-0", // black in light mode
-        "dark:[filter:invert(68%)_sepia(82%)_saturate(388%)_hue-rotate(140deg)_brightness(95%)_contrast(89%)]", // blue (#48c4d8) in dark mode
         iconClassName
       )}
+      style={{ filter: 'invert(51%) sepia(99%) saturate(322%) hue-rotate(148deg) brightness(97%) contrast(92%)' }}
       onError={() => setFailed(true)}
       aria-hidden="true"
     />

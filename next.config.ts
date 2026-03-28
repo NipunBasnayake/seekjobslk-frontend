@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const defaultTrustedImageHosts = [
+  "seekjobslk.com",
   "firebasestorage.googleapis.com",
   "storage.googleapis.com",
   "lh3.googleusercontent.com",

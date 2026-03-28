@@ -1,7 +1,93 @@
-import { Suspense } from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Footer } from "@/components/Footer";
+import { JobDetailClient } from "@/components/JobDetailClient";
+import { Navbar } from "@/components/Navbar";
+import { OptimizedImage } from "@/components/OptimizedImage";
+import { parseApplyTarget } from "@/lib/applyTarget";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
+import { buildJobDescription, formatPostedDate, getCompanyName } from "@/lib/jobPresentation";
+import { getJobTimestamp, toIsoString } from "@/lib/jobUtils";
+import { buildJobMetadata, sanitizeSocialImageUrl, toAbsoluteUrl } from "@/lib/seo";
+import {
+  getJobByIdServer,
+  getRelatedJobsServer,
+} from "@/services/firestore.server";
+import type { Job } from "@/types";
+
+interface JobPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
 
 interface RelatedJobsProps {
-  relatedJobs: any[];
+  relatedJobs: Job[];
+}
+
+export const dynamicParams = true;
+export const revalidate = 60;
+
+function trimMetadataText(value: string, maxLength: number): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength - 3).trimEnd()}...`;
+}
+
+function buildJobMetadataDescription(job: Job, companyName: string): string {
+  const location = job.location?.trim();
+  const employmentType = (job.employment_type ?? job.job_type)?.trim();
+  const descriptionParts = [companyName, location, employmentType].filter(Boolean);
+  const summary = descriptionParts.join(" - ");
+
+  if (!summary) {
+    return "Verified job opportunity in Sri Lanka on SeekJobsLk.";
+  }
+
+  return trimMetadataText(`${summary}. Apply directly on SeekJobsLk.`, 160);
+}
+
+function buildJobOgImageUrl(job: Job): string {
+  const imageUrl = new URL(toAbsoluteUrl(`/job/${job.id}/opengraph-image`));
+  const versionToken =
+    toIsoString(job.updated_at ?? null) ??
+    toIsoString(job.posted_date ?? null) ??
+    "1";
+
+  imageUrl.searchParams.set("v", versionToken);
+  return imageUrl.toString();
+}
+
+export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const canonicalPath = `/job/${id}`;
+  const job = await getJobByIdServer(id);
+
+  if (!job) {
+    return buildJobMetadata({
+      title: "Job not found",
+      description: "This job listing could not be found.",
+      path: canonicalPath,
+      image: toAbsoluteUrl("/opengraph-image"),
+      imageAlt: "SeekJobsLk - Verified jobs in Sri Lanka",
+      noIndex: true,
+    });
+  }
+
+  const companyName = getCompanyName(job);
+  const metadataTitle = trimMetadataText(`${job.title} at ${companyName}`, 110);
+
+  return buildJobMetadata({
+    title: metadataTitle,
+    description: buildJobMetadataDescription(job, companyName),
+    path: canonicalPath,
+    image: buildJobOgImageUrl(job),
+    imageAlt: metadataTitle,
+  });
 }
 
 function RelatedJobs({ relatedJobs }: RelatedJobsProps) {
@@ -42,7 +128,7 @@ function RelatedJobs({ relatedJobs }: RelatedJobsProps) {
                     {relatedJob.title}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {getCompanyName(relatedJob)} • {relatedJob.location || "Sri Lanka"}
+                    {getCompanyName(relatedJob)} - {relatedJob.location || "Sri Lanka"}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {formatPostedDate(relatedJob.posted_date ?? null)}
@@ -56,84 +142,6 @@ function RelatedJobs({ relatedJobs }: RelatedJobsProps) {
     </section>
   );
 }
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Footer } from "@/components/Footer";
-import { JobDetailClient } from "@/components/JobDetailClient";
-import { Navbar } from "@/components/Navbar";
-import { OptimizedImage } from "@/components/OptimizedImage";
-import { parseApplyTarget } from "@/lib/applyTarget";
-import { buildJobDescription, formatPostedDate, getCompanyName } from "@/lib/jobPresentation";
-import { toIsoString } from "@/lib/jobUtils";
-import { sanitizeSocialImageUrl, toAbsoluteUrl } from "@/lib/seo";
-import {
-  getJobByIdServer,
-  getRelatedJobsServer,
-} from "@/services/firestore.server";
-
-interface JobPageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-export const dynamicParams = true;
-export const revalidate = 60;
-
-export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
-  const { id } = await params;
-  const canonical = toAbsoluteUrl(`/job/${id}`);
-  const fallbackImage = toAbsoluteUrl("/opengraph-image");
-  const job = await getJobByIdServer(id);
-
-  if (!job) {
-    return {
-      title: "Job not found | SeekJobsLk",
-      description: "This job listing could not be found.",
-      alternates: { canonical },
-      robots: { index: false, follow: false },
-      openGraph: { images: [fallbackImage] },
-      twitter: { images: [fallbackImage] },
-    };
-  }
-
-  const companyName = getCompanyName(job);
-  const metaTitle = `${job.title} at ${companyName}`;
-  const location = job.location?.trim();
-  const employmentType = (job.employment_type ?? job.job_type)?.trim();
-
-  const descriptionParts = [companyName, location, employmentType].filter(Boolean);
-  const description = descriptionParts.join(" • ") || "Verified job in Sri Lanka";
-  const ogImage = `${toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`)}`;
-
-  return {
-    title: `${job.title} at ${companyName}`,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      type: "article",
-      url: canonical,
-      title: `${job.title} at ${companyName}`,
-      description,
-      siteName: "SeekJobsLk",
-      images: [
-        {
-          url: toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`),
-          width: 1200,
-          height: 630,
-          alt: `${job.title} at ${companyName}`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${job.title} at ${companyName}`,
-      description,
-      images: [toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`)],
-    },
-  };
-}
 
 export default async function JobDetailPage({ params }: JobPageProps) {
   const { id } = await params;
@@ -143,54 +151,34 @@ export default async function JobDetailPage({ params }: JobPageProps) {
     notFound();
   }
 
-  // Fetch related jobs (same category, latest 3)
   let relatedJobs = await getRelatedJobsServer(job, {
     days: 45,
-    limit: 12, // fetch more to allow filtering
+    limit: 12,
   });
 
-  // Filter to same category (not company) and sort by posted_date descending, then take 3
-  function toMillis(date: any): number {
-    if (!date) return 0;
-    if (typeof date === "number") return date;
-    if (date instanceof Date) return date.getTime();
-    if (typeof date === "string") {
-      const d = new Date(date);
-      return isNaN(d.getTime()) ? 0 : d.getTime();
-    }
-    // Firestore Timestamp
-    if (typeof date === "object" && date !== null) {
-      if (typeof date.toDate === "function") return date.toDate().getTime();
-      if (typeof date.seconds === "number") return date.seconds * 1000;
-    }
-    return 0;
-  }
-
-  const jobCategoryId = job?.category?.id;
+  const jobCategoryId = job.category?.id;
   if (jobCategoryId) {
     relatedJobs = relatedJobs
-      .filter(j => j.category?.id === jobCategoryId && j.id !== job.id)
-      .sort((a, b) => {
-        const aDate = toMillis(a.posted_date);
-        const bDate = toMillis(b.posted_date);
-        return bDate - aDate;
-      })
+      .filter((candidate) => candidate.category?.id === jobCategoryId && candidate.id !== job.id)
+      .sort(
+        (a, b) =>
+          getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null),
+      )
       .slice(0, 3);
   } else {
-    // fallback: just latest 3 jobs, excluding current
     relatedJobs = relatedJobs
-      .filter(j => j.id !== job.id)
-      .sort((a, b) => {
-        const aDate = toMillis(a.posted_date);
-        const bDate = toMillis(b.posted_date);
-        return bDate - aDate;
-      })
+      .filter((candidate) => candidate.id !== job.id)
+      .sort(
+        (a, b) =>
+          getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null),
+      )
       .slice(0, 3);
   }
 
   const jobUrl = toAbsoluteUrl(`/job/${job.id}`);
   const companyName = getCompanyName(job);
-  const shareImage = sanitizeSocialImageUrl(job.company?.logo_url) ?? toAbsoluteUrl("/og-default.png");
+  const shareImage = sanitizeSocialImageUrl(job.company?.logo_url) ?? toAbsoluteUrl(BRAND_LOGO_PATH);
+  const workMode = job.work_mode?.toLowerCase();
   const applyTarget = parseApplyTarget({
     apply_url: job.apply_url,
     apply_email: job.apply_email,
@@ -200,15 +188,15 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   const salaryValue =
     typeof job.salary_min === "number" || typeof job.salary_max === "number"
       ? {
-        "@type": "MonetaryAmount",
-        currency: job.salary_currency || "LKR",
-        value: {
-          "@type": "QuantitativeValue",
-          minValue: job.salary_min ?? undefined,
-          maxValue: job.salary_max ?? undefined,
-          unitText: "MONTH",
-        },
-      }
+          "@type": "MonetaryAmount",
+          currency: job.salary_currency || "LKR",
+          value: {
+            "@type": "QuantitativeValue",
+            minValue: job.salary_min ?? undefined,
+            maxValue: job.salary_max ?? undefined,
+            unitText: "MONTH",
+          },
+        }
       : undefined;
 
   const jobPostingSchema = {
@@ -232,7 +220,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
       logo: shareImage,
     },
     industry: job.category?.name || undefined,
-    jobLocationType: job.work_mode?.toLowerCase().includes("remote") ? "TELECOMMUTE" : undefined,
+    jobLocationType: workMode?.includes("remote")
+      ? "TELECOMMUTE"
+      : undefined,
     jobLocation: {
       "@type": "Place",
       address: {

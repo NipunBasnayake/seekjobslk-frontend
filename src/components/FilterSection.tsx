@@ -1,351 +1,308 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Filter,
-  MapPin,
-  Building2,
-  Briefcase,
-  ChevronDown,
-  ChevronUp,
-  X,
-  Check,
-} from "lucide-react";
-import { getCategories, getCompanies } from "@/services/firebaseData";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Category, Company } from "@/types";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
+"use client";
 
-export interface FilterState {
-  categories: string[];
-  companies: string[];
-  jobTypes: string[];
-  salaryRange: [number, number];
-  location: string;
-}
+import { ChevronDown, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
+import { SelectField, type SelectOption } from "@/components/ui/select-field";
+import type { JobFilterState } from "@/components/homeTypes";
+import { countActiveFilters } from "@/lib/jobFiltering";
+import type { Category, Company } from "@/types";
 
 interface FilterSectionProps {
-  filters: FilterState;
-  onFilterChange: (filters: FilterState) => void;
+  categories: Category[];
+  companies: Company[];
+  jobTypes: string[];
+  locations: string[];
+  value: JobFilterState;
+  onChange: (value: JobFilterState) => void;
+  onReset: () => void;
 }
 
-const JOB_TYPES = ["Full-Time", "Part-Time", "Contract", "Remote", "Hybrid"];
-const LOCATIONS = [
-  "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", "Galle",
-  "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya",
-  "Puttalam", "Kurunegala", "Anuradhapura", "Polonnaruwa", "Badulla", "Monaragala",
-  "Ratnapura", "Kegalle", "Trincomalee", "Batticaloa", "Ampara", "Remote",
-];
+export function FilterSection({
+  categories,
+  companies,
+  jobTypes,
+  locations,
+  value,
+  onChange,
+  onReset,
+}: FilterSectionProps) {
+  // Collapsed by default as per requirements
+  const [expanded, setExpanded] = useState(false);
 
-const DEFAULT_SALARY: [number, number] = [0, 500000];
-
-const FilterSection: React.FC<FilterSectionProps> = ({
-  filters,
-  onFilterChange,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const [cats, comps] = await Promise.all([
-        getCategories(),
-        getCompanies(),
-      ]);
-      setCategories(cats);
-      setCompanies(comps);
-    };
-
-    fetchData();
-  }, []);
-
-  const toggleValue = useCallback(
-    (key: keyof FilterState, value: string) => {
-      const list = filters[key] as string[];
-      const updated = list.includes(value)
-        ? list.filter((v) => v !== value)
-        : [...list, value];
-
-      onFilterChange({ ...filters, [key]: updated });
-    },
-    [filters, onFilterChange]
+  const categoryOptions: SelectOption[] = useMemo(
+    () => [
+      { label: "All categories", value: "" },
+      ...categories.map((category) => ({
+        label: category.name,
+        value: category.id,
+      })),
+    ],
+    [categories],
   );
 
-  const handleLocationChange = (location: string) =>
-    onFilterChange({ ...filters, location });
+  const companyOptions: SelectOption[] = useMemo(
+    () => [
+      { label: "All companies", value: "" },
+      ...companies.map((company) => ({
+        label: company.name,
+        value: company.id,
+      })),
+    ],
+    [companies],
+  );
 
-  const clearFilters = () =>
-    onFilterChange({
-      categories: [],
-      companies: [],
-      jobTypes: [],
-      salaryRange: DEFAULT_SALARY,
-      location: "all",
-    });
+  const jobTypeOptions: SelectOption[] = useMemo(
+    () => [
+      { label: "All types", value: "" },
+      ...jobTypes.map((jobType) => ({
+        label: jobType,
+        value: jobType,
+      })),
+    ],
+    [jobTypes],
+  );
 
-  const activeFiltersCount =
-    filters.categories.length +
-    filters.companies.length +
-    filters.jobTypes.length +
-    (filters.location !== "all" ? 1 : 0);
+  const locationOptions: SelectOption[] = useMemo(
+    () => [
+      { label: "All locations", value: "" },
+      ...locations.map((location) => ({
+        label: location,
+        value: location,
+      })),
+    ],
+    [locations],
+  );
 
-  const showLocation =
-    !filters.jobTypes.includes("Remote") || filters.jobTypes.length > 1;
+  const sortOptions: SelectOption[] = [
+    { label: "Newest first", value: "newest" },
+    { label: "Oldest first", value: "oldest" },
+    { label: "Salary: high to low", value: "salary-desc" },
+    { label: "Salary: low to high", value: "salary-asc" },
+    { label: "Most applied", value: "popular" },
+  ];
+
+  const activeFilterCount = useMemo(() => countActiveFilters(value), [value]);
 
   return (
-    <div className="bg-card rounded-xl border shadow-card overflow-hidden">
+    <section className="ui-card overflow-hidden" aria-labelledby="filters-title">
       {/* Header */}
-      <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
-        onClick={() => setIsExpanded((p) => !p)}
-      >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 bg-surface-tinted p-4 sm:p-5">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Filter className="w-5 h-5 text-primary" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+            <SlidersHorizontal className="h-5 w-5 text-primary" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="font-semibold">Filter Jobs</h3>
+            <h2 id="filters-title" className="font-semibold text-card-foreground">
+              Filter Jobs
+            </h2>
             <p className="text-sm text-muted-foreground">
-              {activeFiltersCount > 0
-                ? `${activeFiltersCount} filters applied`
-                : "Find your perfect job"}
+              Refine results by category, location, and more
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {activeFiltersCount > 0 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                clearFilters();
-              }}
-            >
-              <X className="w-4 h-4 mr-1" /> Clear
-            </Button>
+          {activeFilterCount > 0 && (
+            <span className="ui-pill">
+              {activeFilterCount} active
+            </span>
           )}
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
-          )}
+
+          <button
+            type="button"
+            className="ui-button ui-button-secondary min-h-10 px-3.5 text-sm"
+            aria-expanded={expanded}
+            aria-controls="job-filters-panel"
+            onClick={() => setExpanded((state) => !state)}
+          >
+            {expanded ? "Hide" : "Show"} filters
+            <ChevronDown
+              className={[
+                "h-4 w-4 transition-transform duration-200",
+                expanded ? "rotate-180" : "",
+              ].join(" ")}
+              aria-hidden="true"
+            />
+          </button>
         </div>
       </div>
 
-      {/* Content */}
-      {isExpanded && (
-        <div className="p-4 pt-0 space-y-6 animate-slide-up">
-          {/* Categories */}
-          <FilterBlock icon={Briefcase} label="Categories">
-            <SearchableDropdown
-              placeholder="Search categories..."
-              selected={filters.categories}
-              items={categories}
-              onSelect={(id) => toggleValue("categories", id)}
-            />
-          </FilterBlock>
-
-          {/* Companies */}
-          <FilterBlock icon={Building2} label="Companies">
-            <SearchableDropdown
-              placeholder="Search companies..."
-              selected={filters.companies}
-              items={companies}
-              onSelect={(id) => toggleValue("companies", id)}
-            />
-          </FilterBlock>
-
-          {/* Job Types */}
-          <FilterBlock icon={Briefcase} label="Job Type">
-            {JOB_TYPES.map((type) => (
-              <Badge
-                key={type}
-                variant={
-                  filters.jobTypes.includes(type) ? "default" : "outline"
-                }
-                className="cursor-pointer"
-                onClick={() => toggleValue("jobTypes", type)}
-              >
-                {type}
-              </Badge>
-            ))}
-          </FilterBlock>
-
-          {/* Location */}
-          {showLocation && (
-            <FilterBlock icon={MapPin} label="Location">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full md:w-64 justify-between"
-                  >
-                    {filters.location !== "all"
-                      ? filters.location
-                      : "Select location"}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-full md:w-64 p-0">
-                  <Command>
-                    <CommandInput placeholder="Search location..." />
-                    <CommandEmpty>No location found.</CommandEmpty>
-
-                    <CommandGroup className="max-h-64 overflow-y-auto">
-                      <CommandItem
-                        value="all"
-                        onSelect={() => handleLocationChange("all")}
-                      >
-                        <Check
-                          className={`mr-2 h-4 w-4 ${filters.location === "all"
-                            ? "opacity-100"
-                            : "opacity-0"
-                            }`}
-                        />
-                        All Locations
-                      </CommandItem>
-
-                      {LOCATIONS.map((loc) => (
-                        <CommandItem
-                          key={loc}
-                          value={loc}
-                          onSelect={() => handleLocationChange(loc)}
-                        >
-                          <Check
-                            className={`mr-2 h-4 w-4 ${filters.location === loc
-                              ? "opacity-100"
-                              : "opacity-0"
-                              }`}
-                          />
-                          {loc}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </FilterBlock>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default FilterSection;
-
-/* ===================== Helpers ===================== */
-
-interface FilterBlockProps {
-  icon: React.ElementType;
-  label: string;
-  children: React.ReactNode;
-}
-
-const FilterBlock: React.FC<FilterBlockProps> = ({
-  icon: Icon,
-  label,
-  children,
-}) => (
-  <div>
-    <label className="flex items-center gap-2 mb-3 text-sm font-medium">
-      <Icon className="w-4 h-4 text-primary" />
-      {label}
-    </label>
-    <div className="flex flex-wrap gap-2">{children}</div>
-  </div>
-);
-
-interface DropdownItem {
-  id: string;
-  name: string;
-}
-
-interface SearchableDropdownProps {
-  items: DropdownItem[];
-  selected: string[];
-  placeholder: string;
-  onSelect: (id: string) => void;
-}
-
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
-  items,
-  selected,
-  placeholder,
-  onSelect,
-}) => {
-  const sortedItems = [...items].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full md:w-64 justify-between">
-          {selected.length > 0 ? `${selected.length} selected` : "Select"}
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-full md:w-64 p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandEmpty>No results found.</CommandEmpty>
-
-          <CommandGroup className="max-h-64 overflow-y-auto">
-            {sortedItems.map((item) => (
-              <CommandItem
-                key={item.id}
-                value={item.name}
-                onSelect={() => onSelect(item.id)}
-              >
-                <Check
-                  className={`mr-2 h-4 w-4 ${selected.includes(item.id)
-                    ? "opacity-100"
-                    : "opacity-0"
-                    }`}
+      {/* Collapsible filter panel */}
+      <div
+        id="job-filters-panel"
+        className={[
+          "grid transition-all duration-300 ease-out",
+          expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        ].join(" ")}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="p-4 sm:p-5">
+            {/* Search field */}
+            <div className="ui-field mb-4">
+              <span className="ui-label">Search</span>
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
                 />
-                {item.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
+                <input
+                  type="text"
+                  value={value.search}
+                  onChange={(event) =>
+                    onChange({
+                      ...value,
+                      search: event.target.value,
+                    })
+                  }
+                  placeholder="Search jobs, companies, or keywords..."
+                  className="ui-input pl-10"
+                  aria-label="Search jobs"
+                  autoComplete="off"
+                />
+              </div>
+              <span className="ui-helper">Search by title, skills, company, or location</span>
+            </div>
 
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {selected.map((id) => {
-            const item = items.find((i) => i.id === id);
-            if (!item) return null;
+            {/* Filter grid */}
+            <div className="grid gap-4 border-t border-border/50 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="ui-field">
+                <span className="ui-label">Category</span>
+                <SelectField
+                  value={value.categoryId}
+                  placeholder="All categories"
+                  options={categoryOptions}
+                  ariaLabel="Filter by category"
+                  onChange={(categoryId) =>
+                    onChange({
+                      ...value,
+                      categoryId,
+                    })
+                  }
+                />
+              </div>
 
-            return (
-              <Badge
-                key={id}
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={() => onSelect(id)}
+              <div className="ui-field">
+                <span className="ui-label">Company</span>
+                <SelectField
+                  value={value.companyId}
+                  placeholder="All companies"
+                  options={companyOptions}
+                  ariaLabel="Filter by company"
+                  onChange={(companyId) =>
+                    onChange({
+                      ...value,
+                      companyId,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="ui-field">
+                <span className="ui-label">Job Type</span>
+                <SelectField
+                  value={value.jobType}
+                  placeholder="All types"
+                  options={jobTypeOptions}
+                  ariaLabel="Filter by job type"
+                  onChange={(jobType) =>
+                    onChange({
+                      ...value,
+                      jobType,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="ui-field">
+                <span className="ui-label">Location</span>
+                <SelectField
+                  value={value.location}
+                  placeholder="All locations"
+                  options={locationOptions}
+                  ariaLabel="Filter by location"
+                  onChange={(location) =>
+                    onChange({
+                      ...value,
+                      location,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="ui-field">
+                <span className="ui-label">Sort By</span>
+                <SelectField
+                  value={value.sortBy}
+                  placeholder="Newest first"
+                  options={sortOptions}
+                  ariaLabel="Sort jobs"
+                  onChange={(sortBy) =>
+                    onChange({
+                      ...value,
+                      sortBy: sortBy as JobFilterState["sortBy"],
+                    })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="ui-field">
+                  <span className="ui-label">Min Salary</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={value.salaryMin}
+                    onChange={(event) =>
+                      onChange({
+                        ...value,
+                        salaryMin: event.target.value,
+                      })
+                    }
+                    placeholder="0"
+                    className="ui-input"
+                    aria-label="Minimum salary"
+                    inputMode="numeric"
+                  />
+                </div>
+                <div className="ui-field">
+                  <span className="ui-label">Max Salary</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={value.salaryMax}
+                    onChange={(event) =>
+                      onChange({
+                        ...value,
+                        salaryMax: event.target.value,
+                      })
+                    }
+                    placeholder="Any"
+                    className="ui-input"
+                    aria-label="Maximum salary"
+                    inputMode="numeric"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer with reset button */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-4">
+              <p className="text-xs text-muted-foreground">
+                Salary filters compare against job salary ranges
+              </p>
+              <button
+                type="button"
+                onClick={onReset}
+                disabled={activeFilterCount === 0}
+                className="ui-button ui-button-ghost min-h-9 px-3 text-xs"
               >
-                {item.name}
-                <X className="ml-1 h-3 w-3" />
-              </Badge>
-            );
-          })}
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                Reset all filters
+              </button>
+            </div>
+          </div>
         </div>
-      )}
-    </Popover>
+      </div>
+    </section>
   );
-};
+}

@@ -1,3 +1,61 @@
+import { Suspense } from "react";
+
+interface RelatedJobsProps {
+  relatedJobs: any[];
+}
+
+function RelatedJobs({ relatedJobs }: RelatedJobsProps) {
+  return (
+    <section className="ui-card p-5 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="ui-section-title">Related Jobs</h2>
+        <Link href="/#jobs" className="text-sm font-medium text-primary hover:underline">
+          View all jobs
+        </Link>
+      </div>
+
+      {relatedJobs.length === 0 ? (
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          No related jobs available right now.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {relatedJobs.map((relatedJob) => (
+            <Link
+              key={relatedJob.id}
+              href={`/job/${relatedJob.id}`}
+              className="ui-list-item group hover:border-primary/40"
+            >
+              <div className="flex items-start gap-3">
+                <div className="relative size-15 shrink-0 overflow-hidden rounded-sm border bg-muted/40">
+                  <OptimizedImage
+                    src={relatedJob.company?.logo_url}
+                    fallbackSrc="/globe.svg"
+                    alt={`${getCompanyName(relatedJob)} logo`}
+                    width={48}
+                    height={48}
+                    className="h-full w-full"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="line-clamp-2 text-sm font-semibold text-card-foreground group-hover:text-primary">
+                    {relatedJob.title}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {getCompanyName(relatedJob)} • {relatedJob.location || "Sri Lanka"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {formatPostedDate(relatedJob.posted_date ?? null)}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -82,10 +140,50 @@ export default async function JobDetailPage({ params }: JobPageProps) {
     notFound();
   }
 
-  const relatedJobs = await getRelatedJobsServer(job, {
+  // Fetch related jobs (same category, latest 3)
+  let relatedJobs = await getRelatedJobsServer(job, {
     days: 45,
-    limit: 6,
+    limit: 12, // fetch more to allow filtering
   });
+
+  // Filter to same category (not company) and sort by posted_date descending, then take 3
+  function toMillis(date: any): number {
+    if (!date) return 0;
+    if (typeof date === "number") return date;
+    if (date instanceof Date) return date.getTime();
+    if (typeof date === "string") {
+      const d = new Date(date);
+      return isNaN(d.getTime()) ? 0 : d.getTime();
+    }
+    // Firestore Timestamp
+    if (typeof date === "object" && date !== null) {
+      if (typeof date.toDate === "function") return date.toDate().getTime();
+      if (typeof date.seconds === "number") return date.seconds * 1000;
+    }
+    return 0;
+  }
+
+  const jobCategoryId = job?.category?.id;
+  if (jobCategoryId) {
+    relatedJobs = relatedJobs
+      .filter(j => j.category?.id === jobCategoryId && j.id !== job.id)
+      .sort((a, b) => {
+        const aDate = toMillis(a.posted_date);
+        const bDate = toMillis(b.posted_date);
+        return bDate - aDate;
+      })
+      .slice(0, 3);
+  } else {
+    // fallback: just latest 3 jobs, excluding current
+    relatedJobs = relatedJobs
+      .filter(j => j.id !== job.id)
+      .sort((a, b) => {
+        const aDate = toMillis(a.posted_date);
+        const bDate = toMillis(b.posted_date);
+        return bDate - aDate;
+      })
+      .slice(0, 3);
+  }
 
   const jobUrl = toAbsoluteUrl(`/job/${job.id}`);
   const companyName = getCompanyName(job);
@@ -211,54 +309,7 @@ export default async function JobDetailPage({ params }: JobPageProps) {
 
         <JobDetailClient job={job} />
 
-        <section className="ui-card p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="ui-section-title">Related Jobs</h2>
-            <Link href="/#jobs" className="text-sm font-medium text-primary hover:underline">
-              View all jobs
-            </Link>
-          </div>
-
-          {relatedJobs.length === 0 ? (
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              No related jobs available right now.
-            </p>
-          ) : (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {relatedJobs.map((relatedJob) => (
-                <Link
-                  key={relatedJob.id}
-                  href={`/job/${relatedJob.id}`}
-                  className="ui-list-item group hover:border-primary/40"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="relative size-12 shrink-0 overflow-hidden rounded-xl border bg-muted/40">
-                      <OptimizedImage
-                        src={relatedJob.company?.logo_url}
-                        fallbackSrc="/globe.svg"
-                        alt={`${getCompanyName(relatedJob)} logo`}
-                        width={48}
-                        height={48}
-                        className="h-full w-full"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="line-clamp-2 text-sm font-semibold text-card-foreground group-hover:text-primary">
-                        {relatedJob.title}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {getCompanyName(relatedJob)} • {relatedJob.location || "Sri Lanka"}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {formatPostedDate(relatedJob.posted_date ?? null)}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
+        <RelatedJobs relatedJobs={relatedJobs} />
       </main>
 
       <Footer />

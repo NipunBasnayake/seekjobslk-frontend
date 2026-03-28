@@ -33,16 +33,6 @@ export function ContactModal({
           : "Use the verified phone number below to contact the recruiter."
       }
     >
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-4 top-4 rounded p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-        aria-label="Close"
-        style={{ zIndex: 10 }}
-      >
-        <X className="h-5 w-5" aria-hidden="true" />
-      </button>
-
       <div className="rounded-xl border border-primary/20 bg-primary-subtle p-4 flex items-center justify-between gap-2">
         <p className="break-all text-lg font-semibold text-card-foreground flex-1 text-center">
           {kind === "phone" && contactValue.startsWith("http")

@@ -5,7 +5,7 @@ import { SocialIcon } from "@/components/SocialIcon";
 
 export function Footer() {
   return (
-    <footer className="mt-16 pb-8">
+    <footer className="pb-8">
       <div className="ui-shell">
         <div className="ui-card px-6 py-8 md:px-8 md:py-10">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">

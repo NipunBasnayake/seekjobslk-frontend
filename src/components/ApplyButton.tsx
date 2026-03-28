@@ -173,19 +173,19 @@ export function ApplyButton({
       <div className="space-y-4">
         <div className="rounded-xl border border-primary/20 bg-primary-subtle/70 p-3.5">
           <div className="flex items-start gap-3">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card">
-              <svg className="countdown-ring absolute inset-0 h-10 w-10" viewBox="0 0 40 40">
-                <circle className="countdown-ring-track" cx="20" cy="20" r={radius} />
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-card">
+              <svg className="countdown-ring absolute inset-0 h-14 w-14" viewBox="0 0 56 56">
+                <circle className="countdown-ring-track" cx="28" cy="28" r={radius * 1.4} />
                 <circle
                   className="countdown-ring-progress"
-                  cx="20"
-                  cy="20"
-                  r={radius}
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
+                  cx="28"
+                  cy="28"
+                  r={radius * 1.4}
+                  strokeDasharray={circumference * 1.4}
+                  strokeDashoffset={strokeDashoffset * 1.4}
                 />
               </svg>
-              <span className="text-[11px] font-semibold text-card-foreground">
+              <span className="text-[15px] font-semibold text-card-foreground">
                 {hasApplicationMethod ? progressPercent : 0}%
               </span>
             </div>
@@ -198,20 +198,6 @@ export function ApplyButton({
                 {verificationMessage}
               </p>
             </div>
-          </div>
-
-          <div
-            className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/15"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={hasApplicationMethod ? progressPercent : 0}
-            aria-label="Apply verification progress"
-          >
-            <div
-              className="h-full rounded-full bg-linear-to-r from-primary to-primary/70 transition-[width] duration-500 ease-out"
-              style={{ width: `${hasApplicationMethod ? progressPercent : 0}%` }}
-            />
           </div>
         </div>
 

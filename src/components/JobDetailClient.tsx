@@ -104,7 +104,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
           <div className="p-5 sm:p-6 lg:p-8">
             <div className="flex items-start gap-4 sm:gap-5">
               {/* Company Logo */}
-              <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border-2 border-border/50 bg-surface shadow-sm sm:size-20">
+              <div className="relative size-16 shrink-0 overflow-hidden rounded-xl border-2 border-border/50 bg-surface shadow-sm sm:size-20">
                 <OptimizedImage
                   src={job.company?.logo_url}
                   fallbackSrc="/globe.svg"
@@ -149,19 +149,19 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
             <div className="mt-6 grid gap-3 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <CalendarDays className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <CalendarDays className="h-7 w-7 text-muted-foreground" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Posted
                   </p>
-                  <p className="text-sm font-semibold text-card-foreground">{postedDate}</p>
+                  <p className="text-sm font-semibold text-muted-foreground">{postedDate}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Briefcase className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <Briefcase className="h-7 w-7 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -175,7 +175,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Globe className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <Globe className="h-7 w-7 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -189,7 +189,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Wallet className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <Wallet className="h-7 w-7 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -211,7 +211,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
             </h2>
 
             {hasMarkdownContent ? (
-              <div className="mt-5">
+              <div className="p-4">
                 <JobDescriptionMarkdown content={job.description} />
               </div>
             ) : (

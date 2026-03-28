@@ -35,7 +35,12 @@ export function SocialIcon({
       alt=""
       width={size}
       height={size}
-      className={cn("h-4.5 w-4.5 object-contain", iconClassName)}
+      className={cn(
+        "h-4.5 w-4.5 object-contain",
+        "brightness-0", // black in light mode
+        "dark:[filter:invert(68%)_sepia(82%)_saturate(388%)_hue-rotate(140deg)_brightness(95%)_contrast(89%)]", // blue (#48c4d8) in dark mode
+        iconClassName
+      )}
       onError={() => setFailed(true)}
       aria-hidden="true"
     />

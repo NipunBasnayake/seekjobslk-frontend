@@ -23,17 +23,17 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
       <ReactMarkdown
         components={{
           // Headings with proper semantic markup
-          h1: ({ children, ...props }) => (
-            <h1 {...props}>{children}</h1>
+          h1: ({ node, ...props }) => (
+            <h1 className="font-semibold !mb-3 !mt-6 text-2xl" {...props} />
           ),
-          h2: ({ children, ...props }) => (
-            <h2 {...props}>{children}</h2>
+          h2: ({ node, ...props }) => (
+            <h2 className="font-semibold !mb-2 !mt-5 text-xl" {...props} />
           ),
-          h3: ({ children, ...props }) => (
-            <h3 {...props}>{children}</h3>
+          h3: ({ node, ...props }) => (
+            <h3 className="font-semibold !mb-2 !mt-4 text-lg" {...props} />
           ),
-          h4: ({ children, ...props }) => (
-            <h4 {...props}>{children}</h4>
+          h4: ({ node, ...props }) => (
+            <h4 className="font-semibold !mb-2 !mt-3 text-base" {...props} />
           ),
           h5: ({ children, ...props }) => (
             <h5 {...props}>{children}</h5>
@@ -48,11 +48,11 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
           ),
 
           // Strong and emphasis
-          strong: ({ children, ...props }) => (
-            <strong {...props}>{children}</strong>
+          strong: ({ node, ...props }) => (
+            <strong className="font-semibold" {...props} />
           ),
-          em: ({ children, ...props }) => (
-            <em {...props}>{children}</em>
+          b: ({ node, ...props }) => (
+            <b className="font-semibold" {...props} />
           ),
 
           // Lists - CSS handles the brand-colored bullets

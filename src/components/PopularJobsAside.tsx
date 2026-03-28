@@ -24,7 +24,7 @@ export function PopularJobsAside({ jobs }: PopularJobsAsideProps) {
             <li key={job.id}>
               <Link href={`/job/${job.id}`} className="ui-list-item group hover:border-primary/40">
                 <div className="flex items-start gap-3">
-                  <div className="relative size-14 shrink-0 overflow-hidden rounded-2xl border bg-muted/30">
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-sm border bg-muted/30">
                     <OptimizedImage
                       src={job.company?.logo_url}
                       fallbackSrc="/globe.svg"

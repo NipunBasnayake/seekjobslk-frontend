@@ -124,49 +124,57 @@ export function HomePageClient({
 
       <main className="ui-shell flex w-full flex-col gap-8 py-6 sm:py-8 lg:gap-10 lg:py-10">
         <header className="ui-hero">
-          <h1 className="ui-page-title mt-4">Find a high-quality job, faster</h1>
+          <div className="ui-hero-content">
+            <h1 className="ui-page-title mt-4">Find a high-quality job, faster</h1>
 
-          <p className="ui-page-intro mt-4">
-            Browse active openings from verified hiring channels. Filter by title, company,
-            category, job type, location, and salary to find your next role with confidence.
-          </p>
+            <p className="ui-page-intro mt-4">
+              Browse active openings from verified hiring channels. Filter by title, company,
+              category, job type, location, and salary to find your next role with confidence.
+            </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <article className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Active jobs
-              </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
-                {jobs.length}
-              </p>
-            </article>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <article className="ui-hero-stat">
+                <div className="ui-hero-stat-icon">
+                  <BriefcaseBusiness className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <div className="ui-hero-stat-content">
+                  <p className="ui-hero-stat-label">Active jobs</p>
+                  <p className="ui-hero-stat-value">{jobs.length}</p>
+                </div>
+              </article>
 
-            <article className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Hiring companies
-              </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
-                {initialCompanies.length}
-              </p>
-            </article>
+              <article className="ui-hero-stat">
+                <div className="ui-hero-stat-icon">
+                  <Building2 className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <div className="ui-hero-stat-content">
+                  <p className="ui-hero-stat-label">Hiring companies</p>
+                  <p className="ui-hero-stat-value">{initialCompanies.length}</p>
+                </div>
+              </article>
 
-            <article className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Job categories
-              </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
-                {initialCategories.length}
-              </p>
-            </article>
+              <article className="ui-hero-stat">
+                <div className="ui-hero-stat-icon">
+                  <Users className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <div className="ui-hero-stat-content">
+                  <p className="ui-hero-stat-label">Job categories</p>
+                  <p className="ui-hero-stat-value">{initialCategories.length}</p>
+                </div>
+              </article>
 
-            <article className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Total job applies
-              </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
-                {totalJobApplies > 0 ? totalJobApplies.toLocaleString() : "--"}
-              </p>
-            </article>
+              <article className="ui-hero-stat">
+                <div className="ui-hero-stat-icon">
+                  <Star className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <div className="ui-hero-stat-content">
+                  <p className="ui-hero-stat-label">Total applications</p>
+                  <p className="ui-hero-stat-value">
+                    {totalJobApplies > 0 ? totalJobApplies.toLocaleString() : "--"}
+                  </p>
+                </div>
+              </article>
+            </div>
           </div>
         </header>
 

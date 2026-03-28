@@ -9,7 +9,7 @@ export default function WhatsAppChannelBanner() {
       className="block"
       aria-label="Follow SeekJobsLk on WhatsApp for daily job alerts"
     >
-      <div className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 via-emerald-50 to-green-100 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-green-200 bg-gradient-to-r from-green-50 via-emerald-50 to-green-100 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
         <div className="pointer-events-none absolute inset-0 opacity-0 transition group-hover:opacity-100">
           <div className="absolute inset-0 bg-gradient-to-r from-green-200/40 via-emerald-200/40 to-green-200/40 blur-xl" />
         </div>

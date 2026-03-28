@@ -15,8 +15,11 @@ export function filterAndSortJobs(jobs: Job[], filters: JobFilterState): Job[] {
       (job.company?.name || "").toLowerCase().includes(searchText) ||
       (job.location || "").toLowerCase().includes(searchText);
 
-    const matchesCategory = !filters.categoryId || job.category_id === filters.categoryId;
-    const matchesCompany = !filters.companyId || job.company_id === filters.companyId;
+    const jobCategoryId = job.category_id || job.category?.id;
+    const jobCompanyId = job.company_id || job.company?.id;
+
+    const matchesCategory = !filters.categoryId || jobCategoryId === filters.categoryId;
+    const matchesCompany = !filters.companyId || jobCompanyId === filters.companyId;
     const matchesType = !filters.jobType || job.job_type === filters.jobType;
     const matchesLocation = !filters.location || job.location === filters.location;
 

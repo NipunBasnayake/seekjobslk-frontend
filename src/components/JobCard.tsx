@@ -73,7 +73,7 @@ export function JobCard({ job, priority = false }: JobCardProps) {
       <div className="relative p-5 sm:p-6">
         <div className="flex items-start gap-4">
           {/* Company logo */}
-          <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border border-border/50 bg-surface-strong shadow-sm sm:size-16">
+          <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border/50 bg-surface-strong shadow-sm sm:size-16">
             <OptimizedImage
               src={job.company?.logo_url}
               fallbackSrc="/globe.svg"

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
-import { getSiteUrl } from "@/lib/site";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 import { env } from "@/lib/env";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -26,7 +26,7 @@ const organizationSchema = {
   "@type": "Organization",
   name: siteName,
   url: siteUrl,
-  logo: `${siteUrl}/images/SeekJobsLk Icon.png`,
+  logo: `${siteUrl}${BRAND_LOGO_PATH}`,
   contactPoint: [
     {
       "@type": "ContactPoint",

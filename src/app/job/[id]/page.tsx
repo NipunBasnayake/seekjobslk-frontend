@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   const companyName = getCompanyName(job);
   const metaTitle = `${job.title} at ${companyName}`;
   const description = buildJobDescription(job);
-  const ogImage = toAbsoluteUrl(`/job/${id}/opengraph-image`);
+  const ogImage = `${toAbsoluteUrl(`/job/${id}/opengraph-image?v=${job.updated_at ?? "1"}`)}`;
 
   return {
     title: metaTitle,
@@ -192,15 +192,15 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   const salaryValue =
     typeof job.salary_min === "number" || typeof job.salary_max === "number"
       ? {
-          "@type": "MonetaryAmount",
-          currency: job.salary_currency || "LKR",
-          value: {
-            "@type": "QuantitativeValue",
-            minValue: job.salary_min ?? undefined,
-            maxValue: job.salary_max ?? undefined,
-            unitText: "MONTH",
-          },
-        }
+        "@type": "MonetaryAmount",
+        currency: job.salary_currency || "LKR",
+        value: {
+          "@type": "QuantitativeValue",
+          minValue: job.salary_min ?? undefined,
+          maxValue: job.salary_max ?? undefined,
+          unitText: "MONTH",
+        },
+      }
       : undefined;
 
   const jobPostingSchema = {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 import { cn } from "@/lib/cn";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -38,7 +39,7 @@ export function Navbar({ totalJobs }: NavbarProps) {
             aria-label="SeekJobsLk home"
           >
             <span className="grid text-primary shadow-card">
-              <Image src="/images/SeekJobsLk Icon.png" alt="SeekJobsLk logo" width={32} height={32} className="h-8 w-8 object-contain" priority />
+              <Image src={BRAND_LOGO_PATH} alt="SeekJobsLk logo" width={32} height={32} className="h-8 w-8 object-contain" priority />
             </span>
             <span className="truncate font-semibold text-lg tracking-tight">SeekJobsLk</span>
           </Link>

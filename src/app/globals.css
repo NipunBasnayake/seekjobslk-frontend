@@ -502,6 +502,70 @@ h3 {
   .ui-link-subtle:hover {
     color: var(--text);
   }
+
+  /* Modal animations */
+  .animate-modal-enter {
+    animation: modal-enter 0.2s ease-out forwards;
+  }
+
+  @keyframes modal-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Countdown circle for apply button */
+  .countdown-ring {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  .countdown-ring-track {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary) 20%, transparent);
+    stroke-width: 3;
+  }
+
+  .countdown-ring-progress {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.95s linear;
+  }
+
+  /* Apply button countdown state */
+  .apply-button-locked {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .apply-button-locked::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--primary) 15%, transparent) 50%,
+      transparent
+    );
+    animation: apply-shimmer 2s infinite;
+  }
+
+  @keyframes apply-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 @media (min-width: 640px) {

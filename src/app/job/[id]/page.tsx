@@ -20,8 +20,11 @@ interface JobPageProps {
   }>;
 }
 
-export const revalidate = 120;
+// Dynamic params allows Next.js to render job pages not generated at build time
+// This ensures newly added jobs are immediately available without a rebuild
+// Combined with revalidation, this provides a balance of performance and freshness
 export const dynamicParams = true;
+export const revalidate = 60; // Revalidate every 60 seconds for fresh data
 
 export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
   const { id } = await params;

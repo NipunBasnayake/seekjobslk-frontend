@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
-import { BRAND_LOGO_ABSOLUTE_URL } from "@/lib/brand";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = {
   width: 1200,
   height: 630,
@@ -9,7 +10,27 @@ export const size = {
 export const contentType = "image/png";
 export const revalidate = 60;
 
-export default function Image() {
+async function getLocalImageDataUrl(relativePath: string) {
+  const filePath = path.join(process.cwd(), "public", relativePath);
+  const file = await readFile(filePath);
+  const base64 = file.toString("base64");
+  const ext = path.extname(relativePath).toLowerCase();
+
+  const mimeType =
+    ext === ".png"
+      ? "image/png"
+      : ext === ".jpg" || ext === ".jpeg"
+        ? "image/jpeg"
+        : ext === ".webp"
+          ? "image/webp"
+          : "image/png";
+
+  return `data:${mimeType};base64,${base64}`;
+}
+
+export default async function Image() {
+  const logoDataUrl = await getLocalImageDataUrl("images/seekjobslk-icon.png");
+
   return new ImageResponse(
     (
       <div
@@ -20,7 +41,7 @@ export default function Image() {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "flex-start",
-          background: "#ffffff",
+          background: "linear-gradient(135deg, #ffffff 0%, #f7fcff 100%)",
           padding: "68px",
           boxSizing: "border-box",
         }}
@@ -39,7 +60,7 @@ export default function Image() {
           }}
         >
           <img
-            src={BRAND_LOGO_ABSOLUTE_URL}
+            src={logoDataUrl}
             alt="SeekJobsLk logo"
             width={132}
             height={132}
@@ -48,6 +69,7 @@ export default function Image() {
             }}
           />
         </div>
+
         <div
           style={{
             display: "flex",
@@ -67,6 +89,7 @@ export default function Image() {
           >
             SeekJobsLk
           </div>
+
           <div
             style={{
               fontSize: 30,
@@ -77,6 +100,7 @@ export default function Image() {
           >
             Discover verified jobs in Sri Lanka. Search by category, company, location, and salary.
           </div>
+
           <div
             style={{
               display: "flex",

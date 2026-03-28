@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Briefcase, Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 import { SocialIcon } from "@/components/SocialIcon";
 
 export function Footer() {
@@ -11,7 +12,7 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="grid h-11 w-11 place-items-center rounded-2xl border border-border bg-primary/10 text-primary">
-                  <Briefcase className="h-4 w-4" />
+                  <Image src="/images/SeekJobsLk Icon.png" alt="SeekJobsLk logo" width={28} height={28} className="h-7 w-7 object-contain" priority />
                 </div>
                 <span className="text-lg font-semibold tracking-tight text-foreground">SeekJobsLk</span>
               </div>

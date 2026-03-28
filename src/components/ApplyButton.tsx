@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock, Copy, ExternalLink, Loader2, Mail, Phone } from "lucide-react";
+import { Check, Clock, Copy, ExternalLink, Loader2, Mail, Phone, Sparkles } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Modal } from "@/components/Modal";
 import type { ApplyTarget } from "@/lib/applyTarget";
@@ -102,7 +102,7 @@ export function ApplyButton({
   const getButtonIcon = () => {
     if (isLocked) {
       return (
-        <div className="relative h-10 w-10 flex items-center justify-center">
+        <div className="relative flex h-10 w-10 items-center justify-center">
           <svg className="countdown-ring absolute inset-0 h-10 w-10" viewBox="0 0 40 40">
             <circle className="countdown-ring-track" cx="20" cy="20" r={radius} />
             <circle
@@ -121,7 +121,7 @@ export function ApplyButton({
     if (isApplying) {
       return <Loader2 className="h-5 w-5 animate-spin" />;
     }
-    return <ExternalLink className="h-5 w-5" />;
+    return <Sparkles className="h-5 w-5" />;
   };
 
   const contactValue =
@@ -146,9 +146,11 @@ export function ApplyButton({
           onClick={handleApply}
           disabled={!canApply}
           aria-disabled={!canApply}
-          aria-label={canApply ? `Apply for ${jobTitle}` : `Apply available in ${secondsLeft} seconds`}
+          aria-label={
+            canApply ? `Apply for ${jobTitle}` : `Apply available in ${secondsLeft} seconds`
+          }
           className={cn(
-            "ui-button w-full justify-center gap-3 py-4 text-base",
+            "ui-button w-full justify-center gap-3 py-4 text-base font-semibold",
             isLocked && "apply-button-locked",
             canApply ? "ui-button-primary" : "ui-button-secondary opacity-80"
           )}
@@ -158,11 +160,14 @@ export function ApplyButton({
         </button>
 
         {isLocked ? (
-          <div className="flex items-center gap-2 rounded-xl border border-amber-200/50 bg-amber-50/50 p-3 dark:border-amber-800/30 dark:bg-amber-900/10">
-            <Clock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-            <p className="text-xs text-amber-700 dark:text-amber-300">
-              Apply button activates in <strong>{secondsLeft} seconds</strong>. This helps prevent
-              accidental clicks and verify genuine interest.
+          <div className="flex items-center gap-2.5 rounded-xl border border-warning/20 bg-warning-soft p-3">
+            <Clock
+              className="h-4 w-4 shrink-0 text-warning-foreground"
+              aria-hidden="true"
+            />
+            <p className="text-xs text-warning-foreground">
+              Apply button activates in <strong>{secondsLeft} seconds</strong>. This helps
+              prevent accidental clicks and verify genuine interest.
             </p>
           </div>
         ) : (
@@ -173,7 +178,7 @@ export function ApplyButton({
         )}
       </div>
 
-      {(applyTarget.kind === "email" || applyTarget.kind === "phone") ? (
+      {(applyTarget.kind === "email" || applyTarget.kind === "phone") && (
         <Modal
           open={contactModalOpen}
           onClose={() => setContactModalOpen(false)}
@@ -184,7 +189,7 @@ export function ApplyButton({
               : "Use the phone number below to contact the recruiter."
           }
         >
-          <div className="rounded-xl border border-border bg-background p-4">
+          <div className="rounded-xl border border-primary/20 bg-primary-subtle p-4">
             <p className="break-all text-center text-lg font-semibold text-card-foreground">
               {contactValue}
             </p>
@@ -194,11 +199,14 @@ export function ApplyButton({
             <button
               type="button"
               onClick={handleCopy}
-              className="ui-button ui-button-secondary"
+              className={cn(
+                "ui-button",
+                copied ? "ui-button-primary" : "ui-button-secondary"
+              )}
               aria-label={copied ? "Copied to clipboard" : "Copy to clipboard"}
             >
               {copied ? (
-                <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                <Check className="h-4 w-4" aria-hidden="true" />
               ) : (
                 <Copy className="h-4 w-4" aria-hidden="true" />
               )}
@@ -220,17 +228,17 @@ export function ApplyButton({
             </a>
           </div>
 
-          {copied ? (
+          {copied && (
             <p
-              className="mt-3 text-center text-sm text-green-600"
+              className="mt-3 text-center text-sm font-medium text-success"
               role="status"
               aria-live="polite"
             >
               Contact information copied to clipboard
             </p>
-          ) : null}
+          )}
         </Modal>
-      ) : null}
+      )}
     </>
   );
 }

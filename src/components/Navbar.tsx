@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Briefcase } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -37,7 +38,7 @@ export function Navbar({ totalJobs }: NavbarProps) {
             aria-label="SeekJobsLk home"
           >
             <span className="grid text-primary shadow-card">
-              <Briefcase className="h-8 w-8" />
+              <Image src="/images/SeekJobsLk Icon.png" alt="SeekJobsLk logo" width={32} height={32} className="h-8 w-8 object-contain" priority />
             </span>
             <span className="truncate font-semibold text-lg tracking-tight">SeekJobsLk</span>
           </Link>

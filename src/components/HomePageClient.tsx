@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Briefcase, Sparkles } from "lucide-react";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
 import { CookieNotice } from "@/components/CookieNotice";
 import { FilterSection } from "@/components/FilterSection";
@@ -146,12 +147,31 @@ export function HomePageClient({
       <Navbar totalJobs={jobs.length} />
 
       <main className="ui-shell flex w-full flex-col gap-8 py-6 sm:py-8 lg:gap-10 lg:py-10">
-        <section className="ui-card ui-hero">
-          <h1 className="ui-page-title mt-4">Find Your Next Career Move</h1>
+        {/* Hero Section */}
+        <section className="ui-card ui-hero overflow-hidden">
+          <div className="flex items-center gap-2">
+            <span className="ui-kicker">
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              Sri Lanka&apos;s Job Portal
+            </span>
+          </div>
+
+          <h1 className="ui-page-title mt-4">
+            Find Your Next Career Move
+          </h1>
+
           <p className="ui-page-intro mt-4">
             Discover verified jobs from leading Sri Lankan companies. Search by title, company,
             category, location, and salary.
           </p>
+
+          {/* Quick stats */}
+          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">
+              <Briefcase className="h-4 w-4" aria-hidden="true" />
+              <span>{jobs.length} Active Jobs</span>
+            </div>
+          </div>
         </section>
 
         <div id="jobs" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -172,14 +192,27 @@ export function HomePageClient({
               }}
             />
 
+            {/* Results summary */}
             <section
-              className="rounded-2xl border border-border/75 bg-card p-4 sm:p-5"
+              className="rounded-xl border border-border/50 bg-surface-tinted px-4 py-3"
               aria-live="polite"
             >
               <p className="text-sm text-muted-foreground">
-                {hasNoResults
-                  ? "No jobs match your current filters."
-                  : `Showing ${paginatedJobs.length} of ${filteredJobs.length} matching jobs`}
+                {hasNoResults ? (
+                  "No jobs match your current filters."
+                ) : (
+                  <>
+                    Showing{" "}
+                    <span className="font-semibold text-card-foreground">
+                      {paginatedJobs.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-semibold text-card-foreground">
+                      {filteredJobs.length}
+                    </span>{" "}
+                    matching jobs
+                  </>
+                )}
               </p>
             </section>
 
@@ -209,6 +242,7 @@ export function HomePageClient({
             />
           </div>
 
+          {/* Sidebar */}
           <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
             <AdSlotPlaceholder label="Advertisement" />
             <WhatsAppChannelBanner />

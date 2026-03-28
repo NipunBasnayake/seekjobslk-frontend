@@ -23,9 +23,9 @@ export function JobList({ jobs, loading = false, onResetFilters }: JobListProps)
 
   if (!jobs.length) {
     return (
-      <div className="ui-card flex flex-col items-center border-dashed px-6 py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50">
-          <SearchX className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+      <div className="ui-card ui-card-tinted flex flex-col items-center border-dashed px-6 py-16 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+          <SearchX className="h-8 w-8 text-primary" aria-hidden="true" />
         </div>
 
         <h3 className="mt-6 text-xl font-semibold tracking-tight text-card-foreground">
@@ -37,7 +37,7 @@ export function JobList({ jobs, loading = false, onResetFilters }: JobListProps)
           filters or search terms to discover more opportunities.
         </p>
 
-        {onResetFilters ? (
+        {onResetFilters && (
           <button
             type="button"
             onClick={onResetFilters}
@@ -46,7 +46,7 @@ export function JobList({ jobs, loading = false, onResetFilters }: JobListProps)
             <Briefcase className="h-4 w-4" aria-hidden="true" />
             Clear All Filters
           </button>
-        ) : null}
+        )}
 
         <p className="mt-6 text-xs text-muted-foreground">
           New jobs are added daily. Check back soon!

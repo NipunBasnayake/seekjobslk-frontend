@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Briefcase } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { ThemeToggle } from "./theme-toggle";
@@ -29,8 +29,8 @@ export function Navbar({ totalJobs }: NavbarProps) {
       : pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/85 bg-background/92 backdrop-blur-xl supports-backdrop-filter:bg-background/88">
-      <div className="ui-shell flex h-18 items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 border-b border-border/85 bg-navbar-light dark:bg-navbar-dark backdrop-blur-xl supports-backdrop-filter:bg-navbar-light/95 dark:supports-backdrop-filter:bg-navbar-dark/95">
+      <div className="ui-shell flex h-18 items-center gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/"
@@ -44,25 +44,25 @@ export function Navbar({ totalJobs }: NavbarProps) {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary">
-          {navLinks.map((link) => {
-            const active = isActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? "page" : undefined}
-                className={cn("ui-nav-link", active && "ui-nav-link-active")}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary">
+            {navLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn("ui-nav-link", active && "ui-nav-link-active")}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        <div className="flex items-center gap-2">
           <ThemeToggle />
-          
+
           <div className="md:hidden">
             <button
               type="button"
@@ -85,7 +85,7 @@ export function Navbar({ totalJobs }: NavbarProps) {
       <div
         id="mobile-nav"
         className={cn(
-          "overflow-hidden border-t border-border/70 bg-background/96 backdrop-blur-xl transition-[max-height,opacity] duration-200 md:hidden",
+          "overflow-hidden border-t border-border/70 bg-navbar-light/95 dark:bg-navbar-dark/95 backdrop-blur-xl transition-[max-height,opacity] duration-200 md:hidden",
           isMobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0",
         )}
       >

@@ -2,16 +2,11 @@
 
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/cn";
-import type { ComponentProps } from "react";
 
 interface MarkdownContentProps {
   content: string;
   className?: string;
 }
-
-type HeadingProps = ComponentProps<"h1"> & {
-  level: 1 | 2 | 3 | 4 | 5 | 6;
-};
 
 /**
  * Renders Markdown content with brand-styled prose.

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Briefcase, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, Building2, ShieldCheck, Star, Users } from "lucide-react";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
 import { CookieNotice } from "@/components/CookieNotice";
 import { FilterSection } from "@/components/FilterSection";
@@ -12,7 +12,6 @@ import { AdSlotPlaceholder } from "@/components/AdSlotPlaceholder";
 import { Navbar } from "@/components/Navbar";
 import { Pagination } from "@/components/Pagination";
 import { PopularJobsAside } from "@/components/PopularJobsAside";
-import { VisitorCountCard } from "@/components/PageViewsCounter";
 import type { JobFilterState } from "@/components/homeTypes";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import { filterAndSortJobs } from "@/lib/jobFiltering";
@@ -48,7 +47,7 @@ export function HomePageClient({
   const router = useRouter();
 
   const [jobs] = useState<Job[]>(initialJobs);
-  const [visitorCount, setVisitorCount] = useState(0);
+  // const [visitorCount, setVisitorCount] = useState(0);
   const [filters, setFilters] = useState<JobFilterState>(defaultFilters);
 
   const pageFromUrl = Number.parseInt(searchParams.get("page") || "1", 10);
@@ -69,38 +68,11 @@ export function HomePageClient({
     [router, searchParams],
   );
 
-  useEffect(() => {
-    let alive = true;
 
-    const loadVisitorCount = async () => {
-      const currentVisitorCount = await getVisitorCount();
-      if (!alive) {
-        return;
-      }
-
-      if (typeof window !== "undefined") {
-        const visitorRegistered = window.localStorage.getItem(VISITOR_STORAGE_KEY);
-        if (!visitorRegistered) {
-          const updatedCount = await registerVisitor();
-          if (!alive) {
-            return;
-          }
-
-          setVisitorCount(updatedCount || currentVisitorCount);
-          window.localStorage.setItem(VISITOR_STORAGE_KEY, "1");
-          return;
-        }
-      }
-
-      setVisitorCount(currentVisitorCount);
-    };
-
-    void loadVisitorCount();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  // Calculate total job applies
+  const totalJobApplies = useMemo(() => {
+    return jobs.reduce((sum, job) => sum + (job.applied_count ?? 0), 0);
+  }, [jobs]);
 
   const jobTypes = useMemo(
     () =>
@@ -141,40 +113,68 @@ export function HomePageClient({
   );
 
   const hasNoResults = filteredJobs.length === 0;
+  const featuredJobsCount = useMemo(
+    () => jobs.filter((job) => job.is_featured === true).length,
+    [jobs],
+  );
 
   return (
     <>
       <Navbar totalJobs={jobs.length} />
 
       <main className="ui-shell flex w-full flex-col gap-8 py-6 sm:py-8 lg:gap-10 lg:py-10">
-        {/* Hero Section */}
-        <section className="ui-card ui-hero overflow-hidden">
-          <div className="flex items-center gap-2">
-            <span className="ui-kicker">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Sri Lanka&apos;s Job Portal
-            </span>
-          </div>
-
-          <h1 className="ui-page-title mt-4">
-            Find Your Next Career Move
-          </h1>
+        <header className="ui-hero">
+          <h1 className="ui-page-title mt-4">Find a high-quality job, faster</h1>
 
           <p className="ui-page-intro mt-4">
-            Discover verified jobs from leading Sri Lankan companies. Search by title, company,
-            category, location, and salary.
+            Browse active openings from verified hiring channels. Filter by title, company,
+            category, job type, location, and salary to find your next role with confidence.
           </p>
 
-          {/* Quick stats */}
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">
-              <Briefcase className="h-4 w-4" aria-hidden="true" />
-              <span>{jobs.length} Active Jobs</span>
-            </div>
-          </div>
-        </section>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <article className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Active jobs
+              </p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
+                {jobs.length}
+              </p>
+            </article>
 
-        <div id="jobs" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+            <article className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Hiring companies
+              </p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
+                {initialCompanies.length}
+              </p>
+            </article>
+
+            <article className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Job categories
+              </p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
+                {initialCategories.length}
+              </p>
+            </article>
+
+            <article className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Total job applies
+              </p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-card-foreground">
+                {totalJobApplies > 0 ? totalJobApplies.toLocaleString() : "--"}
+              </p>
+            </article>
+          </div>
+        </header>
+
+        <section
+          id="jobs"
+          aria-labelledby="jobs-section-title"
+          className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start"
+        >
           <div className="space-y-6">
             <FilterSection
               categories={initialCategories}
@@ -192,27 +192,14 @@ export function HomePageClient({
               }}
             />
 
-            {/* Results summary */}
             <section
-              className="rounded-xl border border-border/50 bg-surface-tinted px-4 py-3"
+              className="rounded-2xl border border-border/75 bg-card p-4 sm:p-5"
               aria-live="polite"
             >
               <p className="text-sm text-muted-foreground">
-                {hasNoResults ? (
-                  "No jobs match your current filters."
-                ) : (
-                  <>
-                    Showing{" "}
-                    <span className="font-semibold text-card-foreground">
-                      {paginatedJobs.length}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-semibold text-card-foreground">
-                      {filteredJobs.length}
-                    </span>{" "}
-                    matching jobs
-                  </>
-                )}
+                {hasNoResults
+                  ? "No jobs match your current filters."
+                  : `Showing ${paginatedJobs.length} of ${filteredJobs.length} matching jobs`}
               </p>
             </section>
 
@@ -223,6 +210,10 @@ export function HomePageClient({
                 navigateToPage(1);
               }}
             />
+
+            {!hasNoResults ? (
+              <AdSlotPlaceholder label="In-feed ad space" className="min-h-28" />
+            ) : null}
 
             <Pagination
               currentPage={activePage}
@@ -242,15 +233,46 @@ export function HomePageClient({
             />
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
-            <AdSlotPlaceholder label="Advertisement" />
+          <aside className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
+            <AdSlotPlaceholder
+              label="Sidebar ad space (300 x 250)"
+              className="min-h-[260px]"
+            />
+
+            <section className="ui-card p-5">
+              <h2 className="ui-card-title">Why job seekers trust SeekJobsLk</h2>
+              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2.5">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  Verified application channels
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  Employer-focused local opportunities
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <BriefcaseBusiness
+                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  Transparent role details and salary context
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  Human-first browsing experience
+                </li>
+              </ul>
+              <p className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                <Star className="h-3.5 w-3.5" aria-hidden="true" />
+                Built for clarity, trust, and speed.
+              </p>
+            </section>
+
             <WhatsAppChannelBanner />
             <PopularJobsAside jobs={popularJobs} />
             <ConnectWithUs />
-            <VisitorCountCard count={visitorCount} />
-          </div>
-        </div>
+          </aside>
+        </section>
       </main>
 
       <Footer />

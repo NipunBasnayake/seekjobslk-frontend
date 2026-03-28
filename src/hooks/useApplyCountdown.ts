@@ -24,11 +24,13 @@ export function useApplyCountdown(
   options: UseApplyCountdownOptions = {}
 ): UseApplyCountdownResult {
   const { initialSeconds = 10, onComplete } = options;
-  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const safeInitialSeconds = Math.max(0, Math.floor(initialSeconds));
+  const [secondsLeft, setSecondsLeft] = useState(safeInitialSeconds);
 
   const isLocked = secondsLeft > 0;
   const isComplete = secondsLeft === 0;
-  const progress = 1 - secondsLeft / initialSeconds;
+  const progress =
+    safeInitialSeconds === 0 ? 1 : 1 - secondsLeft / safeInitialSeconds;
 
   // Format time as "Xs" or "X" for display
   const formattedTime = `${secondsLeft}s`;
@@ -40,18 +42,18 @@ export function useApplyCountdown(
       return;
     }
 
-    const intervalId = window.setInterval(() => {
+    const timeoutId = window.setTimeout(() => {
       setSecondsLeft((current) => Math.max(0, current - 1));
     }, 1000);
 
     return () => {
-      window.clearInterval(intervalId);
+      window.clearTimeout(timeoutId);
     };
   }, [secondsLeft, onComplete]);
 
   const reset = useCallback(() => {
-    setSecondsLeft(initialSeconds);
-  }, [initialSeconds]);
+    setSecondsLeft(safeInitialSeconds);
+  }, [safeInitialSeconds]);
 
   return {
     secondsLeft,

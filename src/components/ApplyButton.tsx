@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Clock, Copy, ExternalLink, Loader2, Mail, Phone, Sparkles } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Check, Copy, Loader2, Mail, Phone, ShieldCheck } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Modal } from "@/components/Modal";
+import { ContactModal } from "./ContactModal";
 import type { ApplyTarget } from "@/lib/applyTarget";
 import { useApplyCountdown } from "@/hooks/useApplyCountdown";
 import { cn } from "@/lib/cn";
@@ -13,6 +14,7 @@ interface ApplyButtonProps {
   applyTarget: ApplyTarget;
   initialAppliedCount?: number;
   countdownSeconds?: number;
+  onApplied?: () => void;
 }
 
 async function trackApply(jobId: string) {
@@ -32,10 +34,9 @@ export function ApplyButton({
   jobId,
   jobTitle,
   applyTarget,
-  initialAppliedCount = 0,
   countdownSeconds = 10,
+  onApplied,
 }: ApplyButtonProps) {
-  const [appliedCount, setAppliedCount] = useState(initialAppliedCount);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
@@ -44,31 +45,43 @@ export function ApplyButton({
     initialSeconds: countdownSeconds,
   });
 
-  const canApply = !isLocked && applyTarget.kind !== "none";
+  const hasApplicationMethod = applyTarget.kind !== "none";
+  const canApply = !isLocked && hasApplicationMethod && !isApplying;
 
   const handleApply = useCallback(async () => {
     if (!canApply || isApplying) return;
 
     setIsApplying(true);
-    setAppliedCount((v) => v + 1);
-    void trackApply(jobId);
+    let didProceed = false;
 
     if (applyTarget.kind === "url") {
-      // Check if URL is safe before opening
+      // Only open whitelisted browser protocols.
       try {
         const url = new URL(applyTarget.url);
         if (url.protocol === "http:" || url.protocol === "https:") {
           window.open(applyTarget.url, "_blank", "noopener,noreferrer");
+          didProceed = true;
         }
       } catch {
-        // Invalid URL, do nothing
+        // Invalid URL. Keep UI stable and avoid hard failure.
+      }
+      if (didProceed) {
+        if (typeof onApplied === "function") onApplied();
+        void trackApply(jobId);
+        setIsApplying(false);
+      } else {
+        setIsApplying(false);
       }
     } else if (applyTarget.kind === "email" || applyTarget.kind === "phone") {
+      didProceed = true;
+      if (typeof onApplied === "function") onApplied();
+      void trackApply(jobId);
+      setIsApplying(false);
       setContactModalOpen(true);
+    } else {
+      setIsApplying(false);
     }
-
-    setIsApplying(false);
-  }, [canApply, isApplying, jobId, applyTarget]);
+  }, [canApply, isApplying, jobId, applyTarget, onApplied]);
 
   const handleCopy = useCallback(async () => {
     if (applyTarget.kind !== "email" && applyTarget.kind !== "phone") return;
@@ -88,41 +101,58 @@ export function ApplyButton({
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
+  const progressPercent = Math.max(0, Math.min(100, Math.round(progress * 100)));
 
-  const getButtonLabel = () => {
-    if (applyTarget.kind === "none") {
-      return "No application method";
+  const verificationMessage = useMemo(() => {
+    if (!hasApplicationMethod) {
+      return "No valid apply link, email, or phone number was provided for this listing.";
     }
-    if (isLocked) {
-      return `Apply in ${secondsLeft}s`;
-    }
-    return "Apply Now";
-  };
 
-  const getButtonIcon = () => {
-    if (isLocked) {
-      return (
-        <div className="relative flex h-10 w-10 items-center justify-center">
-          <svg className="countdown-ring absolute inset-0 h-10 w-10" viewBox="0 0 40 40">
-            <circle className="countdown-ring-track" cx="20" cy="20" r={radius} />
-            <circle
-              className="countdown-ring-progress"
-              cx="20"
-              cy="20"
-              r={radius}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-            />
-          </svg>
-          <span className="text-xs font-bold">{secondsLeft}</span>
-        </div>
-      );
+    if (!isLocked) {
+      return "Security checks passed. You can continue to the employer channel.";
     }
+
+    if (progressPercent < 35) {
+      return "Checking source quality and destination availability.";
+    }
+
+    if (progressPercent < 75) {
+      return "Running secure handoff checks before enabling apply.";
+    }
+
+    return "Finalizing verification. Apply will be enabled shortly.";
+  }, [hasApplicationMethod, isLocked, progressPercent]);
+
+  const buttonLabel = (() => {
+    if (!hasApplicationMethod) {
+      return "Application method unavailable";
+    }
+
     if (isApplying) {
-      return <Loader2 className="h-5 w-5 animate-spin" />;
+      return "Opening application channel...";
     }
-    return <Sparkles className="h-5 w-5" />;
-  };
+
+    if (isLocked) {
+      return `Verifying job availability`;
+    }
+
+    if (applyTarget.kind === "url") {
+      return "Continue to employer application";
+    }
+
+    // For email/phone
+    return "Apply Now";
+  })();
+
+  const buttonIcon = (() => {
+    if (isApplying) {
+      return <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />;
+    }
+
+    if (isLocked) {
+      return <ShieldCheck className="h-5 w-5" aria-hidden="true" />;
+    }
+  })();
 
   const contactValue =
     applyTarget.kind === "email"
@@ -141,104 +171,80 @@ export function ApplyButton({
   return (
     <>
       <div className="space-y-4">
+        <div className="rounded-xl border border-primary/20 bg-primary-subtle/70 p-3.5">
+          <div className="flex items-start gap-3">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card">
+              <svg className="countdown-ring absolute inset-0 h-10 w-10" viewBox="0 0 40 40">
+                <circle className="countdown-ring-track" cx="20" cy="20" r={radius} />
+                <circle
+                  className="countdown-ring-progress"
+                  cx="20"
+                  cy="20"
+                  r={radius}
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                />
+              </svg>
+              <span className="text-[11px] font-semibold text-card-foreground">
+                {hasApplicationMethod ? progressPercent : 0}%
+              </span>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-card-foreground">
+                {isLocked ? "Verifying job availability" : "Verification complete"}
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                {verificationMessage}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/15"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={hasApplicationMethod ? progressPercent : 0}
+            aria-label="Apply verification progress"
+          >
+            <div
+              className="h-full rounded-full bg-linear-to-r from-primary to-primary/70 transition-[width] duration-500 ease-out"
+              style={{ width: `${hasApplicationMethod ? progressPercent : 0}%` }}
+            />
+          </div>
+        </div>
+
         <button
           type="button"
           onClick={handleApply}
           disabled={!canApply}
           aria-disabled={!canApply}
-          aria-label={
-            canApply ? `Apply for ${jobTitle}` : `Apply available in ${secondsLeft} seconds`
-          }
+          aria-label={canApply ? `Apply for ${jobTitle}` : buttonLabel}
           className={cn(
-            "ui-button w-full justify-center gap-3 py-4 text-base font-semibold",
-            isLocked && "apply-button-locked",
-            canApply ? "ui-button-primary" : "ui-button-secondary opacity-80"
+            "ui-button w-full justify-center gap-3 py-5 text-lg font-bold rounded-2xl shadow-md",
+            isLocked && hasApplicationMethod && "apply-button-locked",
+            canApply ? "ui-button-primary" : "ui-button-secondary opacity-90",
           )}
         >
-          {getButtonIcon()}
-          <span>{getButtonLabel()}</span>
+          {buttonIcon}
+          <span>{buttonLabel}</span>
         </button>
-
-        {isLocked ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-warning/20 bg-warning-soft p-3">
-            <Clock
-              className="h-4 w-4 shrink-0 text-warning-foreground"
-              aria-hidden="true"
-            />
-            <p className="text-xs text-warning-foreground">
-              Apply button activates in <strong>{secondsLeft} seconds</strong>. This helps
-              prevent accidental clicks and verify genuine interest.
-            </p>
-          </div>
-        ) : (
-          <p className="text-center text-xs text-muted-foreground">
-            Applications started:{" "}
-            <span className="font-semibold text-card-foreground">{appliedCount}</span>
-          </p>
-        )}
       </div>
 
       {(applyTarget.kind === "email" || applyTarget.kind === "phone") && (
-        <Modal
+        <ContactModal
           open={contactModalOpen}
           onClose={() => setContactModalOpen(false)}
-          title={applyTarget.kind === "email" ? "Apply via Email" : "Apply via Phone"}
-          description={
-            applyTarget.kind === "email"
-              ? "Use the email below to send your application."
-              : "Use the phone number below to contact the recruiter."
-          }
-        >
-          <div className="rounded-xl border border-primary/20 bg-primary-subtle p-4">
-            <p className="break-all text-center text-lg font-semibold text-card-foreground">
-              {contactValue}
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={handleCopy}
-              className={cn(
-                "ui-button",
-                copied ? "ui-button-primary" : "ui-button-secondary"
-              )}
-              aria-label={copied ? "Copied to clipboard" : "Copy to clipboard"}
-            >
-              {copied ? (
-                <Check className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <Copy className="h-4 w-4" aria-hidden="true" />
-              )}
-              {copied ? "Copied!" : "Copy"}
-            </button>
-
-            <a href={contactHref} className="ui-button ui-button-primary">
-              {applyTarget.kind === "email" ? (
-                <>
-                  <Mail className="h-4 w-4" aria-hidden="true" />
-                  Open Email App
-                </>
-              ) : (
-                <>
-                  <Phone className="h-4 w-4" aria-hidden="true" />
-                  Call Now
-                </>
-              )}
-            </a>
-          </div>
-
-          {copied && (
-            <p
-              className="mt-3 text-center text-sm font-medium text-success"
-              role="status"
-              aria-live="polite"
-            >
-              Contact information copied to clipboard
-            </p>
-          )}
-        </Modal>
+          kind={applyTarget.kind}
+          contactValue={contactValue}
+          contactHref={contactHref}
+          copied={copied}
+          handleCopy={handleCopy}
+        />
       )}
     </>
   );
 }
+
+

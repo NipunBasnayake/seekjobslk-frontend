@@ -122,7 +122,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in"
+      className="ui-overlay fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in"
       role="presentation"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
@@ -135,27 +135,28 @@ export function Modal({
         aria-describedby={descriptionId}
         tabIndex={-1}
         className={cn(
-          "ui-card ui-card-elevated w-full max-w-md animate-modal-enter p-5 sm:p-6",
-          "focus:outline-none",
-          className
+          "ui-modal w-full max-w-md animate-modal-enter p-5 sm:p-6",
+         className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 id={titleId} className="ui-section-title">
+            <h3
+              id={titleId}
+              className="ui-section-title"
+            >
               {title}
             </h3>
-            {description && (
-              <p id={descriptionId} className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            {description ? (
+              <p id={descriptionId} className="mt-1 text-sm text-muted-foreground">
                 {description}
               </p>
-            )}
+            ) : null}
           </div>
           <button
             type="button"
-            className="ui-button ui-button-ghost h-9 w-9 shrink-0 rounded-lg px-0"
+            className="ui-button ui-button-ghost h-10 w-10 shrink-0 px-0"
             onClick={onClose}
             aria-label="Close dialog"
           >
@@ -163,8 +164,7 @@ export function Modal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="mt-5">{children}</div>
+        <div className="mt-4">{children}</div>
       </div>
     </div>
   );

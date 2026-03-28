@@ -68,15 +68,6 @@ export function CookieNotice() {
             visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-[0.98] opacity-0",
           )}
         >
-          <button
-            type="button"
-            onClick={() => hideNotice("dismissed")}
-            className="ui-button ui-button-ghost absolute right-3 top-3 h-10 w-10 px-0"
-            aria-label="Close cookie notice"
-          >
-            <X className="h-5 w-5" />
-          </button>
-
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="shrink-0">
               <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-primary/10 text-primary">

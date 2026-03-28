@@ -14,13 +14,9 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button
-        className="ui-button ui-button-secondary h-11 w-11 px-0 shadow-card"
-        aria-label="Toggle theme"
-        disabled
-      >
-        <Sun className="h-4 w-4" />
-      </button>
+      <span aria-label="Toggle theme" className="inline-flex items-center justify-center h-11 w-11">
+        <Sun className="h-6 w-6 text-primary" />
+      </span>
     );
   }
 
@@ -30,14 +26,15 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="ui-button ui-button-secondary h-11 w-11 px-0 shadow-card"
+      className="inline-flex items-center justify-center h-11 w-11 bg-transparent border-none outline-none focus:outline-none"
       aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
       title={`Switch to ${isDark ? "light" : "dark"} theme`}
+      style={{ boxShadow: "none" }}
     >
       {isDark ? (
-        <Sun className="h-4 w-4" />
+        <Sun className="h-6 w-6 text-primary" />
       ) : (
-        <Moon className="h-4 w-4" />
+        <Moon className="h-6 w-6 text-primary" />
       )}
     </button>
   );

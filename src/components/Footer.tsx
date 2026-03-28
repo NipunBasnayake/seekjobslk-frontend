@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 import { SocialIcon } from "@/components/SocialIcon";
 

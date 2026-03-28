@@ -24,6 +24,8 @@ const fallbackSiteUrl = "http://localhost:3000";
 
 export const env = {
   siteUrl: readEnv("NEXT_PUBLIC_SITE_URL") ?? fallbackSiteUrl,
+  googleAnalyticsId: readEnv("NEXT_PUBLIC_GA4_MEASUREMENT_ID"),
+  googleAdsenseClientId: readEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID"),
   firebase: {
     apiKey: readEnv("NEXT_PUBLIC_FIREBASE_API_KEY"),
     authDomain: readEnv("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"),
@@ -33,4 +35,5 @@ export const env = {
     appId: readEnv("NEXT_PUBLIC_FIREBASE_APP_ID"),
   },
   trustedImageHosts: parseCsvEnv("NEXT_PUBLIC_TRUSTED_IMAGE_HOSTS"),
+  applyVerificationSeconds: Number(readEnv("NEXT_PUBLIC_APPLY_VERIFICATION_SECONDS")) || 10,
 };

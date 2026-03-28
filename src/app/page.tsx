@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { HomePageClient } from "@/components/HomePageClient";
-import { buildPageMetadata } from "@/lib/seo";
+import { getCompanyName } from "@/lib/jobPresentation";
+import { toIsoString } from "@/lib/jobUtils";
+import { buildPageMetadata, toAbsoluteUrl } from "@/lib/seo";
 import {
   getActiveJobsServer,
   getCategoriesServer,
@@ -24,11 +26,34 @@ export default async function HomePage() {
     getCompaniesServer(),
   ]);
 
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Latest jobs in Sri Lanka",
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    numberOfItems: initialJobs.length,
+    itemListElement: initialJobs.slice(0, 40).map((job, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: toAbsoluteUrl(`/job/${job.id}`),
+      name: `${job.title} at ${getCompanyName(job)}`,
+      datePosted: toIsoString(job.posted_date ?? null) ?? undefined,
+    })),
+  };
+
   return (
-    <HomePageClient
-      initialJobs={initialJobs}
-      initialCategories={initialCategories}
-      initialCompanies={initialCompanies}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(itemListSchema),
+        }}
+      />
+      <HomePageClient
+        initialJobs={initialJobs}
+        initialCategories={initialCategories}
+        initialCompanies={initialCompanies}
+      />
+    </>
   );
 }

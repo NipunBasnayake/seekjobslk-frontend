@@ -18,6 +18,7 @@ import { ApplyButton } from "@/components/ApplyButton";
 import { JobDescriptionMarkdown } from "@/components/MarkdownContent";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { parseApplyTarget } from "@/lib/applyTarget";
+import { env } from "@/lib/env";
 import {
   formatPostedDate,
   formatSalary,
@@ -28,12 +29,13 @@ import {
 } from "@/lib/jobPresentation";
 import { normalizeMultilineValues } from "@/lib/normalize";
 import type { Job } from "@/types";
+import React from "react";
 
 interface JobDetailClientProps {
   job: Job;
 }
 
-const APPLY_LOCK_SECONDS = 10;
+const APPLY_VERIFICATION_SECONDS = env.applyVerificationSeconds;
 
 function getWorkModeLabel(job: Job): string {
   if (isRemoteJob(job)) return "Remote";
@@ -51,7 +53,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
   const postedDate = formatPostedDate(job.posted_date ?? null, "en-LK");
   const featured = isFeaturedJob(job);
   const remote = isRemoteJob(job);
-  const appliedCount = job.applied_count ?? 0;
+  const [appliedCount, setAppliedCount] = React.useState(job.applied_count ?? 0);
 
   const applyTarget = useMemo(
     () =>
@@ -317,8 +319,8 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
         <section className="ui-card ui-card-tinted p-5 sm:p-6">
           <h2 className="ui-card-title">Apply for this Role</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Take the first step towards your new career. The apply button will unlock after a brief
-            countdown.
+            Take the next step in your career. We run a quick verification before routing you to the
+            employer channel.
           </p>
 
           <div className="mt-5">
@@ -327,17 +329,18 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
               jobTitle={job.title}
               applyTarget={applyTarget}
               initialAppliedCount={appliedCount}
-              countdownSeconds={APPLY_LOCK_SECONDS}
+              countdownSeconds={APPLY_VERIFICATION_SECONDS}
+              onApplied={() => setAppliedCount((c) => c + 1)}
             />
           </div>
 
           {/* Application stats */}
-          <div className="mt-4 flex items-center justify-center gap-4 border-t border-border/50 pt-4 text-sm text-muted-foreground">
+          <div className="mt-4 flex items-center justify-between gap-4 border-t border-border/50 pt-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
               <span>Quick apply</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 ml-auto">
               <Users className="h-4 w-4 text-primary" aria-hidden="true" />
               <span>{appliedCount} applied</span>
             </div>

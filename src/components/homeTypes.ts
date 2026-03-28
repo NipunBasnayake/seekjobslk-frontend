@@ -6,4 +6,5 @@ export interface JobFilterState {
   location: string;
   salaryMin: string;
   salaryMax: string;
+  sortBy: string;
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Briefcase } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { ThemeToggle } from "./theme-toggle";
 
 interface NavbarProps {
   totalJobs?: number;
@@ -27,26 +28,19 @@ export function Navbar({ totalJobs }: NavbarProps) {
       : pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/85 bg-background/92 backdrop-blur-xl supports-[backdrop-filter]:bg-background/88">
-      <div className="ui-shell flex h-[4.5rem] items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 border-b border-border/85 bg-background/92 backdrop-blur-xl supports-backdrop-filter:bg-background/88">
+      <div className="ui-shell flex h-18 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/"
             className="inline-flex items-center gap-3 rounded-full px-1 py-1 text-foreground"
             aria-label="SeekJobsLk home"
           >
-            <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-primary/10 text-primary shadow-card">
-              <Briefcase className="h-4 w-4" />
+            <span className="grid text-primary shadow-card">
+              <Briefcase className="h-8 w-8" />
             </span>
-            <span className="truncate text-base font-semibold tracking-tight">SeekJobsLk</span>
+            <span className="truncate font-semibold text-lg tracking-tight">SeekJobsLk</span>
           </Link>
-
-          {typeof totalJobs === "number" ? (
-            <span className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground lg:inline-flex">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              {totalJobs} active jobs
-            </span>
-          ) : null}
         </div>
 
         <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary">
@@ -65,21 +59,25 @@ export function Navbar({ totalJobs }: NavbarProps) {
           })}
         </nav>
 
-        <div className="flex items-center md:hidden">
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen((v) => !v)}
-            className="ui-button ui-button-secondary h-11 w-11 px-0 shadow-card"
-            aria-label="Toggle menu"
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-nav"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-4 w-4" />
-            ) : (
-              <Menu className="h-4 w-4" />
-            )}
-          </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          
+          <div className="md:hidden">
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              className="ui-button ui-button-secondary h-11 w-11 px-0 shadow-card"
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-nav"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Menu className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

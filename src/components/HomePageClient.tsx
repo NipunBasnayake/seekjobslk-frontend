@@ -14,6 +14,7 @@ import { PopularJobsAside } from "@/components/PopularJobsAside";
 import { VisitorCountCard } from "@/components/PageViewsCounter";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import type { JobFilterState } from "@/components/homeTypes";
+import { getJobTimestamp } from "@/lib/jobUtils";
 import {
   getCategories,
   getCompanies,
@@ -34,6 +35,7 @@ const defaultFilters: JobFilterState = {
   location: "",
   salaryMin: "",
   salaryMax: "",
+  sortBy: "newest",
 };
 
 interface HomePageClientProps {
@@ -43,8 +45,6 @@ interface HomePageClientProps {
 export function HomePageClient({ initialJobs }: HomePageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
-  console.log("🔵 [RENDER] HomePageClient render start");
   
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -56,11 +56,9 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
   // URL is the single source of truth for pagination
   const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
   const currentPage = Math.max(1, pageFromUrl);
-  console.log("🔵 [URL-SOURCE] pageFromUrl:", pageFromUrl, "currentPage:", currentPage);
 
   // Helper to update page in URL (only place that modifies URL)
   const navigateToPage = (page: number) => {
-    console.log("🟢 [NAVIGATE] Navigating to page:", page);
     const params = new URLSearchParams(searchParams.toString());
     if (page === 1) {
       params.delete("page");
@@ -68,7 +66,6 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
       params.set("page", page.toString());
     }
     const newUrl = params.toString() ? `?${params.toString()}` : "/";
-    console.log("🟢 [NAVIGATE] New URL:", newUrl);
     router.push(newUrl, { scroll: false });
   };
 
@@ -145,7 +142,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     const salaryMin = Number(filters.salaryMin || 0);
     const salaryMax = Number(filters.salaryMax || 0);
 
-    return jobs.filter((job) => {
+    const filtered = jobs.filter((job) => {
       const matchesSearch =
         !searchText ||
         job.title.toLowerCase().includes(searchText) ||
@@ -173,19 +170,36 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
         matchesSalaryMax
       );
     });
+
+    // Apply sorting
+    const sortBy = filters.sortBy || "newest";
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "oldest":
+          return getJobTimestamp(a.posted_date ?? null) - getJobTimestamp(b.posted_date ?? null);
+        case "salary-desc":
+          return (b.salary_max ?? 0) - (a.salary_max ?? 0);
+        case "salary-asc":
+          return (a.salary_min ?? 0) - (b.salary_min ?? 0);
+        case "popular":
+          return (b.applied_count ?? 0) - (a.applied_count ?? 0);
+        case "newest":
+        default:
+          return getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null);
+      }
+    });
+
+    return sorted;
   }, [filters, jobs]);
 
   const totalPages = filteredJobs.length === 0 ? 0 : Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
-  console.log("🔵 [CALC] totalPages:", totalPages, "filteredJobs.length:", filteredJobs.length, "pageSize:", ITEMS_PER_PAGE);
   
   // Clamp currentPage to valid range and auto-navigate if out of bounds
   const activePage = totalPages === 0 ? 1 : Math.min(Math.max(1, currentPage), totalPages);
-  console.log("🔵 [CALC] activePage:", activePage, "currentPage:", currentPage, "totalPages:", totalPages);
   
   // Auto-navigate if page is out of bounds (but only if we're actually out of bounds)
   useEffect(() => {
     if (totalPages > 0 && currentPage > totalPages) {
-      console.log("⚠️ [AUTO-CLAMP] currentPage", currentPage, "> totalPages", totalPages, "- navigating to", totalPages);
       navigateToPage(totalPages);
     }
   }, [currentPage, totalPages]);
@@ -194,7 +208,6 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     const start = (activePage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
     const sliced = filteredJobs.slice(start, end);
-    console.log("🔵 [SLICE] activePage:", activePage, "start:", start, "end:", end, "sliced.length:", sliced.length, "first job:", sliced[0]?.title);
     return sliced;
   }, [activePage, filteredJobs]);
 
@@ -228,12 +241,10 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
               locations={locations}
               value={filters}
               onChange={(nextFilters) => {
-                console.log("🟡 [FILTER-CHANGE] Filters changed, resetting to page 1");
                 setFilters(nextFilters);
                 navigateToPage(1);
               }}
               onReset={() => {
-                console.log("🟡 [FILTER-RESET] Filters reset, resetting to page 1");
                 setFilters(defaultFilters);
                 navigateToPage(1);
               }}
@@ -248,10 +259,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
               pageSize={ITEMS_PER_PAGE}
               currentItemCount={paginatedJobs.length}
               onPageChange={(page) => {
-                console.log("🟡 [PAGINATION-CLICK] Page change requested:", page, "totalPages:", totalPages);
-                
                 if (page < 1 || page > totalPages) {
-                  console.log("⚠️ [PAGINATION-CLICK] Page out of range, ignoring");
                   return;
                 }
 

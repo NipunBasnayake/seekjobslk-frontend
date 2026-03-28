@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -60,22 +58,8 @@ export function Pagination({
   const items = buildPaginationItems(safeCurrentPage, safeTotalPages);
   const showControls = safeTotalPages > 1;
 
-  // 🔎 Log when pagination state changes
-  useEffect(() => {
-    console.log("📄 Pagination Rendered");
-    console.log("Current Page:", safeCurrentPage);
-    console.log("Total Pages:", safeTotalPages);
-    console.log("Total Items:", totalItems);
-    console.log("Page Size:", pageSize);
-  }, [safeCurrentPage, safeTotalPages, totalItems, pageSize]);
-
-  // 🔥 Centralized click handler with logging
+  // Centralized click handler
   const handlePageClick = (targetPage: number, source: string) => {
-    console.log("🖱 Pagination Clicked");
-    console.log("Source:", source);
-    console.log("Current Page:", safeCurrentPage);
-    console.log("Target Page:", targetPage);
-    console.log("Total Pages:", safeTotalPages);
 
     if (targetPage < 1 || targetPage > safeTotalPages) {
       console.warn("⚠ Invalid page navigation blocked:", targetPage);
@@ -124,7 +108,7 @@ export function Pagination({
                 aria-current={item === safeCurrentPage ? "page" : undefined}
                 className={
                   item === safeCurrentPage
-                    ? "ui-button ui-button-primary min-h-10 w-10 px-0 text-sm"
+                    ? "ui-button ui-button-primary min-h-10 w-10 px-0 text-sm text-white"
                     : "ui-button ui-button-secondary min-h-10 w-10 px-0 text-sm"
                 }
               >

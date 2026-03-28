@@ -50,6 +50,33 @@
   --shadow-card: var(--shadow);
 }
 
+.dark {
+  --ui-bg: #0f1115;
+  --ui-surface: #161a20;
+  --surface-strong: #1d2228;
+  --ui-border: #2a2f36;
+  --ui-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.65);
+  --ui-shadow-hover: 0 24px 48px -28px rgba(0, 0, 0, 0.75);
+  --ui-primary: #31b0c7;
+  --primary-hover: #3dc5de;
+  --primary-soft: #0f2e33;
+  --bg: var(--ui-bg);
+  --surface: var(--ui-surface);
+  --text: #e5e7eb;
+  --text-soft: #f3f4f6;
+  --muted: #9ca3af;
+  --border: var(--ui-border);
+  --shadow: var(--ui-shadow);
+  --shadow-hover: var(--ui-shadow-hover);
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --muted-foreground: var(--muted);
+  --primary-foreground: #041317;
+  --ring: var(--ui-primary);
+}
+
 *,
 *::before,
 *::after {
@@ -62,7 +89,7 @@ html {
 }
 
 body {
-  background: var(--ui-bg);
+  background: var(--background);
   color: var(--foreground);
 }
 
@@ -86,7 +113,7 @@ textarea {
 :where(a, button, input, select, textarea, [role="button"]):focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--primary) 16%, white),
+    0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent),
     0 0 0 1px var(--primary);
 }
 
@@ -98,7 +125,7 @@ h3 {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--primary) 22%, white);
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
   color: var(--text);
 }
 

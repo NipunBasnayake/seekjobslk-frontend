@@ -11,7 +11,7 @@ import {
   Wallet,
   Building2,
 } from "lucide-react";
-import { useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState } from "react";
 import { getJobDate } from "@/lib/jobUtils";
 import type { Job } from "@/types";
 
@@ -19,13 +19,8 @@ interface JobCardProps {
   job: Job;
 }
 
-function stopLink(e: MouseEvent) {
-  e.preventDefault();
-  e.stopPropagation();
-}
-
 export function JobCard({ job }: JobCardProps) {
-  const [appliedCount, setAppliedCount] = useState(job.applied_count ?? 0);
+  const [appliedCount] = useState(job.applied_count ?? 0);
   const [logoError, setLogoError] = useState(false);
 
   const postedDate = useMemo(() => {
@@ -47,20 +42,9 @@ export function JobCard({ job }: JobCardProps) {
     return (a + b).toUpperCase();
   }, [companyName]);
 
-  // Optional fields (only render if present in your Job type)
+  // Optional fields
   const salary = (job as any)?.salary_range || (job as any)?.salary;
   const isRemote = (job as any)?.is_remote || (job as any)?.remote;
-
-  const onApply = async (e: MouseEvent) => {
-    stopLink(e);
-
-    // If you want: perform apply action / open modal / route to apply
-    // Example: optimistic bump
-    setAppliedCount((v) => v + 1);
-
-    // If you actually increment in DB, do it here:
-    // await incrementJobAppliedCount(job.id);
-  };
 
   return (
     <Link
@@ -89,7 +73,7 @@ export function JobCard({ job }: JobCardProps) {
               <img
                 src={job.company.logo_url}
                 alt={`${companyName} logo`}
-                className="h-full w-full object-cover transition duration-300 "
+                className="h-full w-full object-cover transition duration-300"
                 loading="lazy"
                 onError={() => setLogoError(true)}
               />
@@ -121,7 +105,6 @@ export function JobCard({ job }: JobCardProps) {
               {companyName}
             </p>
 
-            {/* Optional “featured” feel if you want */}
             {(job as any)?.featured && (
               <span className="inline-flex items-center gap-1 rounded-full border bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                 <Sparkles className="size-3.5" />
@@ -166,36 +149,15 @@ export function JobCard({ job }: JobCardProps) {
           <CalendarDays className="size-3.5 text-muted-foreground" />
           {postedDate}
         </span>
-      </div>
 
-      {/* Footer */}
-      <div className="relative mt-5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="ml-auto inline-flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="size-4" />
           <span className="font-semibold text-card-foreground">
             {appliedCount}
           </span>
           <span>applied</span>
         </div>
-
-        <button
-          type="button"
-          onClick={onApply}
-          className={[
-            "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold",
-            "bg-primary text-white transition",
-            "hover:shadow-lg hover:shadow-primary/20",
-            "active:scale-[0.98]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2",
-          ].join(" ")}
-          aria-label={`Apply to ${job.title} at ${companyName}`}
-        >
-          Apply Now
-        </button>
       </div>
-
-      {/* Bottom divider accent */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-primary/25 to-transparent opacity-0 transition group-hover:opacity-100" />
     </Link>
   );
 }

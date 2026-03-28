@@ -55,6 +55,14 @@ export function FilterSection({
     })),
   ];
 
+  const sortOptions: SelectOption[] = [
+    { label: "Newest First", value: "newest" },
+    { label: "Oldest First", value: "oldest" },
+    { label: "Salary: High to Low", value: "salary-desc" },
+    { label: "Salary: Low to High", value: "salary-asc" },
+    { label: "Most Applied", value: "popular" },
+  ];
+
   return (
     <section className="ui-card p-5 sm:p-6" aria-labelledby="filters-title">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -74,7 +82,7 @@ export function FilterSection({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="ui-field">
+        <div className="ui-field col-span-full">
           <span className="ui-label">Search</span>
           <input
             type="text"
@@ -152,6 +160,22 @@ export function FilterSection({
               onChange({
                 ...value,
                 location,
+              })
+            }
+          />
+        </div>
+
+        <div className="ui-field">
+          <span className="ui-label">Sort By</span>
+          <SelectField
+            value={value.sortBy}
+            placeholder="Newest First"
+            options={sortOptions}
+            ariaLabel="Sort jobs"
+            onChange={(sortBy) =>
+              onChange({
+                ...value,
+                sortBy,
               })
             }
           />

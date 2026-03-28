@@ -1,183 +1,188 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+import type { Query as AdminQuery } from "firebase-admin/firestore";
 import {
   collection,
-  type DocumentData,
   doc,
   getDoc,
   getDocs,
-  limit,
   orderBy,
   query,
-  type Query,
   where,
 } from "firebase/firestore";
-import { firebaseServerDb } from "@/lib/firebaseServer";
+import { getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import { mapCategory, mapCompany, mapJob } from "@/lib/jobMapper";
 import { getJobDate, getJobTimestamp } from "@/lib/jobUtils";
-import type { Category, Company, Job, JobDate } from "@/types";
+import { firebaseServerDb } from "@/lib/firebaseServer";
+import type { Category, Company, Job } from "@/types";
 
-function toSerializableJobDate(value: unknown): JobDate {
-  if (!value) {
+const JOBS_REVALIDATE_SECONDS = 120;
+const LOOKUPS_REVALIDATE_SECONDS = 600;
+
+function getDatabases() {
+  return {
+    adminDb: getFirebaseAdminDb(),
+    clientDb: firebaseServerDb,
+  };
+}
+
+async function fetchCompaniesDirect(): Promise<Company[]> {
+  const { adminDb, clientDb } = getDatabases();
+
+  if (adminDb) {
+    try {
+      const snapshot = await adminDb.collection("companies").orderBy("name", "asc").get();
+      return snapshot.docs.map((companyDoc) => mapCompany(companyDoc.id, companyDoc.data()));
+    } catch {
+      return [];
+    }
+  }
+
+  if (clientDb) {
+    try {
+      const companiesRef = collection(clientDb, "companies");
+      const snapshot = await getDocs(query(companiesRef, orderBy("name", "asc")));
+      return snapshot.docs.map((companyDoc) => mapCompany(companyDoc.id, companyDoc.data()));
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
+
+async function fetchCategoriesDirect(): Promise<Category[]> {
+  const { adminDb, clientDb } = getDatabases();
+
+  if (adminDb) {
+    try {
+      const snapshot = await adminDb.collection("categories").orderBy("name", "asc").get();
+      return snapshot.docs.map((categoryDoc) => mapCategory(categoryDoc.id, categoryDoc.data()));
+    } catch {
+      return [];
+    }
+  }
+
+  if (clientDb) {
+    try {
+      const categoriesRef = collection(clientDb, "categories");
+      const snapshot = await getDocs(query(categoriesRef, orderBy("name", "asc")));
+      return snapshot.docs.map((categoryDoc) => mapCategory(categoryDoc.id, categoryDoc.data()));
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
+
+async function fetchJobByIdDirect(jobId: string): Promise<Job | null> {
+  if (!jobId) {
     return null;
   }
 
-  if (typeof value === "string") {
-    return value;
+  const { adminDb, clientDb } = getDatabases();
+
+  if (adminDb) {
+    try {
+      const snapshot = await adminDb.collection("jobs").doc(jobId).get();
+      if (!snapshot.exists) {
+        return null;
+      }
+
+      return mapJob(snapshot.id, snapshot.data());
+    } catch {
+      return null;
+    }
   }
 
-  if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? null : value.toISOString();
-  }
+  if (clientDb) {
+    try {
+      const snapshot = await getDoc(doc(clientDb, "jobs", jobId));
+      if (!snapshot.exists()) {
+        return null;
+      }
 
-  if (typeof value === "object") {
-    const maybeSeconds = (value as { seconds?: unknown }).seconds;
-    const maybeNanoseconds = (value as { nanoseconds?: unknown }).nanoseconds;
-
-    if (typeof maybeSeconds === "number") {
-      return {
-        seconds: maybeSeconds,
-        nanoseconds: typeof maybeNanoseconds === "number" ? maybeNanoseconds : 0,
-      };
+      return mapJob(snapshot.id, snapshot.data());
+    } catch {
+      return null;
     }
   }
 
   return null;
 }
 
-function mapEmbeddedCompany(data: unknown): Company | undefined {
-  if (!data || typeof data !== "object") {
+async function fetchCompanyByIdDirect(companyId?: string): Promise<Company | undefined> {
+  if (!companyId) {
     return undefined;
   }
 
-  const raw = data as Partial<Company> & { id?: string };
+  const { adminDb, clientDb } = getDatabases();
 
-  return {
-    id: typeof raw.id === "string" ? raw.id : "",
-    name: raw.name?.trim() || "Unknown Company",
-    logo_url: raw.logo_url,
-    website: raw.website,
-    email: raw.email,
-    phone: raw.phone,
-    location: raw.location,
-    description: raw.description,
-    created_at: toSerializableJobDate(raw.created_at),
-    updated_at: toSerializableJobDate(raw.updated_at),
-  };
-}
+  if (adminDb) {
+    try {
+      const snapshot = await adminDb.collection("companies").doc(companyId).get();
+      if (!snapshot.exists) {
+        return undefined;
+      }
 
-function mapEmbeddedCategory(data: unknown): Category | undefined {
-  if (!data || typeof data !== "object") {
-    return undefined;
-  }
-
-  const raw = data as Partial<Category> & { id?: string };
-
-  return {
-    id: typeof raw.id === "string" ? raw.id : "",
-    name: raw.name?.trim() || "General",
-    slug: raw.slug,
-    description: raw.description,
-    created_at: toSerializableJobDate(raw.created_at),
-    updated_at: toSerializableJobDate(raw.updated_at),
-  };
-}
-
-function mapCompany(
-  id: string,
-  data: Partial<Company> | undefined,
-): Company {
-  return {
-    id,
-    name: data?.name?.trim() || "Unknown Company",
-    logo_url: data?.logo_url,
-    website: data?.website,
-    email: data?.email,
-    phone: data?.phone,
-    location: data?.location,
-    description: data?.description,
-    created_at: toSerializableJobDate(data?.created_at),
-    updated_at: toSerializableJobDate(data?.updated_at),
-  };
-}
-
-function mapCategory(
-  id: string,
-  data: Partial<Category> | undefined,
-): Category {
-  return {
-    id,
-    name: data?.name?.trim() || "General",
-    slug: data?.slug,
-    description: data?.description,
-    created_at: toSerializableJobDate(data?.created_at),
-    updated_at: toSerializableJobDate(data?.updated_at),
-  };
-}
-
-function mapJob(id: string, data: Partial<Job> | undefined): Job {
-  return {
-    id,
-    title: data?.title?.trim() || "Untitled Job",
-    description: data?.description,
-    requirements: data?.requirements,
-    responsibilities: data?.responsibilities,
-    benefits: data?.benefits,
-    skills: data?.skills,
-    location: data?.location,
-    job_type: data?.job_type,
-    employment_type: data?.employment_type,
-    work_mode: data?.work_mode,
-    salary_text: data?.salary_text,
-    salary_currency: data?.salary_currency,
-    salary_min: data?.salary_min ?? null,
-    salary_max: data?.salary_max ?? null,
-    apply_url: data?.apply_url,
-    is_active: data?.is_active ?? true,
-    is_featured: data?.is_featured ?? false,
-    applied_count: data?.applied_count ?? 0,
-    category_id: data?.category_id,
-    company_id: data?.company_id,
-    company: mapEmbeddedCompany(data?.company),
-    category: mapEmbeddedCategory(data?.category),
-    posted_date: toSerializableJobDate(data?.posted_date),
-    deadline: toSerializableJobDate(data?.deadline),
-    created_at: toSerializableJobDate(data?.created_at),
-    updated_at: toSerializableJobDate(data?.updated_at),
-  };
-}
-
-async function getCompanyById(companyId?: string): Promise<Company | undefined> {
-  if (!firebaseServerDb || !companyId) {
-    return undefined;
-  }
-
-  try {
-    const snapshot = await getDoc(doc(firebaseServerDb, "companies", companyId));
-    if (!snapshot.exists()) {
+      return mapCompany(snapshot.id, snapshot.data());
+    } catch {
       return undefined;
     }
-
-    return mapCompany(snapshot.id, snapshot.data() as Partial<Company>);
-  } catch {
-    return undefined;
-  }
-}
-
-async function getCategoryById(categoryId?: string): Promise<Category | undefined> {
-  if (!firebaseServerDb || !categoryId) {
-    return undefined;
   }
 
-  try {
-    const snapshot = await getDoc(doc(firebaseServerDb, "categories", categoryId));
-    if (!snapshot.exists()) {
+  if (clientDb) {
+    try {
+      const snapshot = await getDoc(doc(clientDb, "companies", companyId));
+      if (!snapshot.exists()) {
+        return undefined;
+      }
+
+      return mapCompany(snapshot.id, snapshot.data());
+    } catch {
       return undefined;
     }
+  }
 
-    return mapCategory(snapshot.id, snapshot.data() as Partial<Category>);
-  } catch {
+  return undefined;
+}
+
+async function fetchCategoryByIdDirect(categoryId?: string): Promise<Category | undefined> {
+  if (!categoryId) {
     return undefined;
   }
+
+  const { adminDb, clientDb } = getDatabases();
+
+  if (adminDb) {
+    try {
+      const snapshot = await adminDb.collection("categories").doc(categoryId).get();
+      if (!snapshot.exists) {
+        return undefined;
+      }
+
+      return mapCategory(snapshot.id, snapshot.data());
+    } catch {
+      return undefined;
+    }
+  }
+
+  if (clientDb) {
+    try {
+      const snapshot = await getDoc(doc(clientDb, "categories", categoryId));
+      if (!snapshot.exists()) {
+        return undefined;
+      }
+
+      return mapCategory(snapshot.id, snapshot.data());
+    } catch {
+      return undefined;
+    }
+  }
+
+  return undefined;
 }
 
 async function hydrateJobs(jobs: Job[]): Promise<Job[]> {
@@ -186,24 +191,21 @@ async function hydrateJobs(jobs: Job[]): Promise<Job[]> {
 
   return Promise.all(
     jobs.map(async (job) => {
-      const companyId = job.company_id;
-      const categoryId = job.category_id;
-
       let company = job.company;
       let category = job.category;
 
-      if (!company && companyId) {
-        if (!companyCache.has(companyId)) {
-          companyCache.set(companyId, await getCompanyById(companyId));
+      if (!company && job.company_id) {
+        if (!companyCache.has(job.company_id)) {
+          companyCache.set(job.company_id, await fetchCompanyByIdDirect(job.company_id));
         }
-        company = companyCache.get(companyId);
+        company = companyCache.get(job.company_id);
       }
 
-      if (!category && categoryId) {
-        if (!categoryCache.has(categoryId)) {
-          categoryCache.set(categoryId, await getCategoryById(categoryId));
+      if (!category && job.category_id) {
+        if (!categoryCache.has(job.category_id)) {
+          categoryCache.set(job.category_id, await fetchCategoryByIdDirect(job.category_id));
         }
-        category = categoryCache.get(categoryId);
+        category = categoryCache.get(job.category_id);
       }
 
       return {
@@ -215,98 +217,123 @@ async function hydrateJobs(jobs: Job[]): Promise<Job[]> {
   );
 }
 
+async function fetchJobsDirect(activeOnly: boolean): Promise<Job[]> {
+  const { adminDb, clientDb } = getDatabases();
+  let jobs: Job[] = [];
+
+  if (adminDb) {
+    try {
+      let request: AdminQuery = adminDb.collection("jobs");
+      if (activeOnly) {
+        request = request.where("is_active", "==", true);
+      }
+
+      const orderedSnapshot = await request.orderBy("posted_date", "desc").get();
+      jobs = orderedSnapshot.docs.map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()));
+    } catch {
+      try {
+        let request: AdminQuery = adminDb.collection("jobs");
+        if (activeOnly) {
+          request = request.where("is_active", "==", true);
+        }
+
+        const fallbackSnapshot = await request.get();
+        jobs = fallbackSnapshot.docs.map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()));
+      } catch {
+        jobs = [];
+      }
+    }
+  } else if (clientDb) {
+    const jobsRef = collection(clientDb, "jobs");
+    try {
+      const orderedQuery = activeOnly
+        ? query(jobsRef, where("is_active", "==", true), orderBy("posted_date", "desc"))
+        : query(jobsRef, orderBy("posted_date", "desc"));
+      const snapshot = await getDocs(orderedQuery);
+      jobs = snapshot.docs.map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()));
+    } catch {
+      const snapshot = await getDocs(jobsRef);
+      jobs = snapshot.docs
+        .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()))
+        .filter((job) => (activeOnly ? job.is_active !== false : true));
+    }
+  }
+
+  const sortedJobs = jobs.sort(
+    (a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null),
+  );
+
+  return hydrateJobs(sortedJobs);
+}
+
+const getJobsCached = unstable_cache(
+  () => fetchJobsDirect(false),
+  ["jobs-all-v2"],
+  {
+    revalidate: JOBS_REVALIDATE_SECONDS,
+    tags: ["jobs"],
+  },
+);
+
+const getActiveJobsCached = unstable_cache(
+  () => fetchJobsDirect(true),
+  ["jobs-active-v2"],
+  {
+    revalidate: JOBS_REVALIDATE_SECONDS,
+    tags: ["jobs"],
+  },
+);
+
+const getCategoriesCached = unstable_cache(
+  () => fetchCategoriesDirect(),
+  ["categories-v2"],
+  {
+    revalidate: LOOKUPS_REVALIDATE_SECONDS,
+    tags: ["categories"],
+  },
+);
+
+const getCompaniesCached = unstable_cache(
+  () => fetchCompaniesDirect(),
+  ["companies-v2"],
+  {
+    revalidate: LOOKUPS_REVALIDATE_SECONDS,
+    tags: ["companies"],
+  },
+);
+
 export async function getJobsServer(): Promise<Job[]> {
-  if (!firebaseServerDb) {
-    return [];
-  }
-
-  const jobsRef = collection(firebaseServerDb, "jobs");
-
-  try {
-    const snapshot = await getDocs(query(jobsRef, orderBy("posted_date", "desc")));
-    const jobs = snapshot.docs.map((jobDoc) =>
-      mapJob(jobDoc.id, jobDoc.data() as Partial<Job>),
-    );
-
-    return hydrateJobs(jobs.sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null)));
-  } catch {
-    const snapshot = await getDocs(jobsRef);
-    const jobs = snapshot.docs.map((jobDoc) =>
-      mapJob(jobDoc.id, jobDoc.data() as Partial<Job>),
-    );
-
-    const sortedJobs = jobs.sort(
-      (a, b) =>
-        getJobTimestamp(b.posted_date ?? null) -
-        getJobTimestamp(a.posted_date ?? null),
-    );
-
-    return hydrateJobs(sortedJobs);
-  }
+  return getJobsCached();
 }
 
 export async function getActiveJobsServer(): Promise<Job[]> {
-  if (!firebaseServerDb) {
-    return [];
-  }
+  return getActiveJobsCached();
+}
 
-  const jobsRef = collection(firebaseServerDb, "jobs");
+export async function getCategoriesServer(): Promise<Category[]> {
+  return getCategoriesCached();
+}
 
-  try {
-    const activeQuery = query(
-      jobsRef,
-      where("is_active", "==", true),
-      orderBy("posted_date", "desc"),
-    );
-
-    const snapshot = await getDocs(activeQuery);
-    const jobs = snapshot.docs
-      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
-      .sort(
-        (a, b) =>
-          getJobTimestamp(b.posted_date ?? null) -
-          getJobTimestamp(a.posted_date ?? null),
-      );
-
-    const hydratedJobs = await hydrateJobs(jobs);
-    return hydratedJobs;
-  } catch (error) {
-    const jobs = await getJobsServer();
-    const activeJobs = jobs.filter((job) => job.is_active !== false)
-      .sort(
-        (a, b) =>
-          getJobTimestamp(b.posted_date ?? null) -
-          getJobTimestamp(a.posted_date ?? null),
-      );
-    return activeJobs;
-  }
+export async function getCompaniesServer(): Promise<Company[]> {
+  return getCompaniesCached();
 }
 
 export async function getJobByIdServer(jobId: string): Promise<Job | null> {
-  if (!firebaseServerDb || !jobId) {
+  const job = await fetchJobByIdDirect(jobId);
+  if (!job) {
     return null;
   }
 
-  try {
-    const jobSnapshot = await getDoc(doc(firebaseServerDb, "jobs", jobId));
-    if (!jobSnapshot.exists()) {
-      return null;
-    }
+  const [company, category] = await Promise.all([
+    job.company ?? fetchCompanyByIdDirect(job.company_id),
+    job.category ?? fetchCategoryByIdDirect(job.category_id),
+  ]);
 
-    const job = mapJob(jobSnapshot.id, jobSnapshot.data() as Partial<Job>);
-    const [company, category] = await Promise.all([
-      job.company ?? getCompanyById(job.company_id),
-      job.category ?? getCategoryById(job.category_id),
-    ]);
-
-    return {
-      ...job,
-      company,
-      category,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    ...job,
+    company,
+    category,
+  };
 }
 
 interface RelatedJobOptions {
@@ -319,78 +346,29 @@ export async function getRelatedJobsServer(
   options: RelatedJobOptions = {},
 ): Promise<Job[]> {
   const days = options.days ?? 30;
-  const maxItems = options.limit ?? 6;
-
-  if (!firebaseServerDb || maxItems <= 0) {
-    return [];
-  }
-
+  const maxItems = Math.max(1, options.limit ?? 6);
   const thresholdDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-  const jobsRef = collection(firebaseServerDb, "jobs");
 
-  try {
-    let relatedQuery: Query<DocumentData>;
+  const activeJobs = await getActiveJobsServer();
 
-    if (job.category_id) {
-      relatedQuery = query(
-        jobsRef,
-        where("is_active", "==", true),
-        where("category_id", "==", job.category_id),
-        where("posted_date", ">=", thresholdDate),
-        orderBy("posted_date", "desc"),
-        limit(maxItems + 2),
-      );
-    } else if (job.company_id) {
-      relatedQuery = query(
-        jobsRef,
-        where("is_active", "==", true),
-        where("company_id", "==", job.company_id),
-        where("posted_date", ">=", thresholdDate),
-        orderBy("posted_date", "desc"),
-        limit(maxItems + 2),
-      );
-    } else {
-      relatedQuery = query(
-        jobsRef,
-        where("is_active", "==", true),
-        where("posted_date", ">=", thresholdDate),
-        orderBy("posted_date", "desc"),
-        limit(maxItems + 2),
-      );
-    }
+  return activeJobs
+    .filter((candidate) => candidate.id !== job.id)
+    .filter((candidate) => {
+      const postedDate = getJobDate(candidate.posted_date ?? null);
+      const isRecent = postedDate ? postedDate >= thresholdDate : false;
+      if (!isRecent) {
+        return false;
+      }
 
-    const snapshot = await getDocs(relatedQuery);
-    const jobs = snapshot.docs
-      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data() as Partial<Job>))
-      .filter((item) => item.id !== job.id)
-      .sort(
-        (a, b) =>
-          getJobTimestamp(b.posted_date ?? null) -
-          getJobTimestamp(a.posted_date ?? null),
-      )
-      .slice(0, maxItems);
+      if (job.category_id && candidate.category_id) {
+        return candidate.category_id === job.category_id;
+      }
 
-    return hydrateJobs(jobs);
-  } catch {
-    const activeJobs = await getActiveJobsServer();
-    const related = activeJobs
-      .filter((item) => item.id !== job.id)
-      .filter((item) => {
-        const postedDate = getJobDate(item.posted_date ?? null);
-        const isRecent = postedDate ? postedDate >= thresholdDate : false;
+      if (job.company_id && candidate.company_id) {
+        return candidate.company_id === job.company_id;
+      }
 
-        if (job.category_id && item.category_id) {
-          return item.category_id === job.category_id && isRecent;
-        }
-
-        if (job.company_id && item.company_id) {
-          return item.company_id === job.company_id && isRecent;
-        }
-
-        return isRecent;
-      })
-      .slice(0, maxItems);
-
-    return related;
-  }
+      return true;
+    })
+    .slice(0, maxItems);
 }

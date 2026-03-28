@@ -38,7 +38,7 @@ export function VisitorCountCard({ count }: VisitorCountCardProps) {
         <p className="ui-section-subtitle">A live snapshot of platform traffic.</p>
       </div>
 
-      <div className="mt-5 rounded-[16px] border border-border bg-background p-4">
+      <div className="mt-5 rounded-2xl border border-border bg-background p-4">
         <div className="flex items-end justify-between gap-3">
           <p
             className="text-4xl font-bold tracking-tight text-card-foreground tabular-nums sm:text-[2.75rem]"

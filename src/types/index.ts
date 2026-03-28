@@ -46,6 +46,8 @@ export interface Job {
   salary_min?: number | null;
   salary_max?: number | null;
   apply_url?: string;
+  apply_email?: string;
+  apply_phone?: string;
   is_active?: boolean;
   is_featured?: boolean;
   applied_count?: number;

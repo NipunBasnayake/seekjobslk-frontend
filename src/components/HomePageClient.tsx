@@ -1,27 +1,21 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Rocket } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
 import { CookieNotice } from "@/components/CookieNotice";
 import { FilterSection } from "@/components/FilterSection";
 import { Footer } from "@/components/Footer";
 import { JobList } from "@/components/JobList";
+import { AdSlotPlaceholder } from "@/components/AdSlotPlaceholder";
 import { Navbar } from "@/components/Navbar";
 import { Pagination } from "@/components/Pagination";
 import { PopularJobsAside } from "@/components/PopularJobsAside";
 import { VisitorCountCard } from "@/components/PageViewsCounter";
-import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import type { JobFilterState } from "@/components/homeTypes";
-import { getJobTimestamp } from "@/lib/jobUtils";
-import {
-  getCategories,
-  getCompanies,
-  getJobs,
-  getVisitorCount,
-  registerVisitor,
-} from "@/services/firebaseData";
+import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
+import { filterAndSortJobs } from "@/lib/jobFiltering";
+import { getVisitorCount, registerVisitor } from "@/services/firebaseData";
 import type { Category, Company, Job } from "@/types";
 
 const ITEMS_PER_PAGE = 6;
@@ -40,71 +34,53 @@ const defaultFilters: JobFilterState = {
 
 interface HomePageClientProps {
   initialJobs: Job[];
+  initialCategories: Category[];
+  initialCompanies: Company[];
 }
 
-export function HomePageClient({ initialJobs }: HomePageClientProps) {
+export function HomePageClient({
+  initialJobs,
+  initialCategories,
+  initialCompanies,
+}: HomePageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
-  const [jobs, setJobs] = useState<Job[]>(initialJobs);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
+
+  const [jobs] = useState<Job[]>(initialJobs);
   const [visitorCount, setVisitorCount] = useState(0);
   const [filters, setFilters] = useState<JobFilterState>(defaultFilters);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // URL is the single source of truth for pagination
-  const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+  const pageFromUrl = Number.parseInt(searchParams.get("page") || "1", 10);
   const currentPage = Math.max(1, pageFromUrl);
 
-  // Helper to update page in URL (only place that modifies URL)
-  const navigateToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (page === 1) {
-      params.delete("page");
-    } else {
-      params.set("page", page.toString());
-    }
-    const newUrl = params.toString() ? `?${params.toString()}` : "/";
-    router.push(newUrl, { scroll: false });
-  };
+  const navigateToPage = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (page === 1) {
+        params.delete("page");
+      } else {
+        params.set("page", String(page));
+      }
+
+      const nextUrl = params.toString() ? `?${params.toString()}` : "/";
+      router.push(nextUrl, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   useEffect(() => {
     let alive = true;
 
-    const loadHomeData = async () => {
-      setIsLoading(true);
-
-      const [jobsData, categoryData, companyData] = await Promise.all([
-        getJobs(),
-        getCategories(),
-        getCompanies(),
-      ]);
-
-      if (!alive) {
-        return;
-      }
-
-      if (jobsData.length) {
-        setJobs(jobsData);
-      }
-
-      setCategories(categoryData);
-      setCompanies(companyData);
-      setIsLoading(false);
-
+    const loadVisitorCount = async () => {
       const currentVisitorCount = await getVisitorCount();
-
       if (!alive) {
         return;
       }
 
       if (typeof window !== "undefined") {
         const visitorRegistered = window.localStorage.getItem(VISITOR_STORAGE_KEY);
-
         if (!visitorRegistered) {
           const updatedCount = await registerVisitor();
-
           if (!alive) {
             return;
           }
@@ -118,7 +94,7 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
       setVisitorCount(currentVisitorCount);
     };
 
-    void loadHomeData();
+    void loadVisitorCount();
 
     return () => {
       alive = false;
@@ -138,77 +114,21 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
   );
 
   const filteredJobs = useMemo(() => {
-    const searchText = filters.search.trim().toLowerCase();
-    const salaryMin = Number(filters.salaryMin || 0);
-    const salaryMax = Number(filters.salaryMax || 0);
-
-    const filtered = jobs.filter((job) => {
-      const matchesSearch =
-        !searchText ||
-        job.title.toLowerCase().includes(searchText) ||
-        (job.description || "").toLowerCase().includes(searchText) ||
-        (job.company?.name || "").toLowerCase().includes(searchText) ||
-        (job.location || "").toLowerCase().includes(searchText);
-
-      const matchesCategory = !filters.categoryId || job.category_id === filters.categoryId;
-      const matchesCompany = !filters.companyId || job.company_id === filters.companyId;
-      const matchesType = !filters.jobType || job.job_type === filters.jobType;
-      const matchesLocation = !filters.location || job.location === filters.location;
-
-      const jobMin = typeof job.salary_min === "number" ? job.salary_min : 0;
-      const jobMax = typeof job.salary_max === "number" ? job.salary_max : Number.MAX_SAFE_INTEGER;
-      const matchesSalaryMin = salaryMin <= 0 || jobMax >= salaryMin;
-      const matchesSalaryMax = salaryMax <= 0 || jobMin <= salaryMax;
-
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesCompany &&
-        matchesType &&
-        matchesLocation &&
-        matchesSalaryMin &&
-        matchesSalaryMax
-      );
-    });
-
-    // Apply sorting
-    const sortBy = filters.sortBy || "newest";
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case "oldest":
-          return getJobTimestamp(a.posted_date ?? null) - getJobTimestamp(b.posted_date ?? null);
-        case "salary-desc":
-          return (b.salary_max ?? 0) - (a.salary_max ?? 0);
-        case "salary-asc":
-          return (a.salary_min ?? 0) - (b.salary_min ?? 0);
-        case "popular":
-          return (b.applied_count ?? 0) - (a.applied_count ?? 0);
-        case "newest":
-        default:
-          return getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null);
-      }
-    });
-
-    return sorted;
+    return filterAndSortJobs(jobs, filters);
   }, [filters, jobs]);
 
-  const totalPages = filteredJobs.length === 0 ? 0 : Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
-  
-  // Clamp currentPage to valid range and auto-navigate if out of bounds
+  const totalPages = filteredJobs.length ? Math.ceil(filteredJobs.length / ITEMS_PER_PAGE) : 0;
   const activePage = totalPages === 0 ? 1 : Math.min(Math.max(1, currentPage), totalPages);
-  
-  // Auto-navigate if page is out of bounds (but only if we're actually out of bounds)
+
   useEffect(() => {
     if (totalPages > 0 && currentPage > totalPages) {
       navigateToPage(totalPages);
     }
-  }, [currentPage, totalPages]);
+  }, [currentPage, navigateToPage, totalPages]);
 
   const paginatedJobs = useMemo(() => {
     const start = (activePage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    const sliced = filteredJobs.slice(start, end);
-    return sliced;
+    return filteredJobs.slice(start, start + ITEMS_PER_PAGE);
   }, [activePage, filteredJobs]);
 
   const popularJobs = useMemo(
@@ -219,6 +139,8 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
     [jobs],
   );
 
+  const hasNoResults = filteredJobs.length === 0;
+
   return (
     <>
       <Navbar totalJobs={jobs.length} />
@@ -227,16 +149,16 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
         <section className="ui-card ui-hero">
           <h1 className="ui-page-title mt-4">Find Your Next Career Move</h1>
           <p className="ui-page-intro mt-4">
-            Discover verified jobs from leading Sri Lankan companies. Filter by company,
-            category, salary, and location.
+            Discover verified jobs from leading Sri Lankan companies. Search by title, company,
+            category, location, and salary.
           </p>
         </section>
 
         <div id="jobs" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
           <div className="space-y-6">
             <FilterSection
-              categories={categories}
-              companies={companies}
+              categories={initialCategories}
+              companies={initialCompanies}
               jobTypes={jobTypes}
               locations={locations}
               value={filters}
@@ -250,7 +172,24 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
               }}
             />
 
-            <JobList jobs={paginatedJobs} loading={isLoading} />
+            <section
+              className="rounded-2xl border border-border/75 bg-card p-4 sm:p-5"
+              aria-live="polite"
+            >
+              <p className="text-sm text-muted-foreground">
+                {hasNoResults
+                  ? "No jobs match your current filters."
+                  : `Showing ${paginatedJobs.length} of ${filteredJobs.length} matching jobs`}
+              </p>
+            </section>
+
+            <JobList
+              jobs={paginatedJobs}
+              onResetFilters={() => {
+                setFilters(defaultFilters);
+                navigateToPage(1);
+              }}
+            />
 
             <Pagination
               currentPage={activePage}
@@ -264,17 +203,14 @@ export function HomePageClient({ initialJobs }: HomePageClientProps) {
                 }
 
                 navigateToPage(page);
-                
-                // Scroll to jobs section
-                const jobsSection = document.getElementById('jobs');
-                if (jobsSection) {
-                  jobsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                const jobsSection = document.getElementById("jobs");
+                jobsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             />
           </div>
 
           <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
+            <AdSlotPlaceholder label="Advertisement" />
             <WhatsAppChannelBanner />
             <PopularJobsAside jobs={popularJobs} />
             <ConnectWithUs />

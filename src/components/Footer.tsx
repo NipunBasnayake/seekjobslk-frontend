@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Briefcase, Mail, MapPin, Phone } from "lucide-react";
+import { SocialIcon } from "@/components/SocialIcon";
 
 export function Footer() {
   return (
@@ -103,6 +104,11 @@ export function Footer() {
                   Sri Lanka
                 </li>
               </ul>
+              <div className="mt-4 flex items-center gap-2">
+                <SocialIcon name="facebook" href="https://facebook.com" label="SeekJobsLk on Facebook" />
+                <SocialIcon name="linkedin" href="https://linkedin.com" label="SeekJobsLk on LinkedIn" />
+                <SocialIcon name="x" href="https://x.com" label="SeekJobsLk on X" />
+              </div>
             </div>
           </div>
 

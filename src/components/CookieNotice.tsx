@@ -78,7 +78,7 @@ export function CookieNotice() {
           </button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-primary/10 text-primary">
                 <Cookie className="h-7 w-7" />
               </div>

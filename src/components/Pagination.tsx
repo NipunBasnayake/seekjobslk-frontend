@@ -58,11 +58,8 @@ export function Pagination({
   const items = buildPaginationItems(safeCurrentPage, safeTotalPages);
   const showControls = safeTotalPages > 1;
 
-  // Centralized click handler
-  const handlePageClick = (targetPage: number, source: string) => {
-
+  const handlePageClick = (targetPage: number) => {
     if (targetPage < 1 || targetPage > safeTotalPages) {
-      console.warn("⚠ Invalid page navigation blocked:", targetPage);
       return;
     }
 
@@ -92,7 +89,7 @@ export function Pagination({
         <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
           <button
             type="button"
-            onClick={() => handlePageClick(safeCurrentPage - 1, "Previous")}
+            onClick={() => handlePageClick(safeCurrentPage - 1)}
             disabled={safeCurrentPage === 1}
             className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
           >
@@ -104,7 +101,7 @@ export function Pagination({
               <button
                 key={item}
                 type="button"
-                onClick={() => handlePageClick(item, `Page ${item}`)}
+                onClick={() => handlePageClick(item)}
                 aria-current={item === safeCurrentPage ? "page" : undefined}
                 className={
                   item === safeCurrentPage
@@ -126,7 +123,7 @@ export function Pagination({
 
           <button
             type="button"
-            onClick={() => handlePageClick(safeCurrentPage + 1, "Next")}
+            onClick={() => handlePageClick(safeCurrentPage + 1)}
             disabled={safeCurrentPage === safeTotalPages}
             className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
           >

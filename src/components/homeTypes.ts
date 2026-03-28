@@ -1,3 +1,10 @@
+export type JobSortOption =
+  | "newest"
+  | "oldest"
+  | "salary-desc"
+  | "salary-asc"
+  | "popular";
+
 export interface JobFilterState {
   search: string;
   categoryId: string;
@@ -6,5 +13,5 @@ export interface JobFilterState {
   location: string;
   salaryMin: string;
   salaryMax: string;
-  sortBy: string;
+  sortBy: JobSortOption;
 }

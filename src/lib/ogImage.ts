@@ -1,10 +1,15 @@
-import { BRAND_LOGO_ABSOLUTE_URL } from "@/lib/brand";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
+import { toAbsoluteUrl } from "@/lib/seo";
+
+function getFallbackLogoUrl(): string {
+  return toAbsoluteUrl(BRAND_LOGO_PATH);
+}
 
 export function resolveOgCompanyLogoUrl(value?: string | null): string {
   const candidate = value?.trim();
 
   if (!candidate) {
-    return BRAND_LOGO_ABSOLUTE_URL;
+    return getFallbackLogoUrl();
   }
 
   try {
@@ -14,5 +19,5 @@ export function resolveOgCompanyLogoUrl(value?: string | null): string {
     }
   } catch {}
 
-  return BRAND_LOGO_ABSOLUTE_URL;
+  return getFallbackLogoUrl();
 }

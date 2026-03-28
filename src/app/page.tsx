@@ -12,11 +12,12 @@ import {
 export const revalidate = 120;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "SeekJobsLk | Sri Lanka Job Portal",
+  title: "Sri Lanka Job Portal",
   description:
     "Discover verified jobs in Sri Lanka. Search by category, company, location, and salary on SeekJobsLk.",
   path: "/",
-  image: "/og-default.png",
+  image: "/opengraph-image",
+  imageAlt: "SeekJobsLk - Verified jobs in Sri Lanka",
 });
 
 export default async function HomePage() {

@@ -20,10 +20,8 @@ function parseCsvEnv(name: string): string[] {
     .filter(Boolean);
 }
 
-const fallbackSiteUrl = "http://localhost:3000";
-
 export const env = {
-  siteUrl: readEnv("NEXT_PUBLIC_SITE_URL") ?? fallbackSiteUrl,
+  siteUrl: readEnv("NEXT_PUBLIC_SITE_URL"),
   googleAnalyticsId: readEnv("NEXT_PUBLIC_GA4_MEASUREMENT_ID"),
   googleAdsenseClientId: readEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID"),
   firebase: {

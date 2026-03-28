@@ -3,6 +3,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { BRAND_LOGO_PATH } from "@/lib/brand";
 import { env } from "@/lib/env";
+import { toAbsoluteUrl } from "@/lib/seo";
+import { getSiteUrl, SITE_DEFAULT_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -16,17 +18,17 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://seekjobslk.com";
-const siteName = "SeekJobsLk";
-const defaultDescription =
-  "Discover verified jobs in Sri Lanka. Search by category, company, location, and salary on SeekJobsLk.";
+const siteUrl = getSiteUrl();
+const siteName = SITE_NAME;
+const defaultDescription = SITE_DEFAULT_DESCRIPTION;
+const defaultOgImageUrl = toAbsoluteUrl("/opengraph-image");
 
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteName,
   url: siteUrl,
-  logo: `${siteUrl}${BRAND_LOGO_PATH}`,
+  logo: toAbsoluteUrl(BRAND_LOGO_PATH),
   contactPoint: [
     {
       "@type": "ContactPoint",
@@ -74,7 +76,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: "/",
   },
   robots: {
     index: true,
@@ -89,18 +91,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: siteUrl,
+    url: toAbsoluteUrl("/"),
     siteName,
     locale: "en_LK",
     title: `${siteName} | Sri Lanka Job Portal`,
     description: defaultDescription,
-    images: [`${siteUrl}/opengraph-image`],
+    images: [
+      {
+        url: defaultOgImageUrl,
+        width: 1200,
+        height: 630,
+        alt: `${siteName} - Verified jobs in Sri Lanka`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${siteName} | Sri Lanka Job Portal`,
     description: defaultDescription,
-    images: [`${siteUrl}/opengraph-image`],
+    images: [defaultOgImageUrl],
   },
 };
 

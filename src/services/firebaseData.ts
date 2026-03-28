@@ -1,123 +1,110 @@
 import {
   collection,
-  getDocs,
   doc,
   getDoc,
-  updateDoc,
-  setDoc,
+  getDocs,
   increment,
-  Timestamp,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { Company, Category, Job } from "@/types/index";
+import { mapCategory, mapCompany, mapJob } from "@/lib/jobMapper";
+import { getJobTimestamp } from "@/lib/jobUtils";
+import { db } from "@/lib/firebaseClient";
+import type { Category, Company, Job } from "@/types";
 
-const normalizeMultiline = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean);
+export async function getCompanies(): Promise<Company[]> {
+  if (!db) {
+    return [];
   }
 
-  if (typeof value === "string") {
-    return value
-      .split(/\r?\n/)
-      .map((v) => v.trim())
-      .filter(Boolean);
+  try {
+    const companiesRef = collection(db, "companies");
+    const snapshot = await getDocs(query(companiesRef, orderBy("name", "asc")));
+    return snapshot.docs.map((companyDoc) => mapCompany(companyDoc.id, companyDoc.data()));
+  } catch {
+    return [];
+  }
+}
+
+export async function getCategories(): Promise<Category[]> {
+  if (!db) {
+    return [];
   }
 
-  return [];
-};
+  try {
+    const categoriesRef = collection(db, "categories");
+    const snapshot = await getDocs(query(categoriesRef, orderBy("name", "asc")));
+    return snapshot.docs.map((categoryDoc) => mapCategory(categoryDoc.id, categoryDoc.data()));
+  } catch {
+    return [];
+  }
+}
 
-const mapCompany = (id: string, data: any): Company => ({
-  id,
-  name: typeof data?.name === "string" ? data.name : "Unknown Company",
-  logo_url: typeof data?.logo_url === "string" ? data.logo_url : "",
-  location: typeof data?.location === "string" ? data.location : "",
-  website: typeof data?.website === "string" ? data.website : undefined,
-});
-
-const mapCategory = (id: string, data: any): Category => ({
-  id,
-  name: typeof data?.name === "string" ? data.name : "General",
-});
-
-const mapJob = (id: string, raw: any): Job => ({
-  id,
-  title: raw?.title ?? "Untitled Job",
-
-  company: raw?.company ?? (raw?.companyId ? { id: raw.companyId, name: "Unknown Company", logo_url: "", location: "" } : undefined),
-  category: raw?.category ?? (raw?.categoryId ? { id: raw.categoryId, name: "General" } : undefined),
-
-  companyId: raw?.companyId,
-  categoryId: raw?.categoryId,
-
-  job_type: raw?.job_type ?? "Full-Time",
-  salary: raw?.salary ?? "Negotiable",
-  location: raw?.location ?? "Sri Lanka",
-
-  description: raw?.description ?? "",
-  requirements: normalizeMultiline(raw?.requirements),
-  apply_url: raw?.apply_url ?? "#",
-  status: raw?.status ?? "Active",
-  is_featured: Boolean(raw?.is_featured),
-  posted_date:
-    raw?.posted_date instanceof Timestamp
-      ? raw.posted_date
-      : Timestamp.fromDate(new Date()),
-  applied_count: Number(raw?.applied_count) || 0,
-});
-
-export const getCompanies = async (): Promise<Company[]> => {
-  const snapshot = await getDocs(collection(db, "companies"));
-  return snapshot.docs.map((d) => mapCompany(d.id, d.data()));
-};
-
-export const getCategories = async (): Promise<Category[]> => {
-  const snapshot = await getDocs(collection(db, "categories"));
-  return snapshot.docs.map((d) => mapCategory(d.id, d.data()));
-};
-
-export const getJobs = async (): Promise<Job[]> => {
-  const snapshot = await getDocs(collection(db, "jobs"));
-  return snapshot.docs.map((d) => mapJob(d.id, d.data()));
-};
-
-export const getJobById = async (jobId: string): Promise<Job | null> => {
-  if (!jobId) return null;
-  const snap = await getDoc(doc(db, "jobs", jobId));
-  if (!snap.exists()) return null;
-  return mapJob(snap.id, snap.data());
-};
-
-const VISITOR_DOC = doc(db, "stats", "visitors");
-const SESSION_KEY = "seekjobslk-visitor-counted";
-
-export const registerVisitor = async (): Promise<number> => {
-  if (sessionStorage.getItem(SESSION_KEY)) {
-    const snap = await getDoc(VISITOR_DOC);
-    return snap.exists() ? snap.data().count : 0;
+export async function getJobs(): Promise<Job[]> {
+  if (!db) {
+    return [];
   }
 
-  const snap = await getDoc(VISITOR_DOC);
+  const jobsRef = collection(db, "jobs");
 
-  if (!snap.exists()) {
-    await setDoc(VISITOR_DOC, { count: 1 });
-    sessionStorage.setItem(SESSION_KEY, "true");
-    return 1;
+  try {
+    const activeJobsQuery = query(
+      jobsRef,
+      where("is_active", "==", true),
+      orderBy("posted_date", "desc"),
+    );
+
+    const snapshot = await getDocs(activeJobsQuery);
+    return snapshot.docs
+      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()))
+      .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
+  } catch {
+    const fallbackSnapshot = await getDocs(jobsRef);
+    return fallbackSnapshot.docs
+      .map((jobDoc) => mapJob(jobDoc.id, jobDoc.data()))
+      .filter((job) => job.is_active !== false)
+      .sort((a, b) => getJobTimestamp(b.posted_date ?? null) - getJobTimestamp(a.posted_date ?? null));
+  }
+}
+
+export async function registerVisitor(): Promise<number> {
+  if (!db) {
+    return 0;
   }
 
-  await updateDoc(VISITOR_DOC, { count: increment(1) });
-  sessionStorage.setItem(SESSION_KEY, "true");
+  const visitorsRef = doc(db, "stats", "visitors");
 
-  const updatedSnap = await getDoc(VISITOR_DOC);
-  return updatedSnap.data().count;
-};
+  try {
+    await setDoc(
+      visitorsRef,
+      {
+        count: increment(1),
+        updated_at: serverTimestamp(),
+      },
+      { merge: true },
+    );
 
-export const getVisitorCount = async (): Promise<number> => {
-  const snap = await getDoc(VISITOR_DOC);
-  return snap.exists() ? snap.data().count : 0;
-};
+    const updatedSnapshot = await getDoc(visitorsRef);
+    const data = updatedSnapshot.data();
+    return typeof data?.count === "number" ? data.count : 0;
+  } catch {
+    return getVisitorCount();
+  }
+}
 
-export const incrementJobAppliedCount = async (jobId: string): Promise<void> => {
-  if (!jobId) return;
-  const jobRef = doc(db, "jobs", jobId);
-  await updateDoc(jobRef, { applied_count: increment(1) });
-};
+export async function getVisitorCount(): Promise<number> {
+  if (!db) {
+    return 0;
+  }
+
+  try {
+    const snapshot = await getDoc(doc(db, "stats", "visitors"));
+    const data = snapshot.data();
+    return typeof data?.count === "number" ? data.count : 0;
+  } catch {
+    return 0;
+  }
+}

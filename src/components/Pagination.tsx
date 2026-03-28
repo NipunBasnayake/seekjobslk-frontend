@@ -1,115 +1,136 @@
-import React, { useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+"use client";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  totalItems?: number;
+  pageSize?: number;
+  currentItemCount?: number;
   onPageChange: (page: number) => void;
-  siblingCount?: number;
 }
 
-const DOTS = "dots";
+type PaginationItem = number | "start-ellipsis" | "end-ellipsis";
 
-const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-  siblingCount = 1,
-}) => {
-  const paginationRange = useMemo(() => {
-    const totalPageNumbers = siblingCount * 2 + 5;
+function buildPaginationItems(currentPage: number, totalPages: number): PaginationItem[] {
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
 
-    if (totalPages <= totalPageNumbers) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
+  const corePages = new Set<number>([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+  const sortedPages = Array.from(corePages)
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((a, b) => a - b);
 
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
-    const rightSiblingIndex = Math.min(
-      currentPage + siblingCount,
-      totalPages
-    );
+  const items: PaginationItem[] = [];
 
-    const showLeftDots = leftSiblingIndex > 2;
-    const showRightDots = rightSiblingIndex < totalPages - 1;
+  sortedPages.forEach((page, index) => {
+    const previousPage = sortedPages[index - 1];
 
-    const range: (number | typeof DOTS)[] = [];
-
-    range.push(1);
-
-    if (showLeftDots) {
-      range.push(DOTS);
-    }
-
-    for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
-      if (i !== 1 && i !== totalPages) {
-        range.push(i);
+    if (typeof previousPage === "number" && page - previousPage > 1) {
+      if (page - previousPage === 2) {
+        items.push(previousPage + 1);
+      } else {
+        items.push(index < sortedPages.length - 1 ? "start-ellipsis" : "end-ellipsis");
       }
     }
 
-    if (showRightDots) {
-      range.push(DOTS);
+    items.push(page);
+  });
+
+  return items;
+}
+
+export function Pagination({
+  currentPage,
+  totalPages,
+  totalItems = 0,
+  pageSize = 0,
+  currentItemCount = 0,
+  onPageChange,
+}: PaginationProps) {
+  const safeTotalPages = Math.max(0, totalPages);
+
+  if (safeTotalPages === 0) {
+    return null;
+  }
+
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), safeTotalPages);
+  const items = buildPaginationItems(safeCurrentPage, safeTotalPages);
+  const showControls = safeTotalPages > 1;
+
+  const handlePageClick = (targetPage: number) => {
+    if (targetPage < 1 || targetPage > safeTotalPages) {
+      return;
     }
 
-    if (totalPages !== 1) {
-      range.push(totalPages);
-    }
+    onPageChange(targetPage);
+  };
 
-    return range;
-  }, [currentPage, totalPages, siblingCount]);
-
-  if (totalPages <= 1) return null;
+  const hasRangeData = totalItems > 0 && pageSize > 0;
+  const rangeStart = hasRangeData ? (safeCurrentPage - 1) * pageSize + 1 : 0;
+  const fallbackItemCount = hasRangeData
+    ? Math.min(pageSize, Math.max(totalItems - (safeCurrentPage - 1) * pageSize, 0))
+    : 0;
+  const resolvedItemCount = currentItemCount || fallbackItemCount;
+  const rangeEnd = hasRangeData ? Math.min(totalItems, rangeStart + resolvedItemCount - 1) : 0;
 
   return (
-    <div className="flex justify-center items-center gap-1 pt-4 flex-wrap">
-      {/* Previous */}
-      <button
-        disabled={currentPage === 1}
-        onClick={() => onPageChange(currentPage - 1)}
-        className="rounded-md border px-3 py-1 disabled:opacity-50"
-        aria-label="Previous page"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
+    <nav
+      className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      aria-label="Jobs pagination"
+    >
+      <p className="text-sm text-muted-foreground">
+        {hasRangeData
+          ? `Showing ${rangeStart}\u2013${rangeEnd} of ${totalItems}`
+          : `Page ${safeCurrentPage} of ${safeTotalPages}`}
+      </p>
 
-      {/* Pages */}
-      {paginationRange.map((item, index) => {
-        if (item === DOTS) {
-          return (
-            <span
-              key={`dots-${index}`}
-              className="px-2 text-muted-foreground"
-            >
-              …
-            </span>
-          );
-        }
-
-        return (
+      {showControls ? (
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
           <button
-            key={item}
-            onClick={() => onPageChange(item)}
-            className={`rounded-md px-3 py-1 text-sm transition ${
-              currentPage === item
-                ? "bg-primary text-primary-foreground"
-                : "border hover:bg-muted"
-            }`}
+            type="button"
+            onClick={() => handlePageClick(safeCurrentPage - 1)}
+            disabled={safeCurrentPage === 1}
+            className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
           >
-            {item}
+            Previous
           </button>
-        );
-      })}
 
-      {/* Next */}
-      <button
-        disabled={currentPage === totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
-        className="rounded-md border px-3 py-1 disabled:opacity-50"
-        aria-label="Next page"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </div>
+          {items.map((item, index) =>
+            typeof item === "number" ? (
+              <button
+                key={item}
+                type="button"
+                onClick={() => handlePageClick(item)}
+                aria-current={item === safeCurrentPage ? "page" : undefined}
+                className={
+                  item === safeCurrentPage
+                    ? "ui-button ui-button-primary min-h-10 w-10 px-0 text-sm text-white"
+                    : "ui-button ui-button-secondary min-h-10 w-10 px-0 text-sm"
+                }
+              >
+                {item}
+              </button>
+            ) : (
+              <span
+                key={`${item}-${index}`}
+                className="inline-flex h-10 min-w-10 items-center justify-center rounded-[14px] px-2 text-sm text-muted-foreground"
+              >
+                ...
+              </span>
+            ),
+          )}
+
+          <button
+            type="button"
+            onClick={() => handlePageClick(safeCurrentPage + 1)}
+            disabled={safeCurrentPage === safeTotalPages}
+            className="ui-button ui-button-secondary min-h-10 px-4 text-sm"
+          >
+            Next
+          </button>
+        </div>
+      ) : null}
+    </nav>
   );
-};
-
-export default Pagination;
+}

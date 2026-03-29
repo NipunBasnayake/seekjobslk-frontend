@@ -3,6 +3,11 @@ import type { SocialIconName } from "@/lib/socialIcons";
 
 const socialLinks: Array<{ name: SocialIconName; href: string; label: string }> = [
   {
+    name: "whatsapp",
+    href: "https://wa.me/+94758806028",
+    label: "Chat with us on WhatsApp",
+  },
+  {
     name: "facebook",
     href: "https://web.facebook.com/seekjobslk",
     label: "Visit our Facebook page",

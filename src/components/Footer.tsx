@@ -107,9 +107,9 @@ export function Footer() {
                 </li>
               </ul>
               <div className="mt-4 flex items-center gap-2">
-                <SocialIcon name="facebook" href="https://facebook.com" label="SeekJobsLk on Facebook" />
-                <SocialIcon name="linkedin" href="https://linkedin.com" label="SeekJobsLk on LinkedIn" />
-                <SocialIcon name="x" href="https://x.com" label="SeekJobsLk on X" />
+                <SocialIcon name="facebook" href="https://web.facebook.com/seekjobslk" label="SeekJobsLk on Facebook" />
+                <SocialIcon name="linkedin" href="https://www.linkedin.com/company/seekjobslk" label="SeekJobsLk on LinkedIn" />
+                <SocialIcon name="x" href="https://x.com/seekjobs_lk" label="SeekJobsLk on X" />
               </div>
             </div>
           </div>

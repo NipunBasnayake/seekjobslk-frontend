@@ -4,32 +4,27 @@ import type { SocialIconName } from "@/lib/socialIcons";
 const socialLinks: Array<{ name: SocialIconName; href: string; label: string }> = [
   {
     name: "facebook",
-    href: "https://www.facebook.com",
+    href: "https://web.facebook.com/seekjobslk",
     label: "Visit our Facebook page",
   },
   {
     name: "linkedin",
-    href: "https://www.linkedin.com",
+    href: "https://www.linkedin.com/company/seekjobslk",
     label: "Visit our LinkedIn page",
   },
   {
     name: "x",
-    href: "https://x.com",
+    href: "https://x.com/seekjobs_lk",
     label: "Visit our X profile",
   },
   {
     name: "instagram",
-    href: "https://www.instagram.com",
+    href: "https://www.instagram.com/seekjobslk",
     label: "Visit our Instagram profile",
   },
   {
-    name: "youtube",
-    href: "https://www.youtube.com",
-    label: "Visit our YouTube channel",
-  },
-  {
     name: "telegram",
-    href: "https://t.me",
+    href: "https://t.me/seekjobslk",
     label: "Join our Telegram",
   },
 ];

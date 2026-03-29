@@ -32,10 +32,10 @@ export default function Contact() {
                 Contact us for listings, reporting issues, or general platform questions.
               </p>
               <a
-                href="mailto:hello@seekjobslk.com"
+                href="mailto:seekjobslanka@gmail.com"
                 className="mt-4 inline-flex text-sm font-semibold text-foreground underline decoration-primary/60 underline-offset-4 hover:decoration-primary"
               >
-                hello@seekjobslk.com
+                seekjobslanka@gmail.com
               </a>
             </article>
 

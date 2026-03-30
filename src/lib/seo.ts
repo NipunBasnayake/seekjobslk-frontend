@@ -165,3 +165,31 @@ export function buildJobMetadata({
     openGraphType: "article",
   });
 }
+
+interface BuildArticleMetadataInput {
+  title: string;
+  description: string;
+  path: string;
+  image?: string | null;
+  imageAlt?: string;
+  noIndex?: boolean;
+}
+
+export function buildArticleMetadata({
+  title,
+  description,
+  path,
+  image,
+  imageAlt,
+  noIndex = false,
+}: BuildArticleMetadataInput): Metadata {
+  return buildMetadata({
+    title,
+    description,
+    path,
+    image,
+    imageAlt,
+    noIndex,
+    openGraphType: "article",
+  });
+}

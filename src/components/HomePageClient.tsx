@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BriefcaseBusiness, Building2, ShieldCheck, Star, Users } from "lucide-react";
+import { CareerInsightsSection } from "@/components/blog/CareerInsightsSection";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
 import { CookieNotice } from "@/components/CookieNotice";
 import { FilterSection } from "@/components/FilterSection";
@@ -15,11 +16,10 @@ import { PopularJobsAside } from "@/components/PopularJobsAside";
 import type { JobFilterState } from "@/components/homeTypes";
 import WhatsAppChannelBanner from "@/components/WhatsAppChannelBanner";
 import { filterAndSortJobs } from "@/lib/jobFiltering";
-import { getVisitorCount, registerVisitor } from "@/services/firebaseData";
+import type { Article } from "@/types/article";
 import type { Category, Company, Job } from "@/types";
 
 const ITEMS_PER_PAGE = 6;
-const VISITOR_STORAGE_KEY = "seekjobs-visitor-registered";
 
 const defaultFilters: JobFilterState = {
   search: "",
@@ -36,12 +36,14 @@ interface HomePageClientProps {
   initialJobs: Job[];
   initialCategories: Category[];
   initialCompanies: Company[];
+  careerInsights: Article[];
 }
 
 export function HomePageClient({
   initialJobs,
   initialCategories,
   initialCompanies,
+  careerInsights,
 }: HomePageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -113,10 +115,6 @@ export function HomePageClient({
   );
 
   const hasNoResults = filteredJobs.length === 0;
-  const featuredJobsCount = useMemo(
-    () => jobs.filter((job) => job.is_featured === true).length,
-    [jobs],
-  );
 
   return (
     <>
@@ -177,6 +175,8 @@ export function HomePageClient({
             </div>
           </div>
         </header>
+
+        <CareerInsightsSection articles={careerInsights} />
 
         <section
           id="jobs"

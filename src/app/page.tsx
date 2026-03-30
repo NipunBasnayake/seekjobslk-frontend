@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HomePageClient } from "@/components/HomePageClient";
+import { getFeaturedOrLatestArticles } from "@/lib/articles";
 import { getCompanyName } from "@/lib/jobPresentation";
 import { toIsoString } from "@/lib/jobUtils";
 import { buildPageMetadata, toAbsoluteUrl } from "@/lib/seo";
@@ -26,6 +27,7 @@ export default async function HomePage() {
     getCategoriesServer(),
     getCompaniesServer(),
   ]);
+  const careerInsights = getFeaturedOrLatestArticles(3);
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -54,6 +56,7 @@ export default async function HomePage() {
         initialJobs={initialJobs}
         initialCategories={initialCategories}
         initialCompanies={initialCompanies}
+        careerInsights={careerInsights}
       />
     </>
   );

@@ -303,6 +303,19 @@ export default async function JobDetailPage({ params }: JobPageProps) {
         <JobDetailClient job={job} />
 
         <RelatedJobs relatedJobs={relatedJobs} />
+
+        <section className="ui-card ui-card-tinted p-5 sm:p-6">
+          <h2 className="ui-section-title">Career Insights for Better Applications</h2>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Before applying, review practical guidance on CV writing, interview preparation, and
+            in-demand skills in Sri Lanka.
+          </p>
+          <div className="mt-4">
+            <Link href="/blog" className="ui-button ui-button-secondary text-sm">
+              Read Career Insights
+            </Link>
+          </div>
+        </section>
       </main>
 
       <Footer />

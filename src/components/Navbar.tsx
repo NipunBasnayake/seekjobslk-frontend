@@ -14,6 +14,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
+  { label: "Career Insights", href: "/blog" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "Privacy Policy", href: "/privacy-policy" },

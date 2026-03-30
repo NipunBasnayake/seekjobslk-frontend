@@ -379,5 +379,648 @@
         "text": "Pair these skills with role-specific applications on SeekJobsLk to increase the quality of interview invitations."
       }
     ]
+  },
+  {
+    "id": "art-006",
+    "slug": "why-react-and-nextjs-are-dominating-sri-lanka-tech-scene",
+    "title": "Why React and Next.js Are Dominating Sri Lanka's Tech Scene",
+    "excerpt": "Frontend development is evolving rapidly. Discover why top companies in Sri Lanka are standardizing on React and Next.js for high-performance web applications.",
+    "category": "Technology Trends",
+    "tags": ["react", "nextjs", "web-development", "sri-lanka"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-22",
+    "updatedAt": "2026-03-24",
+    "readingTime": "6 min read",
+    "featured": true,
+    "coverImage": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Why React and Next.js Are Dominating Sri Lanka | SeekJobsLk",
+      "metaDescription": "Learn why mastering React and Next.js is one of the best career moves for web developers in Sri Lanka's 2026 job market."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The demand for fast, SEO-friendly web applications has pushed Sri Lankan software companies to rethink their tech stacks. React, paired with the Next.js framework, has emerged as the clear favorite."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Why employers are looking for Next.js skills"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Server-Side Rendering (SSR) for improved SEO and initial load times",
+          "Seamless API route integration within the same project",
+          "Built-in image optimization and routing capabilities",
+          "Large talent pool familiar with the underlying React ecosystem"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "For associate and mid-level software engineers, demonstrating proficiency in Next.js features like static site generation (SSG) and server components can significantly elevate a resume."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How to upskill efficiently"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Master modern React fundamentals (Hooks, Context API) first.",
+          "Build a portfolio project using Next.js App Router.",
+          "Implement data fetching and caching strategies.",
+          "Deploy the project on platforms like Vercel to understand the deployment pipeline."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "We no longer just look for React developers; we look for engineers who understand web performance, and Next.js is the perfect tool to measure that.",
+        "cite": "Tech Lead at a Colombo-based Software Agency"
+      },
+      {
+        "type": "paragraph",
+        "text": "Check the latest frontend roles on SeekJobsLk to see how often these technologies are listed as strict requirements."
+      }
+    ]
+  },
+  {
+    "id": "art-007",
+    "slug": "building-scalable-backends-nodejs-nestjs-graphql",
+    "title": "Building Scalable Backends: Node.js, NestJS, and GraphQL",
+    "excerpt": "Modern frontend applications require robust and flexible backends. Here is a look at the technologies powering the backend of 2026's top web platforms.",
+    "category": "Web Development",
+    "tags": ["nodejs", "nestjs", "graphql", "backend"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-25",
+    "updatedAt": "2026-03-28",
+    "readingTime": "8 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Backend Development with Node.js, NestJS, and GraphQL | SeekJobsLk",
+      "metaDescription": "Explore the shift toward structured backend development using Node.js, the NestJS framework, and GraphQL APIs in modern software architecture."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "While Express.js remains popular, enterprise teams are increasingly moving toward more structured architectures. NestJS, built on top of Node.js, provides the scalable framework many engineering teams have been searching for."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "The rise of NestJS"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Out-of-the-box TypeScript support ensures type safety",
+          "Angular-like architecture promotes dependency injection and modularity",
+          "Excellent integration with microservices and WebSockets",
+          "Built-in testing utilities make test-driven development easier"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Why GraphQL is replacing REST in new projects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Client applications today consume data across web, mobile, and even IoT devices. GraphQL allows clients to request exactly the data they need, eliminating over-fetching and under-fetching."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Start by understanding the difference between GraphQL Queries and Mutations.",
+          "Learn how to set up a GraphQL endpoint within a NestJS application.",
+          "Implement resolvers and schema definitions.",
+          "Explore Apollo Client for frontend integration."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Transitioning our backend to NestJS and GraphQL reduced our API payload sizes by 40% and drastically improved developer velocity.",
+        "cite": "Senior Backend Architect"
+      },
+      {
+        "type": "paragraph",
+        "text": "For developers looking to stand out in backend interviews, discussing the architectural benefits of NestJS over standard Express setups is a major plus."
+      }
+    ]
+  },
+  {
+    "id": "art-008",
+    "slug": "how-to-transition-into-ui-ux-design",
+    "title": "How to Transition into UI/UX Design in 2026",
+    "excerpt": "Moving from a coding or general IT background into UI/UX design requires a portfolio shift. Here is how to land your first UI/UX internship or junior role.",
+    "category": "Career Growth",
+    "tags": ["ui-ux", "design", "career-transition", "internships"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-27",
+    "updatedAt": "2026-03-29",
+    "readingTime": "5 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Transitioning to UI/UX Design in Sri Lanka | SeekJobsLk",
+      "metaDescription": "A step-by-step guide for software engineers and graduates aiming to transition into UI/UX design internships and entry-level roles."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Many professionals with a background in web development discover a passion for user experience. Transitioning into UI/UX is highly rewarding, but it requires a mindset shift from 'how to build it' to 'why are we building it'."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Steps to build a UI/UX portfolio"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Master industry-standard tools like Figma.",
+          "Conduct a case study redesigning a popular local app.",
+          "Document your design thinking process: Research, Wireframing, Prototyping, and Testing.",
+          "Showcase interactive prototypes, not just static screens."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Landing an internship"
+      },
+      {
+        "type": "paragraph",
+        "text": "Internships are the most reliable entry point into the design industry. When applying, your portfolio link is more important than your CV."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Include 2-3 deep case studies rather than 10 shallow visual designs.",
+          "Highlight any previous frontend experience as a massive advantage.",
+          "Prepare to explain your design decisions in interviews."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "A designer who understands how their designs will be implemented in code is incredibly valuable to any cross-functional team.",
+        "cite": "Product Design Manager"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the filters on SeekJobsLk to find UI/UX internships that value technical backgrounds and problem-solving skills."
+      }
+    ]
+  },
+  {
+    "id": "art-009",
+    "slug": "standing-out-with-3d-web-experiences-using-threejs",
+    "title": "Standing Out as a Frontend Developer with Three.js",
+    "excerpt": "As the web becomes more immersive, 3D programming skills are in high demand. Learn how adding Three.js to your toolkit can differentiate your profile.",
+    "category": "Advanced Skills",
+    "tags": ["threejs", "frontend", "3d-web", "career-growth"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-29",
+    "updatedAt": "2026-03-30",
+    "readingTime": "7 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Standing Out with Three.js Web Development | SeekJobsLk",
+      "metaDescription": "Discover how mastering Three.js and 3D web programming can help frontend developers stand out in the competitive Sri Lankan job market."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Standard web development is highly competitive. To stand out, developers are leaning into niche skills that offer high visual impact. Three.js, a cross-browser JavaScript library/API used to create and display animated 3D computer graphics, is leading this charge."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Industries hiring for 3D web skills"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Real estate and architectural visualization",
+          "E-commerce product configurators",
+          "Interactive digital marketing agencies",
+          "EdTech and gamified learning platforms"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "While not every company needs a dedicated Three.js programmer, having it on your resume signals a deep understanding of JavaScript, mathematics, and browser performance."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How to get started"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Understand the basics of a 3D scene: Cameras, Meshes, Lights, and Renderers.",
+          "Learn React Three Fiber (R3F) to seamlessly integrate 3D into React applications.",
+          "Optimize 3D models (GLTF/GLB) to ensure fast load times on the web."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Candidates who submit portfolios with interactive 3D elements immediately capture the hiring manager's attention. It shows passion beyond the standard curriculum.",
+        "cite": "Creative Technologist"
+      },
+      {
+        "type": "paragraph",
+        "text": "Even if you are applying for a standard React role on SeekJobsLk, including a small Three.js experiment in your portfolio can be the deciding factor for an interview."
+      }
+    ]
+  },
+  {
+    "id": "art-010",
+    "slug": "bridging-the-gap-web-and-mobile-app-development",
+    "title": "Bridging the Gap: Web and Mobile App Development",
+    "excerpt": "Companies want developers who can build for both web and mobile. Explore how skills in React and modern tooling translate perfectly to mobile ecosystems.",
+    "category": "Mobile Development",
+    "tags": ["mobile-app", "web-app", "cross-platform", "software-engineering"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-31",
+    "updatedAt": "2026-03-31",
+    "readingTime": "6 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Bridging Web and Mobile App Development | SeekJobsLk",
+      "metaDescription": "Learn how developers in Sri Lanka are using cross-platform frameworks to transition seamlessly between web and mobile app development."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The line between web and mobile app development continues to blur. Startups and established tech firms alike are searching for engineers who can comfortably navigate both environments to deliver cohesive digital products."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Why cross-platform knowledge matters"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Reduces time-to-market for new features",
+          "Allows teams to share business logic across web and mobile",
+          "Increases developer flexibility within a company",
+          "Lowers maintenance costs for multiple codebases"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Transferable skills from Web to Mobile"
+      },
+      {
+        "type": "paragraph",
+        "text": "If you already know JavaScript and React for the web, learning React Native is the most logical next step. The core principles of state management, component lifecycles, and API integration remain largely identical."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Focus on understanding mobile-specific UI patterns (navigation stacks, tabs).",
+          "Learn how to handle native device features like cameras and push notifications.",
+          "Familiarize yourself with app store deployment processes (Google Play Console and Apple App Store)."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "A full-stack developer today isn't just frontend and backend; it's increasingly web and mobile.",
+        "cite": "Engineering Director at a SaaS Startup"
+      },
+      {
+        "type": "paragraph",
+        "text": "Keep an eye on SeekJobsLk for roles titled 'Mobile/Web Engineer' or 'Cross-Platform Developer', as these are growing rapidly in the local market."
+      }
+    ]
+  },
+  {
+    "id": "art-011",
+    "slug": "how-to-ace-your-associate-software-engineer-interview",
+    "title": "How to Ace Your Associate Software Engineer Interview",
+    "excerpt": "Landing an Associate Software Engineer role requires more than just knowing syntax. Learn how to showcase problem-solving, project architecture, and teamwork to recruiters.",
+    "category": "Interview Preparation",
+    "tags": ["software-engineering", "associate-level", "interview-tips", "sri-lanka"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-28",
+    "updatedAt": "2026-03-30",
+    "readingTime": "7 min read",
+    "featured": true,
+    "coverImage": "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Acing the Associate Software Engineer Interview | SeekJobsLk",
+      "metaDescription": "A comprehensive guide to preparing for Associate Software Engineer technical and HR interviews in the Sri Lankan IT sector."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Stepping up to an Associate Software Engineer role is a major milestone. Interviewers at this level expect you to have moved beyond the basics of your university curriculum and demonstrate a practical, delivery-focused mindset."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What interviewers really look for"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Understanding of web application architecture, not just isolated code snippets",
+          "Familiarity with clean code principles and basic design patterns",
+          "Experience with version control (Git) in a collaborative setting",
+          "The ability to explain the 'why' behind technical decisions"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Technical tasks at the associate level often involve taking a small business requirement and translating it into a working feature, complete with basic error handling and validation."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "A winning preparation strategy"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Revisit your strongest portfolio project and map out its architecture on paper.",
+          "Prepare to discuss one major bug you faced and exactly how you debugged it.",
+          "Brush up on core database concepts, including query optimization and indexing.",
+          "Practice mock interviews focusing on both technical and behavioral (STAR method) questions."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "At the associate level, we don't expect you to know everything. We expect you to know how to find the answer and communicate your thought process clearly.",
+        "cite": "Engineering Manager at a top Colombo tech firm"
+      },
+      {
+        "type": "paragraph",
+        "text": "When browsing Associate Software Engineer roles on SeekJobsLk, carefully read the required tech stack and tailor your introductory summary to highlight those exact technologies."
+      }
+    ]
+  },
+  {
+    "id": "art-012",
+    "slug": "cloud-networking-skills-in-demand-2026",
+    "title": "Why Cloud Networking is the Next Big Skill for Infrastructure Engineers",
+    "excerpt": "As companies move to multi-cloud setups, traditional networking skills aren't enough. Discover why modern cloud networking platforms are highly sought after by employers.",
+    "category": "Technology Trends",
+    "tags": ["cloud-computing", "networking", "devops", "infrastructure"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-25",
+    "updatedAt": "2026-03-29",
+    "readingTime": "6 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "In-Demand Cloud Networking Skills for 2026 | SeekJobsLk",
+      "metaDescription": "Explore the growing demand for cloud networking expertise, including multi-cloud routing, security, and platforms like Aviatrix in Sri Lanka."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The shift from on-premise servers to the cloud is old news. In 2026, the real challenge for enterprises is managing complex, multi-cloud environments seamlessly. This has created a surge in demand for specialized cloud networking engineers."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "The shift to multi-cloud architectures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Companies are no longer relying solely on AWS or Azure. They are mixing services to optimize costs and performance. This requires infrastructure engineers who understand how to connect these disparate environments securely."
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Understanding of advanced routing across different cloud service providers",
+          "Familiarity with cloud-native security and firewall integration",
+          "Knowledge of advanced cloud networking platforms like the Aviatrix Cloud Networking Platform",
+          "Infrastructure as Code (IaC) skills using Terraform"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How to upskill in this niche"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Master the networking fundamentals of at least one major cloud provider (AWS VPCs, Azure VNets).",
+          "Study the principles of multi-cloud transit architectures.",
+          "Get hands-on with tools that abstract and manage multi-cloud networking.",
+          "Earn specialized certifications that focus on cloud security and routing."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Engineers who can architect a secure, scalable network that spans AWS, Azure, and Google Cloud are incredibly rare and highly valued right now.",
+        "cite": "Lead Cloud Architect"
+      },
+      {
+        "type": "paragraph",
+        "text": "Search for 'Cloud Network Engineer' or 'DevOps' on SeekJobsLk to find roles that require these advanced infrastructure skills."
+      }
+    ]
+  },
+  {
+    "id": "art-013",
+    "slug": "strategic-thinking-soft-skills-for-developers",
+    "title": "Beyond Code: Why Strategic Thinking Matters in Tech Roles",
+    "excerpt": "Writing code is only half the job. Employers are increasingly looking for developers who can think several steps ahead, anticipate edge cases, and plan their architecture strategically.",
+    "category": "Career Growth",
+    "tags": ["soft-skills", "problem-solving", "career-development", "mindset"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-20",
+    "updatedAt": "2026-03-26",
+    "readingTime": "5 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Strategic Thinking and Problem Solving for Developers | SeekJobsLk",
+      "metaDescription": "Learn how treating software development like a strategic game can improve your coding architecture, debugging skills, and career trajectory."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "In many ways, building robust software is similar to playing a complex strategy game like chess. You cannot simply react to the immediate requirement; you must anticipate how your current decisions will impact the system down the line."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How strategic thinking applies to software engineering"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Anticipating edge cases and user behaviors before they cause bugs",
+          "Designing database schemas that can scale without requiring a massive rewrite later",
+          "Choosing third-party libraries based on long-term maintenance, not just immediate convenience",
+          "Refactoring code continuously to prevent technical debt from compounding"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Showcasing this skill to employers"
+      },
+      {
+        "type": "paragraph",
+        "text": "During interviews, technical panels will often present you with a hypothetical system design question. They aren't just looking for the right database choice; they are testing your foresight."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "When explaining a past project, explicitly state the future risks you mitigated.",
+          "Discuss the trade-offs of your technical choices (e.g., 'I chose X over Y because while Y is faster to build, X will handle our projected Q3 load better').",
+          "Highlight any hobbies or activities on your CV that demonstrate high-level strategic planning and analytical thinking."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "The developers who get promoted to technical leads are the ones who treat architecture as a series of calculated moves, always planning for the long game.",
+        "cite": "VP of Engineering"
+      },
+      {
+        "type": "paragraph",
+        "text": "When updating your SeekJobsLk profile, ensure your summary reflects your ability to solve business problems strategically, rather than just listing programming languages."
+      }
+    ]
+  },
+  {
+    "id": "art-014",
+    "slug": "salary-negotiation-guide-sri-lanka-it-sector",
+    "title": "Salary Negotiation Guide for the Sri Lankan IT Sector",
+    "excerpt": "Discussing compensation can be intimidating. Learn how to research market rates, highlight your value, and negotiate effectively in Sri Lanka's current economic climate.",
+    "category": "Career Growth",
+    "tags": ["salary", "negotiation", "job-offer", "career-advice"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-18",
+    "updatedAt": "2026-03-22",
+    "readingTime": "8 min read",
+    "featured": true,
+    "coverImage": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Salary Negotiation Guide for IT Professionals in Sri Lanka | SeekJobsLk",
+      "metaDescription": "A practical guide to handling salary discussions, understanding pegging benefits, and negotiating the best IT job offers in Sri Lanka."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The tech industry in Sri Lanka remains one of the most lucrative sectors, but compensation structures have become more complex. Understanding how to navigate these conversations ensures you are fairly compensated for your skills."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Understanding current compensation models"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "LKR Base with USD Pegging: Many export-oriented IT firms peg salaries to foreign currencies to protect against inflation.",
+          "Hybrid Allowances: Allowances for internet, home office setups, and transport.",
+          "Performance Bonuses: Quarterly or annual bonuses tied to project delivery or company revenue."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Steps to a successful negotiation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Never enter a salary negotiation without data. Your desired number should be based on market research, your specific tech stack, and your years of commercial experience."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Delay the number: Try to understand the full scope of the role before stating your expected salary.",
+          "Provide a range: Give a tight, well-researched range rather than a single fixed number.",
+          "Negotiate the whole package: If the base salary budget is rigid, negotiate for better health insurance, learning allowances, or flexible working hours.",
+          "Get it in writing: Ensure all agreed-upon allowances and pegging conditions are clearly stated in the official offer letter."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Candidates who confidently explain how their skills will directly save the company time or generate revenue find it much easier to negotiate at the top of our budget bands.",
+        "cite": "Senior HR Business Partner"
+      },
+      {
+        "type": "paragraph",
+        "text": "Many listings on SeekJobsLk now include salary brackets. Use these as a baseline to benchmark your current market value before your next interview."
+      }
+    ]
+  },
+  {
+    "id": "art-015",
+    "slug": "remote-vs-hybrid-work-trends-sri-lanka-2026",
+    "title": "Remote, Hybrid, or On-Site: What to Expect in 2026",
+    "excerpt": "The workplace has evolved. Explore the current trends in remote and hybrid work across Sri Lanka's tech industry and how to find the right fit for your lifestyle.",
+    "category": "Sri Lanka IT Market",
+    "tags": ["remote-work", "hybrid", "company-culture", "work-life-balance"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-12",
+    "updatedAt": "2026-03-15",
+    "readingTime": "6 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Remote and Hybrid Work Trends in Sri Lanka 2026 | SeekJobsLk",
+      "metaDescription": "Analyze the shift towards hybrid work models in Sri Lanka's IT sector and learn what to look for in modern company cultures."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "After years of shifting policies, the Sri Lankan IT sector has largely settled into a new normal. While some companies have mandated a return to the office, the majority of top-tier tech firms have adopted permanent hybrid models."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "The dominant work models today"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "The 2/3 Hybrid: Two days in the office for collaborative work, three days remote for deep focus.",
+          "Remote-First with Hubs: Companies hiring talent island-wide, bringing teams to Colombo or Kandy only for quarterly planning.",
+          "Strictly On-Site: Usually reserved for hardware-dependent roles or specific high-security financial tech sectors."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What this means for job seekers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Your geographical location is less of a barrier than it was five years ago. However, remote work requires a higher degree of discipline and proactive communication."
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "During interviews, ask how the company handles asynchronous communication.",
+          "Ensure your home workspace is professional and equipped with reliable power and internet backups.",
+          "Over-communicate your progress to managers to build trust when working out of the office."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "We evaluate a candidate's written communication heavily now. In a hybrid team, a well-written Slack message or pull request description is just as important as the code itself.",
+        "cite": "Director of Engineering"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the 'Remote' and 'Hybrid' tags on SeekJobsLk to filter listings that align with your preferred working style."
+      }
+    ]
   }
 ]

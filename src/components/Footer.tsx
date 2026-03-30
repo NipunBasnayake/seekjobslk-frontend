@@ -46,6 +46,11 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/blog" className="ui-link-subtle">
+                    Career Insights
+                  </Link>
+                </li>
+                <li>
                   <Link href="/privacy-policy" className="ui-link-subtle">
                     Privacy Policy
                   </Link>
@@ -64,24 +69,29 @@ export function Footer() {
               </h4>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#jobs" className="ui-link-subtle">
+                  <Link href="/#jobs" className="ui-link-subtle">
                     Browse Jobs
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#jobs" className="ui-link-subtle">
+                  <Link href="/#jobs" className="ui-link-subtle">
                     Latest Jobs
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#jobs" className="ui-link-subtle">
+                  <Link href="/#jobs" className="ui-link-subtle">
                     Remote Jobs
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#jobs" className="ui-link-subtle">
+                  <Link href="/#jobs" className="ui-link-subtle">
                     Featured Jobs
-                  </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="ui-link-subtle">
+                    Career Guides
+                  </Link>
                 </li>
               </ul>
             </div>

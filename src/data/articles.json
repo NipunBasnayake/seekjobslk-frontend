@@ -1,0 +1,383 @@
+[
+  {
+    "id": "art-001",
+    "slug": "top-it-jobs-in-sri-lanka-2026",
+    "title": "Top IT Jobs in Sri Lanka in 2026",
+    "excerpt": "Hiring is active across software engineering, data, cloud, and product support roles. This guide shows where demand is strongest and how to position your profile.",
+    "category": "Sri Lanka IT Market",
+    "tags": ["it-jobs", "sri-lanka", "career-growth", "software"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-15",
+    "updatedAt": "2026-03-20",
+    "readingTime": "7 min read",
+    "featured": true,
+    "coverImage": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Top IT Jobs in Sri Lanka in 2026 | SeekJobsLk Career Insights",
+      "metaDescription": "Explore the most in-demand IT jobs in Sri Lanka in 2026 and learn which skills, tools, and hiring trends matter most for applicants."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Sri Lanka's IT hiring market remains competitive in 2026, especially for candidates who can show practical project experience and strong communication skills."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Roles with the strongest demand"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Software Engineer (frontend, backend, and full stack)",
+          "Quality Assurance Engineer (manual + automation)",
+          "DevOps and Cloud Engineer",
+          "Data Analyst and BI Associate",
+          "Technical Support Engineer for SaaS products"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Many employers now combine technical tests with scenario-based interviews. They want people who can solve business problems, not just write code."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Skills that increase shortlist chances"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "TypeScript and React for modern web development",
+          "Node.js or Java for backend services",
+          "SQL fundamentals and data modeling",
+          "Git workflow discipline and pull request hygiene",
+          "Clear written updates for remote and hybrid teams"
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Candidates who show consistent learning and shipping mindset stand out faster than candidates who only list tools.",
+        "cite": "Hiring managers across Colombo and Kandy"
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How to act on this trend"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Shortlist 2 to 3 target roles and tailor your CV for each.",
+          "Build one portfolio project that matches a real business workflow.",
+          "Track applications weekly and update your profile based on interview feedback."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "If you are actively applying, review current openings on SeekJobsLk and align your profile summary with the exact role names employers are publishing."
+      }
+    ]
+  },
+  {
+    "id": "art-002",
+    "slug": "how-to-prepare-for-a-software-engineering-interview",
+    "title": "How to Prepare for a Software Engineering Interview",
+    "excerpt": "A focused preparation plan helps you avoid random studying. Use this structure to improve coding, system thinking, and communication before interviews.",
+    "category": "Interview Preparation",
+    "tags": ["interview", "software-engineering", "job-seekers", "career"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-10",
+    "updatedAt": "2026-03-18",
+    "readingTime": "8 min read",
+    "featured": true,
+    "coverImage": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "How to Prepare for a Software Engineering Interview | SeekJobsLk",
+      "metaDescription": "Learn a practical interview preparation framework for software engineering roles, from coding practice to behavioral storytelling."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Interview preparation works best when you separate coding practice, project explanation, and communication drills into clear weekly blocks."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Four interview areas to prepare"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Core coding and debugging",
+          "Data structures and problem breakdown",
+          "Project architecture and tradeoff decisions",
+          "Behavioral examples using real team situations"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "For junior roles, interviewers usually care more about clean reasoning and learning attitude than highly advanced algorithms."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "A simple 14-day preparation cycle"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Days 1-4: Review language fundamentals and solve easy-medium coding tasks.",
+          "Days 5-8: Revisit your own projects and prepare architecture explanations.",
+          "Days 9-11: Practice behavioral answers with STAR format.",
+          "Days 12-14: Mock interviews, feedback review, and final profile updates."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "The best candidates explain why they made decisions, not only what they built.",
+        "cite": "Engineering interview panel insight"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Common mistakes"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Memorizing answers without understanding",
+          "Ignoring communication and focusing only on coding",
+          "Failing to ask clarifying questions"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Before each interview, read the job description again and map your examples to their required responsibilities and tools."
+      }
+    ]
+  },
+  {
+    "id": "art-003",
+    "slug": "best-cv-format-for-sri-lankan-graduates",
+    "title": "Best CV Format for Sri Lankan Graduates",
+    "excerpt": "Your CV should be short, clear, and role-specific. This format helps fresh graduates show strengths even with limited work experience.",
+    "category": "CV and Applications",
+    "tags": ["cv", "graduates", "sri-lanka", "applications"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-03-02",
+    "updatedAt": "2026-03-14",
+    "readingTime": "6 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Best CV Format for Sri Lankan Graduates | SeekJobsLk Guide",
+      "metaDescription": "Use this graduate CV structure to highlight projects, internships, and measurable skills for Sri Lankan job applications."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Many graduate CVs fail because they list duties instead of outcomes. Recruiters scan quickly, so your structure should surface value in under 30 seconds."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Recommended CV order"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Name, phone, professional email, LinkedIn URL",
+          "2 to 3 line summary aligned to the target role",
+          "Education with key modules or final-year focus",
+          "Projects and internships with measurable outcomes",
+          "Technical and soft skills relevant to the job ad"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What employers like to see"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Clear role intention such as Junior QA Engineer or Associate Developer",
+          "Evidence of teamwork and ownership",
+          "Simple formatting with enough whitespace",
+          "No spelling or grammar errors"
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "A one-page CV is often enough for entry-level roles if each bullet proves impact.",
+        "cite": "Recruitment operations guidance"
+      },
+      {
+        "type": "paragraph",
+        "text": "When applying through SeekJobsLk, tailor your summary line and top project bullets to match the wording used in the specific vacancy."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Quick quality check before sending"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "File name uses your full name and role",
+          "CV length is one page or two pages maximum",
+          "All links are clickable and tested"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "art-004",
+    "slug": "how-to-write-a-strong-linkedin-profile",
+    "title": "How to Write a Strong LinkedIn Profile",
+    "excerpt": "A complete LinkedIn profile improves discoverability and trust. Use this framework to convert profile views into interview calls.",
+    "category": "Personal Branding",
+    "tags": ["linkedin", "personal-brand", "networking", "job-search"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-02-24",
+    "updatedAt": "2026-03-12",
+    "readingTime": "7 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "How to Write a Strong LinkedIn Profile | SeekJobsLk",
+      "metaDescription": "Improve your LinkedIn profile with better headlines, summaries, and proof of work to attract recruiters in Sri Lanka."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "LinkedIn is often the first profile recruiters check after they review your CV. A weak profile can reduce trust even when your skills are strong."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Build the profile section by section"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Use a clear headline with role + domain keywords.",
+          "Write an About summary focused on strengths and outcomes.",
+          "Add projects, certifications, and portfolio links.",
+          "Request recommendations from supervisors or mentors."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Headline examples"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Junior Software Engineer | React, TypeScript, Node.js",
+          "Associate Data Analyst | SQL, Power BI, Excel Automation",
+          "QA Engineer | Manual Testing, Cypress, API Validation"
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Strong profiles combine clarity, proof, and consistency across CV, LinkedIn, and portfolio.",
+        "cite": "Career advisory team"
+      },
+      {
+        "type": "paragraph",
+        "text": "Update your profile every month with project outcomes or learning milestones. Small updates keep your profile active in recruiter searches."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Profile mistakes to avoid"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Using generic headlines like Student or Job Seeker",
+          "No About summary",
+          "Missing projects and achievements",
+          "Inconsistent job dates across platforms"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "art-005",
+    "slug": "skills-employers-look-for-in-entry-level-tech-candidates",
+    "title": "Skills Employers Look for in Entry-Level Tech Candidates",
+    "excerpt": "Technical basics matter, but employers also evaluate reliability, communication, and adaptability. Here is what gets graduates shortlisted faster.",
+    "category": "Entry-Level Career Skills",
+    "tags": ["entry-level", "tech-skills", "employability", "graduates"],
+    "author": "SeekJobsLk Editorial Team",
+    "publishedAt": "2026-02-18",
+    "updatedAt": "2026-03-08",
+    "readingTime": "6 min read",
+    "featured": false,
+    "coverImage": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
+    "seo": {
+      "metaTitle": "Top Skills Employers Want in Entry-Level Tech Candidates",
+      "metaDescription": "Learn which technical and professional skills Sri Lankan employers value most when hiring entry-level tech talent."
+    },
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Entry-level hiring decisions are often made on potential, consistency, and communication. Employers want teammates who can learn quickly and contribute responsibly."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Technical skills that create momentum"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Solid basics in one programming language",
+          "Version control using Git and pull requests",
+          "API testing and debugging fundamentals",
+          "Database querying and data handling"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Professional skills that influence hiring"
+      },
+      {
+        "type": "unordered-list",
+        "items": [
+          "Clear status communication",
+          "Time management and deadline reliability",
+          "Comfort with feedback and iteration",
+          "Ability to ask good clarifying questions"
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Teams hire for attitude and coachability when technical fundamentals are already acceptable.",
+        "cite": "Technology recruitment trend"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "How to show these skills in applications"
+      },
+      {
+        "type": "ordered-list",
+        "items": [
+          "Add concise outcome-based bullets to your CV.",
+          "Mention team collaboration examples in interviews.",
+          "Share at least one public project with clean documentation."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Pair these skills with role-specific applications on SeekJobsLk to increase the quality of interview invitations."
+      }
+    ]
+  }
+]

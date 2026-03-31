@@ -10,6 +10,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { cn } from "@/lib/cn";
+import { isBrowser, safeFocus } from "@/lib/safeBrowser";
 
 export interface SelectOption {
   label: string;
@@ -54,7 +55,7 @@ export function SelectField({
   );
 
   useEffect(() => {
-    if (!open) {
+    if (!open || !isBrowser()) {
       return;
     }
 
@@ -67,7 +68,7 @@ export function SelectField({
     const handleWindowKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
-        triggerRef.current?.focus();
+        safeFocus(triggerRef.current);
       }
     };
 
@@ -87,9 +88,11 @@ export function SelectField({
 
     setActiveIndex(Math.min(Math.max(startIndex, 0), options.length - 1));
     setOpen(true);
-    window.requestAnimationFrame(() => {
-      listRef.current?.focus();
-    });
+    if (isBrowser()) {
+      window.requestAnimationFrame(() => {
+        safeFocus(listRef.current);
+      });
+    }
   };
 
   const moveActiveIndex = (direction: -1 | 1) => {
@@ -115,7 +118,7 @@ export function SelectField({
   const commitSelection = (nextValue: string) => {
     onChange(nextValue);
     setOpen(false);
-    triggerRef.current?.focus();
+    safeFocus(triggerRef.current);
   };
 
   const handleTriggerKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {

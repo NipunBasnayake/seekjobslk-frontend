@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { isBrowser, safeFocus } from "@/lib/safeBrowser";
 
 interface ModalProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function Modal({
 
   // Store the previously focused element and restore on close
   useEffect(() => {
+    if (!isBrowser()) return;
     if (open) {
       previousActiveElement.current = document.activeElement;
 
@@ -47,21 +49,22 @@ export function Modal({
       if (dialogue) {
         const firstFocusable = dialogue.querySelector<HTMLElement>(FOCUSABLE_SELECTORS);
         if (firstFocusable) {
-          firstFocusable.focus();
+          safeFocus(firstFocusable);
         } else {
-          dialogue.focus();
+          safeFocus(dialogue);
         }
       }
     } else {
       // Restore focus when modal closes
       if (previousActiveElement.current instanceof HTMLElement) {
-        previousActiveElement.current.focus();
+        safeFocus(previousActiveElement.current);
       }
     }
   }, [open]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
+    if (!isBrowser()) return;
     if (open) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
@@ -95,13 +98,13 @@ export function Modal({
           // Shift + Tab: if on first element, go to last
           if (document.activeElement === firstElement) {
             event.preventDefault();
-            lastElement.focus();
+            safeFocus(lastElement);
           }
         } else {
           // Tab: if on last element, go to first
           if (document.activeElement === lastElement) {
             event.preventDefault();
-            firstElement.focus();
+            safeFocus(firstElement);
           }
         }
       }

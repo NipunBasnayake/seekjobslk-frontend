@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isBrowser } from "@/lib/safeBrowser";
 
 interface UseApplyCountdownOptions {
   initialSeconds?: number;
@@ -36,7 +37,9 @@ export function useApplyCountdown(
   const formattedTime = `${secondsLeft}s`;
 
   // Countdown effect
+
   useEffect(() => {
+    if (!isBrowser()) return;
     if (secondsLeft <= 0) {
       onComplete?.();
       return;

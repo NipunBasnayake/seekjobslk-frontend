@@ -235,8 +235,10 @@ export function HomePageClient({
                 }
 
                 navigateToPage(page);
-                const jobsSection = document.getElementById("jobs");
-                jobsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (typeof document !== "undefined") {
+                  const jobsSection = document.getElementById("jobs");
+                  jobsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
               }}
             />
           </div>

@@ -7,6 +7,7 @@ import { ContactModal } from "./ContactModal";
 import type { ApplyTarget } from "@/lib/applyTarget";
 import { useApplyCountdown } from "@/hooks/useApplyCountdown";
 import { cn } from "@/lib/cn";
+import { safeWindowOpen } from "@/lib/safeBrowser";
 
 interface ApplyButtonProps {
   jobId: string;
@@ -59,7 +60,7 @@ export function ApplyButton({
       try {
         const url = new URL(applyTarget.url);
         if (url.protocol === "http:" || url.protocol === "https:") {
-          window.open(applyTarget.url, "_blank", "noopener,noreferrer");
+          safeWindowOpen(applyTarget.url, "_blank", "noopener,noreferrer");
           didProceed = true;
         }
       } catch {
